@@ -26,11 +26,11 @@ export const TeamList: React.FC<TeamListProps> = ({
   const getRoleIcon = (role: AdminUser['role']) => {
     switch (role) {
       case 'SUPER_ADMIN':
-        return <Crown className="w-4 h-4 text-amber-400" />;
+        return <Crown className="w-4 h-4 text-amber-600" />;
       case 'CAD_PLANNER':
-        return <Layers className="w-4 h-4 text-cyber-cyan" />;
+        return <Layers className="w-4 h-4 text-cyan-600" />;
       case 'OPERATOR':
-        return <Wrench className="w-4 h-4 text-purple-400" />;
+        return <Wrench className="w-4 h-4 text-purple-600" />;
     }
   };
 
@@ -38,19 +38,19 @@ export const TeamList: React.FC<TeamListProps> = ({
     switch (role) {
       case 'SUPER_ADMIN':
         return (
-          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+          <span className="px-2 py-0.5 rounded text-[10px] font-sans font-semibold bg-amber-50 text-amber-800 border border-amber-200">
             ADMIN GERAL
           </span>
         );
       case 'CAD_PLANNER':
         return (
-          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/30">
+          <span className="px-2 py-0.5 rounded text-[10px] font-sans font-semibold bg-cyan-50 text-cyan-800 border border-cyan-200">
             PROJETISTA CAD 3D
           </span>
         );
       case 'OPERATOR':
         return (
-          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+          <span className="px-2 py-0.5 rounded text-[10px] font-sans font-semibold bg-purple-50 text-purple-800 border border-purple-200">
             TÉCNICO OPERACIONAL
           </span>
         );
@@ -61,18 +61,18 @@ export const TeamList: React.FC<TeamListProps> = ({
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <h3 className="text-sm font-bold text-white tracking-wide flex items-center space-x-2">
-            <ShieldCheck className="w-4 h-4 text-cyber-cyan" />
+          <h3 className="text-sm font-bold text-slate-900 tracking-tight flex items-center space-x-2 font-sans">
+            <ShieldCheck className="w-4 h-4 text-cyan-600" />
             <span>Equipe de Gestão e Planejadores Cadastrados</span>
           </h3>
-          <p className="text-xs text-slate-400 font-mono">
+          <p className="text-xs text-slate-500 font-sans">
             Usuários com permissão para gerenciar casos, subir arquivos STL e operar a plataforma
           </p>
         </div>
 
         <button
           onClick={onOpenNewAdminModal}
-          className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyber-cyan to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-black font-semibold text-xs transition-all shadow-glow-cyan flex items-center space-x-1.5"
+          className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-semibold text-xs transition-all shadow-sm flex items-center space-x-1.5 font-sans"
         >
           <UserPlus className="w-4 h-4" />
           <span>Adicionar Novo Administrador</span>
@@ -86,23 +86,23 @@ export const TeamList: React.FC<TeamListProps> = ({
           return (
             <div
               key={admin.id}
-              className={`p-5 rounded-2xl glass-panel border transition-all flex flex-col justify-between ${
+              className={`p-5 rounded-2xl bg-white border transition-all flex flex-col justify-between shadow-xs ${
                 isDrRicardo 
-                  ? 'border-amber-500/40 bg-gradient-to-b from-amber-500/5 to-transparent' 
-                  : 'border-cyber-border hover:border-cyber-cyan/40'
+                  ? 'border-amber-200 bg-amber-50/20' 
+                  : 'border-slate-200/90 hover:border-cyan-400 hover:shadow-md'
               }`}
             >
               <div>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-2.5">
-                    <div className="p-2 rounded-xl bg-cyber-surface border border-cyber-border">
+                    <div className="p-2 rounded-xl bg-slate-50 border border-slate-200">
                       {getRoleIcon(admin.role)}
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-white">
+                      <h4 className="text-sm font-bold text-slate-900 font-sans">
                         {admin.name}
                       </h4>
-                      <span className="text-[11px] text-slate-400 block font-mono">
+                      <span className="text-[11px] text-slate-500 block font-sans">
                         {admin.roleTitle}
                       </span>
                     </div>
@@ -111,7 +111,7 @@ export const TeamList: React.FC<TeamListProps> = ({
                   {!isDrRicardo && (
                     <button
                       onClick={() => onRemoveAdmin(admin.id)}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
                       title="Remover acesso"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -119,21 +119,21 @@ export const TeamList: React.FC<TeamListProps> = ({
                   )}
                 </div>
 
-                <div className="mt-4 space-y-2 text-xs">
-                  <div className="flex items-center space-x-2 text-slate-400">
-                    <Mail className="w-3.5 h-3.5 text-cyber-cyan" />
+                <div className="mt-4 space-y-2 text-xs text-slate-600 font-sans">
+                  <div className="flex items-center space-x-2 text-slate-600">
+                    <Mail className="w-3.5 h-3.5 text-cyan-600" />
                     <span className="truncate">{admin.email}</span>
                   </div>
-                  <div className="flex items-center space-x-2 text-slate-400 font-mono text-[11px]">
-                    <Calendar className="w-3.5 h-3.5 text-cyber-cyan" />
+                  <div className="flex items-center space-x-2 text-slate-500 font-sans text-[11px]">
+                    <Calendar className="w-3.5 h-3.5 text-cyan-600" />
                     <span>Cadastrado em {new Date(admin.createdAt).toLocaleDateString('pt-BR')}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-5 pt-3 border-t border-cyber-border flex items-center justify-between">
+              <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between">
                 {getRoleBadge(admin.role)}
-                <span className="text-[11px] font-mono text-emerald-400 flex items-center space-x-1">
+                <span className="text-[11px] font-sans font-semibold text-emerald-700 flex items-center space-x-1">
                   <CheckCircle className="w-3 h-3" />
                   <span>Acesso Ativo</span>
                 </span>

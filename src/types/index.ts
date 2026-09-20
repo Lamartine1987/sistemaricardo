@@ -1,6 +1,7 @@
 export type CaseStatus = 
-  | 'ANALYSIS' // Em Análise
-  | 'PENDING_APPROVAL' // Planejamento Pronto (Aguardando Aprovação e Pagamento)
+  | 'ANALYSIS' // Em Análise Clínica / Triagem Inicial
+  | 'PLANNING' // Em Planejamento 3D (Aceito pelo Dr. Ricardo)
+  | 'PENDING_APPROVAL' // Planejamento Pronto & Enviado (Aguardando Aprovação e Pagamento)
   | 'APPROVED_PAID' // Aprovado e Pago (Arquivos Liberados)
   | 'IN_PRODUCTION' // Guia em Impressão 3D
   | 'COMPLETED'; // Concluído / Enviado
@@ -46,7 +47,7 @@ export interface ImplantSite {
 export interface CaseFile {
   id: string;
   name: string;
-  type: 'SCAN_PRE' | 'SCAN_OPP' | 'BITE' | 'TOMOGRAPHY' | 'GUIDE_STL' | 'REPORT_PDF';
+  type: 'SCAN_PRE' | 'SCAN_OPP' | 'BITE' | 'TOMOGRAPHY' | 'GUIDE_STL' | 'REPORT_PDF' | 'OTHER';
   size: string;
   uploadedAt: string;
   downloadUrl: string;
@@ -82,15 +83,4 @@ export interface DentalCase {
   clinicalPreviewVideoUrl?: string;
   files: CaseFile[];
   payment: PaymentDetails;
-  model3DUrl?: string;
-}
-
-export interface ViewerLayers {
-  showJaw: boolean;
-  showImplants: boolean;
-  showGuide: boolean;
-  showNerves: boolean;
-  jawTransparency: number; // 0 (solid) to 1 (invisible)
-  guideTransparency: number;
-  wireframe: boolean;
 }

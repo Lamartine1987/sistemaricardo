@@ -110,44 +110,40 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   const currentEmail = firebaseUser?.email || (userType === 'ADMIN' ? currentAdmin.email : currentDentist.email);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-lg rounded-2xl glass-panel-glow bg-cyber-card border border-cyber-border overflow-hidden shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-fade-in">
+      <div className="relative w-full max-w-lg rounded-2xl bg-white border border-slate-200/90 overflow-hidden shadow-2xl text-slate-800">
         
-        {/* Glow Superior */}
-        <div className="absolute -top-24 -left-24 w-48 h-48 bg-cyber-cyan/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
-
         {/* Header do Modal */}
-        <div className="relative px-6 py-5 border-b border-cyber-border/80 flex items-center justify-between">
+        <div className="relative px-6 py-5 border-b border-slate-200 bg-slate-50/80 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-xs ${
               userType === 'ADMIN' 
-                ? 'bg-gradient-to-tr from-amber-500 to-amber-600 text-black shadow-amber-500/20' 
-                : 'bg-gradient-to-tr from-cyber-cyan to-blue-600 text-black shadow-cyber-cyan/20'
+                ? 'bg-amber-50 border border-amber-200 text-amber-600' 
+                : 'bg-cyan-50 border border-cyan-200 text-cyan-600'
             }`}>
               <UserCog className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 font-sans">
                 <span>Meu Perfil</span>
                 {userType === 'ADMIN' ? (
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 font-medium">
+                  <span className="text-[10px] font-sans px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-semibold">
                     Admin
                   </span>
                 ) : (
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/30 font-medium">
+                  <span className="text-[10px] font-sans px-2 py-0.5 rounded bg-cyan-50 text-cyan-800 border border-cyan-200 font-semibold">
                     Dentista Parceiro
                   </span>
                 )}
               </h3>
-              <p className="text-xs text-slate-400 font-mono">
+              <p className="text-xs text-slate-500 font-sans">
                 Gerencie suas informações cadastrais e dados de contato
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-cyber-surface transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -155,15 +151,15 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
         {/* Mensagens de Feedback */}
         {successMessage && (
-          <div className="mx-6 mt-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center space-x-2 text-emerald-400 text-xs font-mono animate-fade-in">
-            <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+          <div className="mx-6 mt-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center space-x-2 text-emerald-700 text-xs font-sans animate-fade-in">
+            <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-emerald-600" />
             <span>{successMessage}</span>
           </div>
         )}
 
         {errorMessage && (
-          <div className="mx-6 mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center space-x-2 text-red-400 text-xs font-mono animate-fade-in">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <div className="mx-6 mt-4 p-3 rounded-xl bg-rose-50 border border-rose-200 flex items-center space-x-2 text-rose-700 text-xs font-sans animate-fade-in">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600" />
             <span>{errorMessage}</span>
           </div>
         )}
@@ -173,7 +169,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           
           {/* E-mail de Acesso (Read-only) */}
           <div className="space-y-1.5">
-            <label className="text-xs font-mono text-slate-400 flex items-center space-x-1.5">
+            <label className="text-xs font-semibold text-slate-700 flex items-center space-x-1.5 font-sans">
               <Mail className="w-3.5 h-3.5 text-slate-500" />
               <span>E-mail da Conta</span>
             </label>
@@ -183,9 +179,9 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                 value={currentEmail || ''}
                 readOnly
                 disabled
-                className="w-full bg-cyber-bg/70 border border-cyber-border/70 rounded-xl px-3.5 py-2.5 text-xs text-slate-400 font-mono cursor-not-allowed select-all"
+                className="w-full bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-600 font-sans cursor-not-allowed select-all"
               />
-              <span className="absolute right-3 top-2.5 text-[10px] font-mono text-slate-500 uppercase">
+              <span className="absolute right-3 top-2.5 text-[10px] font-sans font-semibold text-slate-400 uppercase">
                 Autenticado
               </span>
             </div>
@@ -199,8 +195,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             <>
               {/* Nome Completo */}
               <div className="space-y-1.5">
-                <label className="text-xs font-mono text-slate-300 flex items-center space-x-1.5">
-                  <User className="w-3.5 h-3.5 text-cyber-cyan" />
+                <label className="text-xs font-semibold text-slate-700 flex items-center space-x-1.5 font-sans">
+                  <User className="w-3.5 h-3.5 text-cyan-600" />
                   <span>Nome do Cirurgião-Dentista *</span>
                 </label>
                 <input
@@ -209,14 +205,14 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   value={dentistName}
                   onChange={(e) => setDentistName(e.target.value)}
                   placeholder="Ex: Dr. Lucas Mendes"
-                  className="w-full bg-cyber-bg border border-cyber-border focus:border-cyber-cyan rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 font-medium focus:outline-none transition-colors"
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 font-sans font-medium focus:outline-none transition-all"
                 />
               </div>
 
               {/* Telefone / WhatsApp */}
               <div className="space-y-1.5">
-                <label className="text-xs font-mono text-slate-300 flex items-center space-x-1.5">
-                  <Phone className="w-3.5 h-3.5 text-cyber-cyan" />
+                <label className="text-xs font-semibold text-slate-700 flex items-center space-x-1.5 font-sans">
+                  <Phone className="w-3.5 h-3.5 text-cyan-600" />
                   <span>Telefone / WhatsApp</span>
                 </label>
                 <input
@@ -224,15 +220,15 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   value={dentistPhone}
                   onChange={(e) => setDentistPhone(e.target.value)}
                   placeholder="(00) 00000-0000"
-                  className="w-full bg-cyber-bg border border-cyber-border focus:border-cyber-cyan rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 font-medium focus:outline-none transition-colors"
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 font-sans font-medium focus:outline-none transition-all"
                 />
               </div>
 
               {/* Linha dupla: CRO e Clínica */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-mono text-slate-300 flex items-center space-x-1.5">
-                    <ShieldCheck className="w-3.5 h-3.5 text-cyber-cyan" />
+                  <label className="text-xs font-semibold text-slate-700 flex items-center space-x-1.5 font-sans">
+                    <ShieldCheck className="w-3.5 h-3.5 text-cyan-600" />
                     <span>Registro CRO</span>
                   </label>
                   <input
@@ -240,13 +236,13 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     value={dentistCro}
                     onChange={(e) => setDentistCro(e.target.value)}
                     placeholder="Ex: CRO-SP 12345"
-                    className="w-full bg-cyber-bg border border-cyber-border focus:border-cyber-cyan rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 font-medium focus:outline-none transition-colors"
+                    className="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 font-sans font-medium focus:outline-none transition-all"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-mono text-slate-300 flex items-center space-x-1.5">
-                    <Building2 className="w-3.5 h-3.5 text-cyber-cyan" />
+                  <label className="text-xs font-semibold text-slate-700 flex items-center space-x-1.5 font-sans">
+                    <Building2 className="w-3.5 h-3.5 text-cyan-600" />
                     <span>Nome da Clínica</span>
                   </label>
                   <input
@@ -254,29 +250,29 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     value={dentistClinic}
                     onChange={(e) => setDentistClinic(e.target.value)}
                     placeholder="Ex: Clínica Odonto Prime"
-                    className="w-full bg-cyber-bg border border-cyber-border focus:border-cyber-cyan rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 font-medium focus:outline-none transition-colors"
+                    className="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 font-sans font-medium focus:outline-none transition-all"
                   />
                 </div>
               </div>
 
               {/* Resumo de Atividades do Dentista */}
-              <div className="pt-2 border-t border-cyber-border/60 grid grid-cols-2 gap-3">
-                <div className="p-3 rounded-xl bg-cyber-surface/60 border border-cyber-border/80">
-                  <div className="flex items-center space-x-2 text-slate-400 text-[11px] font-mono mb-1">
-                    <FolderKanban className="w-3.5 h-3.5 text-cyber-cyan" />
+              <div className="pt-2 border-t border-slate-200 grid grid-cols-2 gap-3">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <div className="flex items-center space-x-2 text-slate-500 text-[11px] font-sans mb-1">
+                    <FolderKanban className="w-3.5 h-3.5 text-cyan-600" />
                     <span>Casos Criados</span>
                   </div>
-                  <span className="text-lg font-bold text-white font-mono">
+                  <span className="text-lg font-bold text-slate-900 font-sans">
                     {currentDentist.casesCount || 0}
                   </span>
                 </div>
 
-                <div className="p-3 rounded-xl bg-cyber-surface/60 border border-cyber-border/80">
-                  <div className="flex items-center space-x-2 text-slate-400 text-[11px] font-mono mb-1">
-                    <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <div className="flex items-center space-x-2 text-slate-500 text-[11px] font-sans mb-1">
+                    <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
                     <span>Investimento</span>
                   </div>
-                  <span className="text-lg font-bold text-emerald-400 font-mono">
+                  <span className="text-lg font-bold text-emerald-700 font-sans">
                     R$ {(currentDentist.totalSpent || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
@@ -287,8 +283,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             <>
               {/* Nome do Administrador */}
               <div className="space-y-1.5">
-                <label className="text-xs font-mono text-slate-300 flex items-center space-x-1.5">
-                  <User className="w-3.5 h-3.5 text-amber-400" />
+                <label className="text-xs font-semibold text-slate-700 flex items-center space-x-1.5 font-sans">
+                  <User className="w-3.5 h-3.5 text-amber-600" />
                   <span>Nome do Administrador *</span>
                 </label>
                 <input
@@ -297,14 +293,14 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   value={adminName}
                   onChange={(e) => setAdminName(e.target.value)}
                   placeholder="Ex: Lamartine Cezar"
-                  className="w-full bg-cyber-bg border border-cyber-border focus:border-amber-400 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 font-medium focus:outline-none transition-colors"
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-amber-500 focus:bg-white rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 font-sans font-medium focus:outline-none transition-all"
                 />
               </div>
 
               {/* Cargo / Título */}
               <div className="space-y-1.5">
-                <label className="text-xs font-mono text-slate-300 flex items-center space-x-1.5">
-                  <Crown className="w-3.5 h-3.5 text-amber-400" />
+                <label className="text-xs font-semibold text-slate-700 flex items-center space-x-1.5 font-sans">
+                  <Crown className="w-3.5 h-3.5 text-amber-600" />
                   <span>Título / Função</span>
                 </label>
                 <input
@@ -312,16 +308,16 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   value={adminRoleTitle}
                   onChange={(e) => setAdminRoleTitle(e.target.value)}
                   placeholder="Ex: Administrador Geral"
-                  className="w-full bg-cyber-bg border border-cyber-border focus:border-amber-400 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 font-medium focus:outline-none transition-colors"
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-amber-500 focus:bg-white rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 font-sans font-medium focus:outline-none transition-all"
                 />
               </div>
 
-              <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs font-mono text-amber-300 space-y-1">
-                <div className="flex items-center space-x-2 font-semibold">
-                  <ShieldCheck className="w-4 h-4 text-amber-400" />
+              <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs font-sans text-amber-900 space-y-1">
+                <div className="flex items-center space-x-2 font-semibold text-amber-800">
+                  <ShieldCheck className="w-4 h-4 text-amber-600" />
                   <span>Acesso Super Administrador</span>
                 </div>
-                <p className="text-[11px] text-slate-300 font-sans leading-relaxed">
+                <p className="text-[11px] text-slate-600 font-sans leading-relaxed">
                   Seu perfil possui controle total sobre os casos cirúrgicos, aprovação e liberação de arquivos, gerenciamento de dentistas parceiros e equipe.
                 </p>
               </div>
@@ -329,21 +325,21 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           )}
 
           {/* Botões de Ação */}
-          <div className="pt-4 flex items-center justify-end space-x-3 border-t border-cyber-border/80">
+          <div className="pt-4 flex items-center justify-end space-x-3 border-t border-slate-200">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-cyber-surface text-xs font-mono transition-colors"
+              className="px-4 py-2 rounded-xl text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-xs font-semibold transition-colors font-sans"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={saving}
-              className={`px-5 py-2.5 rounded-xl text-black font-semibold text-xs font-mono transition-all flex items-center space-x-2 shadow-lg ${
+              className={`px-5 py-2.5 rounded-xl text-white font-semibold text-xs font-sans transition-all flex items-center space-x-2 shadow-sm ${
                 userType === 'ADMIN'
-                  ? 'bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 shadow-amber-500/20'
-                  : 'bg-gradient-to-r from-cyber-cyan to-blue-500 hover:from-cyan-400 hover:to-blue-400 shadow-cyber-cyan/20'
+                  ? 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800'
+                  : 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700'
               } ${saving ? 'opacity-70 cursor-not-allowed' : 'active:scale-95'}`}
             >
               <Save className="w-3.5 h-3.5" />

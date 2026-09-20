@@ -29,42 +29,42 @@ export const Odontogram: React.FC<OdontogramProps> = ({
         type="button"
         disabled={readOnly}
         onClick={() => onToggleTooth && onToggleTooth(num)}
-        className={`w-8 h-9 rounded flex flex-col items-center justify-center transition-all font-mono text-[11px] ${
+        className={`w-8 h-9 rounded-lg flex flex-col items-center justify-center transition-all font-sans text-[11px] font-semibold ${
           isSelected
-            ? 'bg-cyber-cyan text-black font-bold shadow-glow-cyan scale-105 border border-cyan-300'
-            : 'bg-cyber-surface border border-cyber-border text-slate-400 hover:text-white hover:border-slate-500'
+            ? 'bg-cyan-600 text-white font-bold shadow-sm scale-105 border border-cyan-700'
+            : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-100/70'
         } ${readOnly ? 'cursor-default' : 'cursor-pointer'}`}
       >
         <span>{num}</span>
-        <div className={`w-1.5 h-1.5 rounded-full mt-0.5 ${isSelected ? 'bg-black' : 'bg-transparent'}`} />
+        <div className={`w-1.5 h-1.5 rounded-full mt-0.5 ${isSelected ? 'bg-white' : 'bg-transparent'}`} />
       </button>
     );
   };
 
   return (
-    <div className="p-4 rounded-xl bg-cyber-card/60 border border-cyber-border">
-      <div className="flex items-center justify-between mb-3 text-xs font-mono text-slate-400">
+    <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-200">
+      <div className="flex items-center justify-between mb-3 text-xs font-sans text-slate-500 font-medium">
         <span>Odontograma FDI (Sítios de Implante)</span>
         <div className="flex items-center space-x-3 text-[11px]">
           <span className="flex items-center space-x-1">
-            <span className="w-2.5 h-2.5 rounded bg-cyber-cyan inline-block"></span>
-            <span className="text-slate-300">Implante Selecionado</span>
+            <span className="w-2.5 h-2.5 rounded bg-cyan-600 inline-block"></span>
+            <span className="text-slate-700">Implante Selecionado</span>
           </span>
           <span className="flex items-center space-x-1">
-            <span className="w-2.5 h-2.5 rounded bg-cyber-surface border border-cyber-border inline-block"></span>
-            <span className="text-slate-400">Dente Hígido</span>
+            <span className="w-2.5 h-2.5 rounded bg-white border border-slate-300 inline-block"></span>
+            <span className="text-slate-500">Dente Hígido</span>
           </span>
         </div>
       </div>
 
       {/* Arcada Superior */}
       <div className="mb-2">
-        <div className="text-[10px] text-center text-slate-400 font-mono mb-1 uppercase tracking-wider">
+        <div className="text-[10px] text-center text-slate-400 font-sans mb-1 uppercase tracking-wider font-semibold">
           Arcada Superior (Maxila)
         </div>
         <div className="flex items-center justify-center gap-1">
           {/* Quadrante 1 */}
-          <div className="flex gap-1 pr-2 border-r border-cyber-border">
+          <div className="flex gap-1 pr-2 border-r border-slate-200">
             {upperRight.map(renderTooth)}
           </div>
           {/* Quadrante 2 */}
@@ -74,13 +74,13 @@ export const Odontogram: React.FC<OdontogramProps> = ({
         </div>
       </div>
 
-      <div className="h-[1px] bg-cyber-border my-2 w-full" />
+      <div className="h-[1px] bg-slate-200 my-2 w-full" />
 
       {/* Arcada Inferior */}
       <div>
         <div className="flex items-center justify-center gap-1">
           {/* Quadrante 4 */}
-          <div className="flex gap-1 pr-2 border-r border-cyber-border">
+          <div className="flex gap-1 pr-2 border-r border-slate-200">
             {lowerRight.map(renderTooth)}
           </div>
           {/* Quadrante 3 */}
@@ -88,7 +88,7 @@ export const Odontogram: React.FC<OdontogramProps> = ({
             {lowerLeft.map(renderTooth)}
           </div>
         </div>
-        <div className="text-[10px] text-center text-slate-400 font-mono mt-1 uppercase tracking-wider">
+        <div className="text-[10px] text-center text-slate-400 font-sans mt-1 uppercase tracking-wider font-semibold">
           Arcada Inferior (Mandíbula)
         </div>
       </div>

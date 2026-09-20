@@ -65,7 +65,17 @@ export const subscribeToCases = (callback: (cases: DentalCase[]) => void) => {
   return onSnapshot(
     collection(db, CASES_COLLECTION),
     (snapshot) => {
-      const items = snapshot.docs.map(d => d.data() as DentalCase);
+      const items = snapshot.docs
+        .map(d => d.data() as DentalCase)
+        .sort((a, b) => {
+          const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          if (!isNaN(timeA) && !isNaN(timeB) && timeB !== timeA) {
+            return timeB - timeA;
+          }
+          return (b.id || '').localeCompare(a.id || '');
+        });
+
       if (items.length > 0) {
         callback(items);
       }

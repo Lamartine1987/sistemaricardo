@@ -77,12 +77,12 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
       {/* Botão do Sininho */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-xl bg-cyber-card hover:bg-cyber-surface border border-cyber-border hover:border-cyber-cyan/40 text-slate-300 hover:text-white transition-all shadow-sm flex items-center justify-center"
+        className="relative p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-cyan-300 text-slate-600 hover:text-slate-900 transition-all shadow-xs flex items-center justify-center cursor-pointer"
         title="Notificações do Sistema"
       >
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-cyan-500 px-1 text-[9px] font-mono font-bold text-black shadow-glow-cyan animate-pulse">
+          <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-cyan-600 px-1 text-[9px] font-sans font-bold text-white shadow-xs">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -90,14 +90,14 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
 
       {/* Dropdown de Notificações */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl glass-panel-glow bg-cyber-card border border-cyber-border shadow-2xl z-50 overflow-hidden animate-fade-in">
+        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white border border-slate-200 shadow-xl z-50 overflow-hidden animate-fade-in">
           
           {/* Header do Dropdown */}
-          <div className="px-4 py-3 border-b border-cyber-border/80 flex items-center justify-between bg-cyber-surface/60">
+          <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50/80">
             <div className="flex items-center space-x-2">
-              <span className="text-xs font-bold text-white tracking-wide">Notificações</span>
+              <span className="text-xs font-bold text-slate-800 tracking-wide font-sans">Notificações</span>
               {unreadCount > 0 && (
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyber-cyan/15 text-cyber-cyan font-semibold border border-cyber-cyan/30">
+                <span className="text-[10px] font-sans px-2 py-0.5 rounded-full bg-cyan-50 text-cyan-700 font-semibold border border-cyan-200">
                   {unreadCount} nova{unreadCount > 1 ? 's' : ''}
                 </span>
               )}
@@ -106,7 +106,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
             {unreadCount > 0 && (
               <button
                 onClick={onMarkAllAsRead}
-                className="text-[11px] font-mono text-slate-400 hover:text-cyber-cyan transition-colors flex items-center space-x-1"
+                className="text-[11px] font-sans text-slate-500 hover:text-cyan-700 transition-colors flex items-center space-x-1 cursor-pointer"
                 title="Marcar todas como lidas"
               >
                 <Check className="w-3 h-3" />
@@ -116,12 +116,12 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
           </div>
 
           {/* Lista de Notificações */}
-          <div className="max-h-80 overflow-y-auto custom-scrollbar divide-y divide-cyber-border/40">
+          <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
             {notifications.length === 0 ? (
               <div className="py-8 text-center px-4">
-                <Bell className="w-8 h-8 mx-auto text-slate-600 mb-2 opacity-40" />
-                <p className="text-xs text-slate-400 font-mono">Nenhuma notificação por aqui.</p>
-                <p className="text-[10px] text-slate-500 mt-0.5">
+                <Bell className="w-8 h-8 mx-auto text-slate-300 mb-2" />
+                <p className="text-xs text-slate-500 font-sans">Nenhuma notificação por aqui.</p>
+                <p className="text-[10px] text-slate-400 mt-0.5 font-sans">
                   Novas solicitações e atualizações de casos aparecerão nesta central.
                 </p>
               </div>
@@ -133,37 +133,37 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
                     onSelectNotification(n);
                     setIsOpen(false);
                   }}
-                  className={`p-3.5 transition-all cursor-pointer flex items-start space-x-3 hover:bg-cyber-surface/90 ${
-                    !n.read ? 'bg-cyber-cyan/5' : 'bg-transparent'
+                  className={`p-3.5 transition-all cursor-pointer flex items-start space-x-3 hover:bg-slate-50 ${
+                    !n.read ? 'bg-cyan-50/40' : 'bg-transparent'
                   }`}
                 >
-                  <div className="p-2 rounded-xl bg-cyber-surface border border-cyber-border flex-shrink-0 mt-0.5">
+                  <div className="p-2 rounded-xl bg-slate-100 border border-slate-200 flex-shrink-0 mt-0.5">
                     {getNotificationIcon(n.type)}
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1 mb-0.5">
-                      <span className={`text-xs font-semibold truncate ${!n.read ? 'text-white' : 'text-slate-300'}`}>
+                      <span className={`text-xs font-semibold truncate ${!n.read ? 'text-slate-900 font-bold' : 'text-slate-700'}`}>
                         {n.title}
                       </span>
-                      <span className="text-[9px] font-mono text-slate-500 whitespace-nowrap">
+                      <span className="text-[10px] font-sans text-slate-400 whitespace-nowrap">
                         {formatRelativeTime(n.createdAt)}
                       </span>
                     </div>
 
-                    <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed font-sans">
+                    <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed font-sans">
                       {n.message}
                     </p>
 
                     {n.caseCode && (
-                      <span className="inline-block mt-1.5 text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyber-surface border border-cyber-border text-slate-400">
+                      <span className="inline-block mt-1.5 text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-600">
                         {n.caseCode}
                       </span>
                     )}
                   </div>
 
                   {!n.read && (
-                    <span className="w-2 h-2 rounded-full bg-cyber-cyan shadow-sm shadow-cyber-cyan flex-shrink-0 mt-1.5" />
+                    <span className="w-2 h-2 rounded-full bg-cyan-500 shadow-xs flex-shrink-0 mt-1.5" />
                   )}
                 </div>
               ))
@@ -171,15 +171,13 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
           </div>
 
           {/* Rodapé Informativo */}
-          <div className="px-4 py-2 border-t border-cyber-border/60 bg-cyber-surface/30 text-center">
-            <span className="text-[10px] font-mono text-slate-500">
+          <div className="px-4 py-2 border-t border-slate-100 bg-slate-50/50 text-center">
+            <span className="text-[10px] font-sans text-slate-400">
               Notificações sincronizadas com o WhatsApp
             </span>
           </div>
-
         </div>
       )}
-
     </div>
   );
 };
