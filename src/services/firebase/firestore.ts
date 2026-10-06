@@ -9,13 +9,17 @@ import {
 } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from './config';
 import { DentalCase, Dentist, AdminUser } from '../../types';
-import { AppNotification } from '../../types/notifications';
+import { AppNotification, WhatsAppConfig } from '../../types/notifications';
+import { SiteContentConfig } from '../../types/siteContent';
 
 // Coleções no Firestore
 const CASES_COLLECTION = 'cases';
 const DENTISTS_COLLECTION = 'dentists';
 const ADMINS_COLLECTION = 'admins';
 const NOTIFICATIONS_COLLECTION = 'notifications';
+const SETTINGS_COLLECTION = 'system_settings';
+const WHATSAPP_SETTINGS_DOC = 'whatsapp_config';
+const SITE_CONTENT_DOC = 'site_content';
 
 /**
  * Popula o Firestore com dados iniciais se as coleções estiverem vazias
@@ -250,6 +254,77 @@ export const markAllNotificationsReadInFirestore = async (notifications: AppNoti
   } catch (error) {
     console.error('Erro ao marcar notificações como lidas no Firestore:', error);
   }
+};
+
+/**
+ * Salva as configurações de WhatsApp no Firestore para sincronização global
+ */
+export const saveWhatsAppConfigToFirestore = async (config: WhatsAppConfig) => {
+  if (!isFirebaseConfigured || !db) return;
+  try {
+    await setDoc(doc(db, SETTINGS_COLLECTION, WHATSAPP_SETTINGS_DOC), config);
+  } catch (error) {
+    console.error('Erro ao salvar configurações do WhatsApp no Firestore:', error);
+  }
+};
+
+/**
+ * Listener em tempo real para sincronizar as configurações do WhatsApp
+ */
+export const subscribeToWhatsAppConfig = (callback: (config: WhatsAppConfig) => void) => {
+  if (!isFirebaseConfigured || !db) return () => {};
+
+  return onSnapshot(
+    doc(db, SETTINGS_COLLECTION, WHATSAPP_SETTINGS_DOC),
+    (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data() as WhatsAppConfig;
+        if (data && data.apiUrl) {
+          callback(data);
+        }
+      }
+    },
+    (error) => {
+      console.warn('ℹ️ [Firestore] Sincronização de configurações WhatsApp:', error);
+    }
+  );
+};
+
+/**
+ * Salva o conteúdo dinâmico do site no Firestore para sincronização global
+ */
+export const saveSiteContentToFirestore = async (content: SiteContentConfig) => {
+  if (!isFirebaseConfigured || !db) return;
+  try {
+    // Sanitização profunda: remove campos com 'undefined' que o Firestore rejeita
+    const sanitizedContent = JSON.parse(JSON.stringify(content));
+    await setDoc(doc(db, SETTINGS_COLLECTION, SITE_CONTENT_DOC), sanitizedContent);
+  } catch (error) {
+    console.error('Erro ao salvar conteúdo do site no Firestore:', error);
+  }
+};
+
+/**
+ * Listener em tempo real para sincronizar o conteúdo do site
+ */
+export const subscribeToSiteContent = (callback: (content: SiteContentConfig) => void) => {
+  if (!isFirebaseConfigured || !db) return () => {};
+
+  return onSnapshot(
+    doc(db, SETTINGS_COLLECTION, SITE_CONTENT_DOC),
+    (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data() as SiteContentConfig;
+        if (data && (data.cases || data.services || data.courses)) {
+          callback(data);
+        }
+      }
+    },
+    (error) => {
+      // Degradação graciosa: o sistema funciona 100% via localStorage mesmo se o Firestore estiver offline ou com regras restritas
+      console.info('ℹ️ [Firestore] Sincronização do site em modo local:', error?.message || 'offline');
+    }
+  );
 };
 
 

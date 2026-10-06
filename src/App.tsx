@@ -35,15 +35,21 @@ import {
   deleteCaseFromFirestore,
   saveNotificationToFirestore,
   markNotificationReadInFirestore,
-  markAllNotificationsReadInFirestore
+  markAllNotificationsReadInFirestore,
+  subscribeToWhatsAppConfig,
+  subscribeToSiteContent
 } from './services/firebase/firestore';
 import { subscribeToAuth, logoutFirebase, updateCurrentUserProfile } from './services/firebase/auth';
+import { SiteContentManager } from './components/SiteManagement/SiteContentManager';
+import { SiteContentConfig } from './types/siteContent';
+import { getStoredSiteContent, saveStoredSiteContent } from './services/site/siteContentService';
 import { 
   FolderKanban, 
   Users, 
   Lock, 
   UserCheck,
-  Settings
+  Settings,
+  Globe
 } from 'lucide-react';
 
 const DEFAULT_DENTIST_FALLBACK: Dentist = {
@@ -110,6 +116,25 @@ export function App() {
     localStorage.setItem('implantprecision_view_mode', viewMode);
   }, [viewMode]);
 
+  // Conteúdo Dinâmico do Site (CMS gerenciado pelo Administrador / Dr. Ricardo)
+  const [siteContent, setSiteContent] = useState<SiteContentConfig>(() => getStoredSiteContent());
+
+  const handleUpdateSiteContent = (newContent: SiteContentConfig) => {
+    setSiteContent(newContent);
+    saveStoredSiteContent(newContent);
+  };
+
+  // Sincronização instantânea com eventos locais (ex: disparados pelo painel CMS)
+  useEffect(() => {
+    const handleImmediateSiteUpdate = (e: any) => {
+      if (e.detail) {
+        setSiteContent(e.detail);
+      }
+    };
+    window.addEventListener('implantprecision_site_updated', handleImmediateSiteUpdate);
+    return () => window.removeEventListener('implantprecision_site_updated', handleImmediateSiteUpdate);
+  }, []);
+
   // Sincronizar perfil ativo com o usuário autenticado do Firebase (Lamartine Cezar como Super Admin, outros como Dentistas Clientes)
   useEffect(() => {
     if (firebaseUser?.email) {
@@ -165,7 +190,7 @@ export function App() {
   }, [firebaseUser]);
 
   // Navegação
-  const [activeTab, setActiveTab] = useState<'CASES' | 'DENTISTS' | 'TEAM' | 'CONFIG'>('CASES');
+  const [activeTab, setActiveTab] = useState<'CASES' | 'DENTISTS' | 'TEAM' | 'CONFIG' | 'SITE'>('CASES');
   const [selectedDentistFilter, setSelectedDentistFilter] = useState<string>('ALL');
   
   // Modais
@@ -255,11 +280,26 @@ export function App() {
       }
     });
 
+    const unsubWhatsApp = subscribeToWhatsAppConfig((remoteConfig) => {
+      if (remoteConfig && remoteConfig.apiUrl) {
+        localStorage.setItem('implantprecision_whatsapp_config', JSON.stringify(remoteConfig));
+      }
+    });
+
+    const unsubSiteContent = subscribeToSiteContent((remoteContent) => {
+      if (remoteContent && (remoteContent.cases || remoteContent.services)) {
+        setSiteContent(remoteContent);
+        localStorage.setItem('implantprecision_site_content', JSON.stringify(remoteContent));
+      }
+    });
+
     return () => {
       unsubCases();
       unsubDentists();
       unsubAdmins();
       unsubNotifications();
+      unsubWhatsApp();
+      unsubSiteContent();
     };
   }, [firebaseUser]);
 
@@ -285,7 +325,7 @@ export function App() {
   const handleSelectDentist = (dentist: Dentist) => {
     setCurrentDentist(dentist);
     setUserType('CLIENT');
-    if (activeTab === 'DENTISTS' || activeTab === 'TEAM') {
+    if (activeTab === 'DENTISTS' || activeTab === 'TEAM' || activeTab === 'CONFIG' || activeTab === 'SITE') {
       setActiveTab('CASES');
     }
   };
@@ -304,7 +344,7 @@ export function App() {
       if (dentists.length > 0) {
         setCurrentDentist(dentists[0]);
       }
-      if (activeTab === 'DENTISTS' || activeTab === 'TEAM') {
+      if (activeTab === 'DENTISTS' || activeTab === 'TEAM' || activeTab === 'CONFIG' || activeTab === 'SITE') {
         setActiveTab('CASES');
       }
     } else {
@@ -715,6 +755,7 @@ export function App() {
           onOpenAuthModal={() => setIsAuthModalOpen(true)}
           firebaseUser={firebaseUser}
           onLogout={handleLogout}
+          siteContent={siteContent}
         />
         <AuthModal
           isOpen={isAuthModalOpen}
@@ -759,61 +800,13 @@ export function App() {
         })}
         onMarkAllNotificationsAsRead={handleMarkAllNotificationsAsRead}
         onSelectNotification={handleSelectNotification}
+        onOpenSiteManager={() => setActiveTab('SITE')}
       />
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         
-        {/* Banner de Contexto da Sessão */}
-        <div className="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="space-y-1.5">
-            <div className="flex items-center space-x-2.5 flex-wrap gap-y-1">
-              {userType === 'ADMIN' ? (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-                  Painel Administrativo • {currentAdmin.name}
-                </span>
-              ) : (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans font-semibold bg-cyan-50 text-cyan-800 border border-cyan-200">
-                  Portal do Dentista • {currentDentist.name}
-                </span>
-              )}
-
-              <span className="text-xs text-slate-500 font-medium">
-                {userType === 'ADMIN' 
-                  ? currentAdmin.roleTitle 
-                  : currentDentist.clinicName}
-              </span>
-            </div>
-
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
-              {userType === 'ADMIN'
-                ? 'Painel de Controle Clínico & Gestão Financeira'
-                : 'Seus Casos Cirúrgicos & Liberação de Guias'}
-            </h1>
-          </div>
-
-          <div className="flex items-center space-x-2 w-full sm:w-auto">
-            {pendingCount > 0 && (
-              <div className="px-3.5 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-sans font-medium flex items-center space-x-2 shadow-xs">
-                <Lock className="w-3.5 h-3.5 text-amber-600" />
-                <span>
-                  {userType === 'ADMIN'
-                    ? `${pendingCount} caso(s) aguardando PIX dos clientes`
-                    : `${pendingCount} planejamento(s) pronto(s) para sua aprovação`}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Métricas Bento Grid (Totalmente adaptadas para cada papel) */}
-        <StatsGrid 
-          cases={displayedCases} 
-          isDentistView={userType === 'CLIENT'}
-          totalDentistsCount={dentists.length}
-        />
-
-        {/* Abas de Navegação */}
+        {/* Abas Principais de Navegação */}
         <div className="flex items-center space-x-2 border-b border-slate-200 pb-3 overflow-x-auto">
           {/* Aba de Casos */}
           <button
@@ -870,21 +863,84 @@ export function App() {
                 <Settings className="w-4 h-4" />
                 <span>Configurações & WhatsApp</span>
               </button>
+
+              <button
+                onClick={() => setActiveTab('SITE')}
+                className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all whitespace-nowrap cursor-pointer ${
+                  activeTab === 'SITE'
+                    ? 'bg-white border border-slate-200 text-cyan-700 shadow-xs font-bold'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                }`}
+              >
+                <Globe className="w-4 h-4" />
+                <span>Gestão do Site</span>
+              </button>
             </>
           )}
         </div>
 
         {/* Conteúdo de acordo com a Aba Ativa */}
         {activeTab === 'CASES' && (
-          <CaseList
-            cases={displayedCases}
-            dentists={dentists}
-            onSelectCase={setSelectedCase}
-            selectedDentistFilter={selectedDentistFilter}
-            onFilterDentistChange={setSelectedDentistFilter}
-            isDentistView={userType === 'CLIENT'}
-            onDeleteCase={handleDeleteCase}
-          />
+          <div className="space-y-6">
+            {/* Banner de Contexto da Sessão */}
+            <div className="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1.5">
+                <div className="flex items-center space-x-2.5 flex-wrap gap-y-1">
+                  {userType === 'ADMIN' ? (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                      Painel Administrativo • {currentAdmin.name}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans font-semibold bg-cyan-50 text-cyan-800 border border-cyan-200">
+                      Portal do Dentista • {currentDentist.name}
+                    </span>
+                  )}
+
+                  <span className="text-xs text-slate-500 font-medium">
+                    {userType === 'ADMIN' 
+                      ? currentAdmin.roleTitle 
+                      : currentDentist.clinicName}
+                  </span>
+                </div>
+
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+                  {userType === 'ADMIN'
+                    ? 'Painel de Controle Clínico & Gestão Financeira'
+                    : 'Seus Casos Cirúrgicos & Liberação de Guias'}
+                </h1>
+              </div>
+
+              <div className="flex items-center space-x-2 w-full sm:w-auto">
+                {pendingCount > 0 && (
+                  <div className="px-3.5 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-sans font-medium flex items-center space-x-2 shadow-xs">
+                    <Lock className="w-3.5 h-3.5 text-amber-600" />
+                    <span>
+                      {userType === 'ADMIN'
+                        ? `${pendingCount} caso(s) aguardando PIX dos clientes`
+                        : `${pendingCount} planejamento(s) pronto(s) para sua aprovação`}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Métricas Bento Grid (Totalmente adaptadas para cada papel) */}
+            <StatsGrid 
+              cases={displayedCases} 
+              isDentistView={userType === 'CLIENT'}
+              totalDentistsCount={dentists.length}
+            />
+
+            <CaseList
+              cases={displayedCases}
+              dentists={dentists}
+              onSelectCase={setSelectedCase}
+              selectedDentistFilter={selectedDentistFilter}
+              onFilterDentistChange={setSelectedDentistFilter}
+              isDentistView={userType === 'CLIENT'}
+              onDeleteCase={handleDeleteCase}
+            />
+          </div>
         )}
 
         {activeTab === 'DENTISTS' && userType === 'ADMIN' && (
@@ -907,6 +963,22 @@ export function App() {
 
         {activeTab === 'CONFIG' && userType === 'ADMIN' && (
           <SettingsTab
+            onNotifyFeedback={(title, msg) => {
+              addNotification({
+                targetUserType: 'ADMIN',
+                title,
+                message: msg,
+                type: 'INFO'
+              });
+            }}
+          />
+        )}
+
+        {activeTab === 'SITE' && userType === 'ADMIN' && (
+          <SiteContentManager
+            siteContent={siteContent}
+            onUpdateSiteContent={handleUpdateSiteContent}
+            onBackToLanding={() => setViewMode('LANDING')}
             onNotifyFeedback={(title, msg) => {
               addNotification({
                 targetUserType: 'ADMIN',

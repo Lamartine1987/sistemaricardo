@@ -5,6 +5,7 @@ import {
   NotificationTrigger, 
   DEFAULT_MESSAGE_TEMPLATES 
 } from '../../types/notifications';
+import { saveWhatsAppConfigToFirestore } from '../firebase/firestore';
 
 const CONFIG_STORAGE_KEY = 'implantprecision_whatsapp_config';
 
@@ -48,9 +49,19 @@ export const getStoredWhatsAppConfig = (): WhatsAppConfig => {
     const parsed = JSON.parse(saved);
     let needsResave = false;
 
-    // Auto-migração: se a URL antiga apontava para localhost, atualiza para o IP da VPS
-    if (!parsed.apiUrl || parsed.apiUrl.includes('localhost')) {
-      parsed.apiUrl = DEFAULT_WHATSAPP_CONFIG.apiUrl;
+    // Auto-migração: se a URL antiga apontava para localhost, HTTP inseguro ou IP antigo, migra para https://apiz.com.br
+    if (!parsed.apiUrl || parsed.apiUrl.includes('localhost') || parsed.apiUrl.includes('187.127.4.145') || parsed.apiUrl.startsWith('http://')) {
+      parsed.apiUrl = 'https://apiz.com.br';
+      needsResave = true;
+    }
+
+    if (!parsed.apiKey) {
+      parsed.apiKey = DEFAULT_WHATSAPP_CONFIG.apiKey;
+      needsResave = true;
+    }
+
+    if (!parsed.instanceName) {
+      parsed.instanceName = DEFAULT_WHATSAPP_CONFIG.instanceName;
       needsResave = true;
     }
 
@@ -80,10 +91,15 @@ export const getStoredWhatsAppConfig = (): WhatsAppConfig => {
 };
 
 /**
- * Salva as configurações de WhatsApp
+ * Salva as configurações de WhatsApp localmente e no Firestore
  */
 export const saveStoredWhatsAppConfig = (config: WhatsAppConfig) => {
   localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
+  try {
+    saveWhatsAppConfigToFirestore(config);
+  } catch (e) {
+    console.warn('ℹ️ Não foi possível salvar configurações do WhatsApp no Firestore:', e);
+  }
 };
 
 /**
@@ -249,6 +265,7 @@ export const sendWhatsAppMessage = async (
       body: JSON.stringify({
         instanceName: config.instanceName,
         number: cleanNumber,
+        phone: cleanNumber,
         text
       })
     });

@@ -115,7 +115,7 @@ export interface WhatsAppConfig {
 }
 
 export const DEFAULT_WHATSAPP_CONFIG: WhatsAppConfig = {
-  apiUrl: 'http://187.127.4.145:3000',
+  apiUrl: 'https://apiz.com.br',
   apiKey: 'minha_chave_super_secreta_123',
   instanceName: 'implantprecision',
   adminPhone: '81999694866',

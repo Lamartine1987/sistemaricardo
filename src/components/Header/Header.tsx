@@ -6,7 +6,8 @@ import {
   Crown, 
   LogIn, 
   LogOut,
-  UserCog
+  UserCog,
+  Globe
 } from 'lucide-react';
 import { AdminUser, Dentist, UserType } from '../../types';
 import { AppNotification } from '../../types/notifications';
@@ -31,6 +32,7 @@ interface HeaderProps {
   notifications: AppNotification[];
   onMarkAllNotificationsAsRead: () => void;
   onSelectNotification: (notification: AppNotification) => void;
+  onOpenSiteManager?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -51,7 +53,8 @@ export const Header: React.FC<HeaderProps> = ({
   onBackToLanding,
   notifications,
   onMarkAllNotificationsAsRead,
-  onSelectNotification
+  onSelectNotification,
+  onOpenSiteManager
 }) => {
   return (
     <header className="sticky top-0 z-30 w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-xl shadow-xs">
