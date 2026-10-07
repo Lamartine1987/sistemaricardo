@@ -5,8 +5,7 @@ import {
   SiteContentConfig 
 } from '../../types/siteContent';
 import { 
-  getStoredSiteContent, 
-  subscribeToSiteContent 
+  getStoredSiteContent 
 } from '../../services/site/siteContentService';
 import { 
   ArrowRight, 
@@ -48,22 +47,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   siteContent
 }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [content, setContent] = useState<SiteContentConfig>(() => siteContent || getStoredSiteContent());
-
-  // Manter sincronizado se o prop fornecido pelo App for atualizado
-  useEffect(() => {
-    if (siteContent) {
-      setContent(siteContent);
-    }
-  }, [siteContent]);
+  const [localContent, setLocalContent] = useState<SiteContentConfig>(() => getStoredSiteContent());
 
   // Listener para atualizações instantâneas de conteúdo (mesma aba ou abas sincronizadas)
   useEffect(() => {
     const handleImmediateUpdate = (e: any) => {
       if (e.detail) {
-        setContent(e.detail);
+        setLocalContent(e.detail);
       } else {
-        setContent(getStoredSiteContent());
+        setLocalContent(getStoredSiteContent());
       }
     };
 
@@ -76,6 +68,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     };
   }, []);
 
+  // O conteúdo renderizado é prioritariamente o fornecido pelo App ou o recuperado do cache local
+  const content = siteContent || localContent;
+
   // Calcular progresso do scroll de 0 a 1 em tempo real
   useEffect(() => {
     const handleScroll = () => {
@@ -87,16 +82,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Sincronização em tempo real com o Firestore para carregar conteúdo editado pelo Dr. Ricardo
-  useEffect(() => {
-    const unsub = subscribeToSiteContent((remote) => {
-      if (remote && (remote.cases || remote.services)) {
-        setContent(remote);
-      }
-    });
-    return () => unsub();
   }, []);
 
   // Helper para renderizar ícone do serviço

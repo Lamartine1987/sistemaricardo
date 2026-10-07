@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // 🌐 Conteúdo Público da Landing Page (Casos, Serviços, Cursos, Depoimentos, Sobre Dr. Ricardo)
+    // Permite leitura pública irrestrita para qualquer visitante carregar a página inicial.
+    // Permite gravação por administradores autenticados.
+    match /system_settings/site_content {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ⚙️ Demais configurações do sistema (ex: WhatsApp API)
+    match /system_settings/{settingId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // 🦷 Casos Clínicos (Planejamentos 3D, guias cirúrgicas, pagamentos)
+    match /cases/{caseId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // 👨‍⚕️ Dentistas Parceiros
+    match /dentists/{dentistId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // 🛡️ Administradores do Sistema
+    match /admins/{adminId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // 🔔 Notificações in-app
+    match /notifications/{notificationId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

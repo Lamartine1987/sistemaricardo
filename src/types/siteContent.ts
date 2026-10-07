@@ -73,9 +73,11 @@ export interface SiteContentConfig {
   courses: CourseItem[];
   testimonials: TestimonialItem[];
   about: AboutDoctorContent;
+  updatedAt?: number;
 }
 
 export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
+  updatedAt: 1704067200000,
   cases: [
     {
       id: 'case-01',

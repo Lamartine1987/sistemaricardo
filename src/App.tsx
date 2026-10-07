@@ -37,7 +37,8 @@ import {
   markNotificationReadInFirestore,
   markAllNotificationsReadInFirestore,
   subscribeToWhatsAppConfig,
-  subscribeToSiteContent
+  subscribeToSiteContent,
+  saveSiteContentToFirestore
 } from './services/firebase/firestore';
 import { subscribeToAuth, logoutFirebase, updateCurrentUserProfile } from './services/firebase/auth';
 import { SiteContentManager } from './components/SiteManagement/SiteContentManager';
@@ -121,10 +122,9 @@ export function App() {
 
   const handleUpdateSiteContent = (newContent: SiteContentConfig) => {
     setSiteContent(newContent);
-    saveStoredSiteContent(newContent);
   };
 
-  // Sincronização instantânea com eventos locais (ex: disparados pelo painel CMS)
+  // Sincronização contínua do conteúdo do site com o Firestore e eventos locais
   useEffect(() => {
     const handleImmediateSiteUpdate = (e: any) => {
       if (e.detail) {
@@ -132,7 +132,31 @@ export function App() {
       }
     };
     window.addEventListener('implantprecision_site_updated', handleImmediateSiteUpdate);
-    return () => window.removeEventListener('implantprecision_site_updated', handleImmediateSiteUpdate);
+
+    // Listener do Firestore com resolução de conflitos por timestamp
+    const unsubFirestoreSite = subscribeToSiteContent((remoteContent) => {
+      if (!remoteContent || (!remoteContent.cases && !remoteContent.services)) return;
+
+      const local = getStoredSiteContent();
+      const localTime = Number(local.updatedAt) || 0;
+      const remoteTime = Number(remoteContent.updatedAt) || 0;
+
+      // Se o Firestore tiver uma versão estritamente mais recente que a local
+      if (remoteTime > localTime) {
+        console.log('🔄 [SiteContent] Atualizando com versão mais recente do Firestore:', remoteTime, 'vs local:', localTime);
+        setSiteContent(remoteContent);
+        localStorage.setItem('implantprecision_site_content', JSON.stringify(remoteContent));
+      } else if (localTime > remoteTime) {
+        // Se a versão local for mais recente (ex: usuário editou no CMS), sincroniza com a nuvem
+        console.log('📤 [SiteContent] Versão local é mais recente que Firestore. Sincronizando com nuvem...');
+        saveSiteContentToFirestore(local);
+      }
+    });
+
+    return () => {
+      window.removeEventListener('implantprecision_site_updated', handleImmediateSiteUpdate);
+      unsubFirestoreSite();
+    };
   }, []);
 
   // Sincronizar perfil ativo com o usuário autenticado do Firebase (Lamartine Cezar como Super Admin, outros como Dentistas Clientes)
@@ -286,20 +310,12 @@ export function App() {
       }
     });
 
-    const unsubSiteContent = subscribeToSiteContent((remoteContent) => {
-      if (remoteContent && (remoteContent.cases || remoteContent.services)) {
-        setSiteContent(remoteContent);
-        localStorage.setItem('implantprecision_site_content', JSON.stringify(remoteContent));
-      }
-    });
-
     return () => {
       unsubCases();
       unsubDentists();
       unsubAdmins();
       unsubNotifications();
       unsubWhatsApp();
-      unsubSiteContent();
     };
   }, [firebaseUser]);
 

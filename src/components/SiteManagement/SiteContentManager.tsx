@@ -60,10 +60,10 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
 
   // Função central para aplicar qualquer mudança, salvar em localStorage e propagar
   const applyContentChange = (nextContent: SiteContentConfig) => {
-    setContent(nextContent);
-    saveStoredSiteContent(nextContent);
+    const saved = saveStoredSiteContent(nextContent);
+    setContent(saved);
     if (onUpdateSiteContent) {
-      onUpdateSiteContent(nextContent);
+      onUpdateSiteContent(saved);
     }
   };
 
