@@ -9,6 +9,13 @@ export interface ClinicalCaseItem {
   metric2Label: string;
   metric2Value: string;
   imageUrl?: string;
+  galleryImages?: string[];
+  fullContent?: string;
+  pdfUrl?: string;
+  pdfName?: string;
+  implantBrand?: string;
+  surgicalTime?: string;
+  featuredOnHome?: boolean;
   active: boolean;
   order: number;
 }
@@ -85,10 +92,20 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
       badge: 'Protocolo All-on-4',
       tag: 'Carga Imediata',
       description: 'Implantes posteriores angulados a 30° com ancoragem no pilar zigomático-maxilar, dispensando enxertos ósseos invasivos e reduzindo o tempo cirúrgico para 25 minutos.',
+      fullContent: `O paciente procurou a clínica com edentulismo maxilar severo e pneumatização acentuada dos seios maxilares bilaterais. O planejamento convencional exigiria enxertos ósseos de levantamento de seio maxilar com tempo de espera de 6 a 8 meses antes da reabilitação definitiva.
+
+Através do planejamento cirúrgico 3D guiado pelo Dr. Ricardo Cezar, foi desenvolvido o protocolo All-on-4 modificado:
+1. Posicionamento de dois implantes anteriores axiais em região de caninos/incisivos laterais.
+2. Dois implantes posteriores angulados a 30 graus contornando a parede anterior do seio maxilar, alcançando estabilidade primária bicortical superior a 45 N.cm.
+3. Cirurgia guiada de precisão executada em apenas 25 minutos, viabilizando a instalação de prótese provisória fixa tipo protocolo em carga imediata no mesmo dia.`,
       metric1Label: 'Desvio Angular',
       metric1Value: '< 0.4°',
       metric2Label: 'Torque Final',
       metric2Value: '45 N.cm',
+      implantBrand: 'Neodent Grand Morse (GM)',
+      surgicalTime: '25 min',
+      pdfName: 'Laudo_Cirurgico_Caso_01_AllOn4.pdf',
+      featuredOnHome: true,
       imageUrl: '',
       active: true,
       order: 1
@@ -99,10 +116,21 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
       badge: 'Estética Anterior',
       tag: 'Cirurgia Flapless',
       description: 'Posicionamento proteticamente orientado em área estética nobre. Instalação sem retalho mucoperiósteo e com provisionalização imediata com contorno biológico ideal.',
+      fullContent: `Caso desafiador em zona de altíssima exigência estética. O elemento 21 apresentava fratura radicular oblíqua subgengival. O objetivo clínico primário era a exodontia minimamente traumática seguida de implante imediato com enxerto conjuntivo e coroa provisória imediata.
+
+Conduta de Planejamento 3D:
+1. Sobreposição do escaneamento intraoral colorido com a tomografia Cone Beam de alta resolução.
+2. Posicionamento tridimensional do implante direcionado para a parede palatina da cavidade alveolar, garantindo um gap vestibular de 2.0 mm preenchido com biomaterial.
+3. Cirurgia sem retalho (Flapless) com guia cirúrgica de assentamento dento-suportado estável.
+4. Preservação integral do zênite gengival e das papilas interdentais, proporcionando estética idêntica ao dente natural vizinho.`,
       metric1Label: 'Tolerância',
       metric1Value: '± 0.08 mm',
       metric2Label: 'Preservação Tecidual',
       metric2Value: '100% Intacta',
+      implantBrand: 'Straumann Bone Level Tapered (BLT)',
+      surgicalTime: '20 min',
+      pdfName: 'Planejamento_3D_Estetica_21.pdf',
+      featuredOnHome: true,
       imageUrl: '',
       active: true,
       order: 2
@@ -113,10 +141,21 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
       badge: 'Mandíbula Crítica',
       tag: 'Margem 1.8mm',
       description: 'Segmentação tomográfica detalhada do trajeto do nervo alveolar inferior. Guia cirúrgica rígida com trava de stop de broca garantindo zero risco de parestesia.',
+      fullContent: `Reabilitação do primeiro molar inferior (elemento 36) em paciente com atrofia óssea vertical moderada. A distância da crista óssea alveolar até o teto do canal mandibular era de apenas 10.3 mm.
+
+Abordagem Tecnológica e Segurança Cirúrgica:
+1. Segmentação volumétrica tridimensional do canal mandibular e da emergência do forame mentual.
+2. Escolha de implante cônico de 8.5 mm de comprimento com margem de segurança biológica calculada de 1.8 mm do feixe vasculonervoso.
+3. Confecção de guia cirúrgica de alta rigidez estrutural com buchas metálicas e kit de fresagem guiada com stop mecânico.
+4. Perfuração e instalação do implante com torque de 50 N.cm sem qualquer toque ou proximidade crítica com a parede cortical do canal. Pós-operatório sem dor e com 0% de parestesia.`,
       metric1Label: 'Margem de Nervo',
       metric1Value: '1.8 mm Seguro',
       metric2Label: 'Risco Parestesia',
       metric2Value: '0% Controlado',
+      implantBrand: 'DSP Biomedical Hexágono Interno',
+      surgicalTime: '18 min',
+      pdfName: 'Relatorio_Segmentacao_Mandibular_36.pdf',
+      featuredOnHome: true,
       imageUrl: '',
       active: true,
       order: 3

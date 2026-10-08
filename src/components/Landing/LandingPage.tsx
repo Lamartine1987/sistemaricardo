@@ -37,6 +37,7 @@ interface LandingPageProps {
   firebaseUser?: { email?: string | null; displayName?: string | null } | null;
   onLogout?: () => void;
   siteContent?: SiteContentConfig;
+  onOpenCasesArchive?: (caseId?: string) => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({
@@ -44,7 +45,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onOpenAuthModal,
   firebaseUser,
   onLogout,
-  siteContent
+  siteContent,
+  onOpenCasesArchive
 }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [localContent, setLocalContent] = useState<SiteContentConfig>(() => getStoredSiteContent());
@@ -216,56 +218,88 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </p>
           </div>
 
+          {/* Vitrine dos 3 Casos Principais */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {content.cases.filter(c => c.active).map((c) => (
-              <div 
-                key={c.id}
-                className="p-6 rounded-3xl glass-panel-glow border border-cyber-border bg-cyber-card/85 backdrop-blur-2xl space-y-4 shadow-xl hover:border-cyber-cyan/50 transition-all group flex flex-col justify-between"
-              >
-                <div className="space-y-3">
-                  {/* Imagem do Caso se cadastrada */}
-                  {c.imageUrl && (
-                    <div className="w-full h-44 rounded-2xl overflow-hidden bg-slate-900 border border-cyber-border/80 mb-3 relative group">
-                      <img 
-                        src={c.imageUrl} 
-                        alt={c.title} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
+            {content.cases
+              .filter(c => c.active)
+              .slice()
+              .sort((a, b) => (b.featuredOnHome ? 1 : 0) - (a.featuredOnHome ? 1 : 0))
+              .slice(0, 3)
+              .map((c) => (
+                <div 
+                  key={c.id}
+                  onClick={() => onOpenCasesArchive?.(c.id)}
+                  className="p-6 rounded-3xl glass-panel-glow border border-cyber-border bg-cyber-card/85 backdrop-blur-2xl space-y-4 shadow-xl hover:border-cyber-cyan/60 transition-all group flex flex-col justify-between cursor-pointer"
+                >
+                  <div className="space-y-3">
+                    {/* Imagem do Caso se cadastrada */}
+                    {c.imageUrl && (
+                      <div className="w-full h-44 rounded-2xl overflow-hidden bg-slate-900 border border-cyber-border/80 mb-3 relative group">
+                        <img 
+                          src={c.imageUrl} 
+                          alt={c.title} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/30 font-semibold">
+                        {c.badge}
+                      </span>
+                      <span className="text-[11px] font-mono text-emerald-400">
+                        {c.tag}
+                      </span>
                     </div>
-                  )}
 
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/30 font-semibold">
-                      {c.badge}
-                    </span>
-                    <span className="text-[11px] font-mono text-emerald-400">
-                      {c.tag}
-                    </span>
+                    <h3 className="text-lg font-bold text-white group-hover:text-cyber-cyan transition-colors line-clamp-2">
+                      {c.title}
+                    </h3>
+
+                    <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
+                      {c.description}
+                    </p>
                   </div>
 
-                  <h3 className="text-lg font-bold text-white group-hover:text-cyber-cyan transition-colors">
-                    {c.title}
-                  </h3>
+                  <div className="space-y-3 pt-3 border-t border-cyber-border/70">
+                    <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                      <div>
+                        <span className="text-slate-400 block text-[10px]">{c.metric1Label}</span>
+                        <span className="text-cyber-cyan font-bold">{c.metric1Value}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block text-[10px]">{c.metric2Label}</span>
+                        <span className="text-emerald-400 font-bold">{c.metric2Value}</span>
+                      </div>
+                    </div>
 
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    {c.description}
-                  </p>
+                    <div className="pt-2 flex items-center justify-between text-xs font-mono text-cyber-cyan">
+                      <span className="font-bold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+                        <span>Ver estudo completo</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </span>
+                      {(c.pdfUrl || c.pdfName) && (
+                        <span className="text-[10px] text-slate-400 bg-slate-900/90 border border-slate-800 px-2 py-0.5 rounded">
+                          Laudo PDF
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
                 </div>
+              ))}
+          </div>
 
-                <div className="pt-3 border-t border-cyber-border/70 grid grid-cols-2 gap-2 text-xs font-mono">
-                  <div>
-                    <span className="text-slate-400 block text-[10px]">{c.metric1Label}</span>
-                    <span className="text-cyber-cyan font-bold">{c.metric1Value}</span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block text-[10px]">{c.metric2Label}</span>
-                    <span className="text-emerald-400 font-bold">{c.metric2Value}</span>
-                  </div>
-                </div>
-
-              </div>
-            ))}
+          {/* Botão de Destaque para Abrir o Acervo Completo */}
+          <div className="pt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button
+              onClick={() => onOpenCasesArchive?.()}
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-cyber-cyan via-blue-500 to-indigo-600 hover:from-cyan-400 hover:to-blue-400 text-black font-extrabold text-sm font-mono transition-all shadow-glow-cyan flex items-center justify-center space-x-3 cursor-pointer group active:scale-[0.98]"
+            >
+              <span>Explorar Acervo Completo de Casos ({content.cases.filter(c => c.active).length} Estudos)</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
+            </button>
           </div>
         </section>
 

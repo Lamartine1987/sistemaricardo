@@ -13,7 +13,12 @@ export const getStoredSiteContent = (): SiteContentConfig => {
   try {
     const parsed = JSON.parse(saved);
     return {
-      cases: Array.isArray(parsed.cases) && parsed.cases.length > 0 ? parsed.cases : DEFAULT_SITE_CONTENT.cases,
+      cases: Array.isArray(parsed.cases) && parsed.cases.length > 0
+        ? parsed.cases.map((c: any) => {
+            const def = DEFAULT_SITE_CONTENT.cases.find(d => d.id === c.id);
+            return def ? { ...def, ...c } : c;
+          })
+        : DEFAULT_SITE_CONTENT.cases,
       services: Array.isArray(parsed.services) && parsed.services.length > 0 ? parsed.services : DEFAULT_SITE_CONTENT.services,
       courses: Array.isArray(parsed.courses) && parsed.courses.length > 0 ? parsed.courses : DEFAULT_SITE_CONTENT.courses,
       testimonials: Array.isArray(parsed.testimonials) && parsed.testimonials.length > 0 ? parsed.testimonials : DEFAULT_SITE_CONTENT.testimonials,

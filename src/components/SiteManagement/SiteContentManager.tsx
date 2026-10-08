@@ -331,10 +331,22 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                   </div>
                 )}
 
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-cyan-50 text-cyan-700 border border-cyan-200">
-                    {c.badge || 'Caso Clínico'}
-                  </span>
+                <div className="flex items-center justify-between gap-1 flex-wrap">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-cyan-50 text-cyan-700 border border-cyan-200">
+                      {c.badge || 'Caso Clínico'}
+                    </span>
+                    {c.featuredOnHome && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200">
+                        ⭐ Capa (Home)
+                      </span>
+                    )}
+                    {(c.pdfUrl || c.pdfName) && (
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
+                        PDF
+                      </span>
+                    )}
+                  </div>
                   <span className="text-[10px] text-slate-500 font-mono">
                     {c.tag}
                   </span>
@@ -944,6 +956,20 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                 />
               </div>
 
+              {/* Checkbox Destaque na Capa */}
+              <div className="flex items-center space-x-2 p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/80">
+                <input
+                  type="checkbox"
+                  id="caseFeaturedOnHome"
+                  checked={Boolean(editingCase.featuredOnHome)}
+                  onChange={e => setEditingCase({ ...editingCase, featuredOnHome: e.target.checked })}
+                  className="w-4 h-4 rounded text-cyan-700 focus:ring-cyan-500 cursor-pointer"
+                />
+                <label htmlFor="caseFeaturedOnHome" className="text-xs font-semibold text-amber-950 cursor-pointer flex items-center space-x-1">
+                  <span>⭐ Destacar este caso na Página Inicial (Exibir na vitrine de 3 casos da capa)</span>
+                </label>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="text-[11px] font-semibold text-slate-700">Badge / Categoria</label>
@@ -967,14 +993,51 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-700">Sistema / Marca do Implante</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: Neodent GM / Straumann BLT"
+                    value={editingCase.implantBrand || ''}
+                    onChange={e => setEditingCase({ ...editingCase, implantBrand: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-700">Tempo Cirúrgico</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: 25 min"
+                    value={editingCase.surgicalTime || ''}
+                    onChange={e => setEditingCase({ ...editingCase, surgicalTime: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-500"
+                  />
+                </div>
+              </div>
+
               <div className="space-y-1">
-                <label className="text-[11px] font-semibold text-slate-700">Descrição Técnica</label>
+                <label className="text-[11px] font-semibold text-slate-700">Resumo da Técnica (Breve)</label>
                 <textarea
-                  rows={3}
-                  placeholder="Descreva o procedimento cirúrgico, angulação e detalhes do caso..."
+                  rows={2}
+                  placeholder="Resumo exibido no card da vitrine..."
                   value={editingCase.description}
                   onChange={e => setEditingCase({ ...editingCase, description: e.target.value })}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-500"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-slate-700 flex items-center justify-between">
+                  <span>Estudo de Caso Completo & Conduta Clínica (Artigo / Dossiê)</span>
+                  <span className="text-[10px] text-slate-400 font-normal">Exibido na página do acervo</span>
+                </label>
+                <textarea
+                  rows={4}
+                  placeholder="Detalhamento passo a passo da conduta, exames tomográficos, planejamento das guias e resultado pós-operatório..."
+                  value={editingCase.fullContent || ''}
+                  onChange={e => setEditingCase({ ...editingCase, fullContent: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-500 leading-relaxed font-sans"
                 />
               </div>
 
@@ -1017,6 +1080,30 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                       className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-emerald-600"
                     />
                   </div>
+                </div>
+              </div>
+
+              {/* Arquivo PDF para Download */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-700">Nome do Arquivo PDF de Laudo</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: Laudo_Cirurgico_Caso_01.pdf"
+                    value={editingCase.pdfName || ''}
+                    onChange={e => setEditingCase({ ...editingCase, pdfName: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-500 font-mono"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-700">Link Externo do PDF (Opcional)</label>
+                  <input
+                    type="text"
+                    placeholder="https://... ou em branco para gerar auto"
+                    value={editingCase.pdfUrl || ''}
+                    onChange={e => setEditingCase({ ...editingCase, pdfUrl: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-500 font-mono"
+                  />
                 </div>
               </div>
 

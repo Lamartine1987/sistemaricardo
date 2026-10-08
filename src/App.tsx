@@ -13,6 +13,7 @@ import { AuthModal } from './components/Auth/AuthModal';
 import { UserProfileModal } from './components/Profile/UserProfileModal';
 import { SettingsTab } from './components/Settings/SettingsTab';
 import { LandingPage } from './components/Landing/LandingPage';
+import { ClinicalCasesArchive } from './components/Landing/ClinicalCasesArchive';
 import { AppNotification } from './types/notifications';
 import { 
   getStoredWhatsAppConfig, 
@@ -107,11 +108,12 @@ export function App() {
   const [currentDentist, setCurrentDentist] = useState<Dentist>(dentists[0] || DEFAULT_DENTIST_FALLBACK);
   const [firebaseUser, setFirebaseUser] = useState<{ email?: string | null; displayName?: string | null } | null>(null);
 
-  // Modo de visualização: 'LANDING' (Site 3D Lusion) ou 'DASHBOARD' (Sistema/Plataforma)
-  const [viewMode, setViewMode] = useState<'LANDING' | 'DASHBOARD'>(() => {
+  // Modo de visualização: 'LANDING' (Site 3D Lusion), 'DASHBOARD' (Sistema) ou 'CASES_ARCHIVE' (Biblioteca de Casos)
+  const [viewMode, setViewMode] = useState<'LANDING' | 'DASHBOARD' | 'CASES_ARCHIVE'>(() => {
     const saved = localStorage.getItem('implantprecision_view_mode');
-    return (saved === 'DASHBOARD' || saved === 'LANDING') ? saved : 'LANDING';
+    return (saved === 'DASHBOARD' || saved === 'LANDING' || saved === 'CASES_ARCHIVE') ? saved : 'LANDING';
   });
+  const [selectedArchiveCaseId, setSelectedArchiveCaseId] = useState<string | null>(null);
 
   useEffect(() => {
     localStorage.setItem('implantprecision_view_mode', viewMode);
@@ -762,7 +764,7 @@ export function App() {
 
   const pendingCount = displayedCases.filter(c => c.status === 'PENDING_APPROVAL').length;
 
-  // Se estiver no modo Landing Page (Site Institucional 3D estilo Lusion.co)
+  // Se estiver no modo Landing Page (Site Institucional 3D)
   if (viewMode === 'LANDING') {
     return (
       <>
@@ -772,6 +774,34 @@ export function App() {
           firebaseUser={firebaseUser}
           onLogout={handleLogout}
           siteContent={siteContent}
+          onOpenCasesArchive={(caseId) => {
+            setSelectedArchiveCaseId(caseId || null);
+            setViewMode('CASES_ARCHIVE');
+          }}
+        />
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          onSuccess={handleAuthSuccess}
+        />
+      </>
+    );
+  }
+
+  // Se estiver no modo Acervo Completo de Casos Clínicos (Biblioteca de Estudos de Caso)
+  if (viewMode === 'CASES_ARCHIVE') {
+    return (
+      <>
+        <ClinicalCasesArchive
+          onBackToLanding={() => {
+            setSelectedArchiveCaseId(null);
+            setViewMode('LANDING');
+          }}
+          onEnterApp={() => setViewMode('DASHBOARD')}
+          onOpenAuthModal={() => setIsAuthModalOpen(true)}
+          firebaseUser={firebaseUser}
+          siteContent={siteContent}
+          initialSelectedCaseId={selectedArchiveCaseId}
         />
         <AuthModal
           isOpen={isAuthModalOpen}
