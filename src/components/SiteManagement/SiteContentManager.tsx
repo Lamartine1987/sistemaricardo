@@ -138,7 +138,7 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
     <div className="space-y-6">
       
       {/* Top Header Card */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
             <span className="p-2 rounded-xl bg-cyan-50 border border-cyan-100 text-cyan-700">
@@ -261,9 +261,9 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
       {/* 1. ABA DE CASOS CLÍNICOS */}
       {/* ========================================================================= */}
       {activeSubTab === 'CASES' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-slate-500 font-medium">
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+            <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">
               Gerencie os casos clínicos demonstrativos que aparecem na vitrine do site. Você pode cadastrar fotos antes/depois, tomografia, métricas e descrição da técnica cirúrgica.
             </p>
             <button
@@ -284,33 +284,33 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                 });
                 setIsNewCaseModalOpen(true);
               }}
-              className="px-3.5 py-2 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
+              className="px-4 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-semibold flex items-center space-x-2 transition-all cursor-pointer shadow-xs whitespace-nowrap flex-shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Adicionar Novo Caso</span>
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {content.cases.map((c) => (
               <div 
                 key={c.id} 
-                className={`bg-white rounded-2xl border p-4.5 space-y-3 transition-all relative ${
-                  c.active ? 'border-slate-200/90 shadow-xs' : 'border-slate-200/60 opacity-60 bg-slate-50/50'
+                className={`bg-white rounded-2xl border p-5 sm:p-6 space-y-4 transition-all relative shadow-xs hover:shadow-md ${
+                  c.active ? 'border-slate-200/90' : 'border-slate-200/60 opacity-60 bg-slate-50/50'
                 }`}
               >
                 {/* Imagem Preview se houver */}
                 {c.imageUrl ? (
-                  <div className="w-full h-36 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 relative group">
+                  <div className="w-full h-40 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 relative group">
                     <img src={c.imageUrl} alt={c.title} className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-medium">
                       Foto anexada ao caso
                     </div>
                   </div>
                 ) : (
-                  <div className="w-full h-20 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between px-3.5 text-xs">
-                    <div className="flex items-center space-x-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                  <div className="w-full h-20 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between px-4 py-3 text-xs">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 rounded-lg bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 flex-shrink-0">
                         <ImageIcon className="w-4 h-4" />
                       </div>
                       <div>
@@ -324,7 +324,7 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                         setEditingCase({ ...c });
                         setIsNewCaseModalOpen(true);
                       }}
-                      className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 text-[11px] font-sans font-medium transition-colors"
+                      className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 text-[11px] font-sans font-medium transition-colors flex-shrink-0"
                     >
                       + Foto
                     </button>
@@ -332,7 +332,7 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                 )}
 
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-700 border border-cyan-200">
+                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-cyan-50 text-cyan-700 border border-cyan-200">
                     {c.badge || 'Caso Clínico'}
                   </span>
                   <span className="text-[10px] text-slate-500 font-mono">
@@ -344,35 +344,35 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                   {c.title || 'Sem título'}
                 </h3>
 
-                <p className="text-xs text-slate-600 line-clamp-2 min-h-[2rem] leading-relaxed">
+                <p className="text-xs text-slate-600 line-clamp-2 min-h-[2.25rem] leading-relaxed">
                   {c.description || 'Sem descrição cadastrada.'}
                 </p>
 
-                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
-                  <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/80">
-                    <span className="text-slate-400 text-[10px] block font-sans">{c.metric1Label}</span>
+                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                    <span className="text-slate-400 text-[10px] block font-sans mb-0.5">{c.metric1Label}</span>
                     <span className="font-bold text-xs font-mono text-cyan-800">{c.metric1Value}</span>
                   </div>
-                  <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/80">
-                    <span className="text-slate-400 text-[10px] block font-sans">{c.metric2Label}</span>
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                    <span className="text-slate-400 text-[10px] block font-sans mb-0.5">{c.metric2Label}</span>
                     <span className="font-bold text-xs font-mono text-emerald-700">{c.metric2Value}</span>
                   </div>
                 </div>
 
-                <div className="pt-2 flex items-center justify-between">
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                   <button
                     onClick={() => {
                       const updatedCases = content.cases.map(item => item.id === c.id ? { ...item, active: !item.active } : item);
                       applyContentChange({ ...content, cases: updatedCases });
                     }}
-                    className={`text-[11px] font-semibold px-2 py-1 rounded-md transition-colors cursor-pointer ${
+                    className={`text-[11px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
                       c.active ? 'text-emerald-700 bg-emerald-50' : 'text-slate-500 bg-slate-100'
                     }`}
                   >
                     {c.active ? 'Ativo no Site' : 'Oculto'}
                   </button>
 
-                  <div className="flex items-center space-x-1">
+                  <div className="flex items-center space-x-1.5">
                     <button
                       onClick={() => {
                         setEditingCase({ ...c });
@@ -408,9 +408,9 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
       {/* 2. ABA DE SERVIÇOS */}
       {/* ========================================================================= */}
       {activeSubTab === 'SERVICES' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-slate-500 font-medium">
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+            <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">
               Apresente as soluções digitais que você oferece aos cirurgiões-dentistas clientes.
             </p>
             <button
@@ -426,24 +426,24 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                 });
                 setIsNewServiceModalOpen(true);
               }}
-              className="px-3.5 py-2 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
+              className="px-4 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-semibold flex items-center space-x-2 transition-all cursor-pointer shadow-xs whitespace-nowrap flex-shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Adicionar Novo Serviço</span>
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {content.services.map((s) => (
               <div 
                 key={s.id} 
-                className={`bg-white rounded-2xl border p-5 space-y-3 transition-all ${
-                  s.active ? 'border-slate-200/90 shadow-xs' : 'border-slate-200/60 opacity-60 bg-slate-50/50'
+                className={`bg-white rounded-2xl border p-5 sm:p-6 space-y-4 shadow-xs hover:shadow-md transition-all ${
+                  s.active ? 'border-slate-200/90' : 'border-slate-200/60 opacity-60 bg-slate-50/50'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-slate-900">{s.title || 'Sem título'}</h3>
-                  <div className="flex items-center space-x-1">
+                  <div className="flex items-center space-x-1.5">
                     <button
                       onClick={() => {
                         setEditingService({ ...s });
@@ -471,21 +471,21 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
 
                 <p className="text-xs text-slate-600 leading-relaxed">{s.description}</p>
 
-                <div className="flex flex-wrap gap-1.5 pt-1">
+                <div className="flex flex-wrap gap-2 pt-1">
                   {s.highlights.map((h, i) => (
-                    <span key={i} className="text-[10px] font-sans px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+                    <span key={i} className="text-[10px] font-sans px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
                       {h}
                     </span>
                   ))}
                 </div>
 
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                   <button
                     onClick={() => {
                       const updatedServices = content.services.map(item => item.id === s.id ? { ...item, active: !item.active } : item);
                       applyContentChange({ ...content, services: updatedServices });
                     }}
-                    className={`text-[11px] font-semibold px-2 py-0.5 rounded-md ${
+                    className={`text-[11px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
                       s.active ? 'text-emerald-700 bg-emerald-50' : 'text-slate-500 bg-slate-100'
                     }`}
                   >
@@ -503,9 +503,9 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
       {/* 3. ABA DE CURSOS */}
       {/* ========================================================================= */}
       {activeSubTab === 'COURSES' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-slate-500 font-medium">
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+            <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">
               Gerencie suas turmas de capacitação, cursos presenciais, híbridos e mentorias cirúrgicas individuais.
             </p>
             <button
@@ -524,35 +524,35 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                 });
                 setIsNewCourseModalOpen(true);
               }}
-              className="px-3.5 py-2 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
+              className="px-4 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-semibold flex items-center space-x-2 transition-all cursor-pointer shadow-xs whitespace-nowrap flex-shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Adicionar Novo Curso</span>
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {content.courses.map((c) => (
               <div 
                 key={c.id} 
-                className={`bg-white rounded-2xl border p-5 space-y-3 flex flex-col justify-between transition-all ${
-                  c.active ? 'border-slate-200/90 shadow-xs' : 'border-slate-200/60 opacity-60 bg-slate-50/50'
+                className={`bg-white rounded-2xl border p-5 sm:p-6 space-y-4 flex flex-col justify-between shadow-xs hover:shadow-md transition-all ${
+                  c.active ? 'border-slate-200/90' : 'border-slate-200/60 opacity-60 bg-slate-50/50'
                 }`}
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="font-semibold px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-700 border border-cyan-200">
+                    <span className="font-semibold px-2.5 py-1 rounded-md bg-cyan-50 text-cyan-700 border border-cyan-200">
                       {c.format}
                     </span>
                     <span className="text-slate-400 font-medium">{c.badge}</span>
                   </div>
 
-                  <h3 className="text-sm font-bold text-slate-900">{c.title || 'Sem título'}</h3>
+                  <h3 className="text-sm font-bold text-slate-900 leading-snug">{c.title || 'Sem título'}</h3>
                   <p className="text-xs text-slate-600 leading-relaxed">{c.description}</p>
 
-                  <div className="space-y-1.5 pt-1">
+                  <div className="space-y-2 pt-1">
                     {c.topics.map((t, idx) => (
-                      <div key={idx} className="flex items-start space-x-1.5 text-xs text-slate-700">
+                      <div key={idx} className="flex items-start space-x-2 text-xs text-slate-700">
                         <Check className="w-3.5 h-3.5 text-emerald-600 mt-0.5 flex-shrink-0" />
                         <span>{t}</span>
                       </div>
@@ -566,14 +566,14 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                       const updatedCourses = content.courses.map(item => item.id === c.id ? { ...item, active: !item.active } : item);
                       applyContentChange({ ...content, courses: updatedCourses });
                     }}
-                    className={`text-[11px] font-semibold px-2 py-0.5 rounded-md ${
+                    className={`text-[11px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
                       c.active ? 'text-emerald-700 bg-emerald-50' : 'text-slate-500 bg-slate-100'
                     }`}
                   >
                     {c.active ? 'Ativo no Site' : 'Oculto'}
                   </button>
 
-                  <div className="flex items-center space-x-1">
+                  <div className="flex items-center space-x-1.5">
                     <button
                       onClick={() => {
                         setEditingCourse({ ...c });
@@ -608,9 +608,9 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
       {/* 4. ABA DE DEPOIMENTOS */}
       {/* ========================================================================= */}
       {activeSubTab === 'TESTIMONIALS' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-slate-500 font-medium">
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+            <p className="text-xs text-slate-500 font-medium max-w-2xl leading-relaxed">
               Avaliações reais de colegas cirurgiões-dentistas que validam a qualidade técnica e agilidade do seu trabalho.
             </p>
             <button
@@ -628,22 +628,22 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                 });
                 setIsNewTestimonialModalOpen(true);
               }}
-              className="px-3.5 py-2 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
+              className="px-4 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-semibold flex items-center space-x-2 transition-all cursor-pointer shadow-xs whitespace-nowrap flex-shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Adicionar Depoimento</span>
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {content.testimonials.map((t) => (
               <div 
                 key={t.id} 
-                className={`bg-white rounded-2xl border p-5 space-y-3 flex flex-col justify-between transition-all ${
-                  t.active ? 'border-slate-200/90 shadow-xs' : 'border-slate-200/60 opacity-60 bg-slate-50/50'
+                className={`bg-white rounded-2xl border p-5 sm:p-6 space-y-4 flex flex-col justify-between shadow-xs hover:shadow-md transition-all ${
+                  t.active ? 'border-slate-200/90' : 'border-slate-200/60 opacity-60 bg-slate-50/50'
                 }`}
               >
-                <div className="space-y-2.5">
+                <div className="space-y-3">
                   <div className="flex items-center space-x-1 text-amber-500">
                     {[...Array(t.rating || 5)].map((_, i) => (
                       <Star key={i} className="w-3.5 h-3.5 fill-amber-500 stroke-amber-500" />
@@ -656,11 +656,11 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                 </div>
 
                 <div className="pt-3 border-t border-slate-100">
-                  <div className="flex items-center space-x-2.5 mb-2">
+                  <div className="flex items-center space-x-3 mb-2.5">
                     {t.avatarUrl ? (
-                      <img src={t.avatarUrl} alt={t.dentistName} className="w-8 h-8 rounded-full object-cover" />
+                      <img src={t.avatarUrl} alt={t.dentistName} className="w-9 h-9 rounded-full object-cover border border-slate-200 flex-shrink-0" />
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-cyan-100 text-cyan-800 flex items-center justify-center font-bold text-xs">
+                      <div className="w-9 h-9 rounded-full bg-cyan-100 text-cyan-800 flex items-center justify-center font-bold text-xs flex-shrink-0">
                         {t.initials || 'DR'}
                       </div>
                     )}
@@ -676,14 +676,14 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                         const updatedTestimonials = content.testimonials.map(item => item.id === t.id ? { ...item, active: !item.active } : item);
                         applyContentChange({ ...content, testimonials: updatedTestimonials });
                       }}
-                      className={`text-[11px] font-semibold px-2 py-0.5 rounded-md ${
+                      className={`text-[11px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
                         t.active ? 'text-emerald-700 bg-emerald-50' : 'text-slate-500 bg-slate-100'
                       }`}
                     >
                       {t.active ? 'Ativo no Site' : 'Oculto'}
                     </button>
 
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-1.5">
                       <button
                         onClick={() => {
                           setEditingTestimonial({ ...t });
@@ -720,7 +720,7 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
       {/* 5. ABA SOBRE DR. RICARDO */}
       {/* ========================================================================= */}
       {activeSubTab === 'ABOUT' && (
-        <div className="bg-white rounded-2xl border border-slate-200/90 p-6 space-y-6 shadow-xs max-w-4xl">
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-6 sm:p-8 space-y-6 shadow-xs max-w-4xl">
           <div className="border-b border-slate-100 pb-4">
             <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
               <User className="w-5 h-5 text-cyan-600" />
