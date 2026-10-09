@@ -148,23 +148,23 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-cyber-bg text-slate-100 font-sans selection:bg-cyber-cyan selection:text-black">
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-cyan-100 selection:text-cyan-900">
       
       {/* 🧭 Barra Superior Fixa com Botão de Retorno */}
-      <header className="sticky top-0 z-40 bg-cyber-bg/90 backdrop-blur-xl border-b border-cyber-border">
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
           
           <button
             onClick={onBackToLanding}
-            className="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-cyber-border hover:border-cyber-cyan/50 text-slate-300 hover:text-white text-xs font-mono transition-all group cursor-pointer"
+            className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-slate-700 hover:text-slate-900 text-xs font-mono font-medium transition-all group cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4 text-cyber-cyan group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft className="w-4 h-4 text-cyan-700 group-hover:-translate-x-1 transition-transform" />
             <span>Voltar para o Início</span>
           </button>
 
           <div className="hidden md:flex items-center space-x-3">
-            <div className="w-2.5 h-2.5 rounded-full bg-cyber-cyan animate-pulse" />
-            <span className="text-xs font-mono uppercase tracking-wider text-slate-400">
+            <div className="w-2.5 h-2.5 rounded-full bg-cyan-600 animate-pulse" />
+            <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-medium">
               Acervo de Cirurgias Guiadas & Planejamentos 3D
             </span>
           </div>
@@ -172,7 +172,7 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
           <div className="flex items-center space-x-3">
             <button
               onClick={firebaseUser ? onEnterApp : onOpenAuthModal}
-              className="px-4 py-2 rounded-xl bg-cyber-cyan hover:bg-cyan-400 text-black text-xs font-mono font-bold transition-all shadow-glow-cyan flex items-center space-x-1.5 cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-mono font-bold transition-all shadow-sm hover:shadow flex items-center space-x-1.5 cursor-pointer"
             >
               <span>{firebaseUser ? 'Acessar Painel' : 'Enviar Caso'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -185,41 +185,41 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
       {/* 🌟 Hero Header do Acervo */}
       <section className="relative pt-12 pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="max-w-3xl space-y-4">
-          <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full glass-panel border border-cyber-cyan/30 text-cyber-cyan text-xs font-mono">
-            <Stethoscope className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-800 text-xs font-mono font-semibold">
+            <Stethoscope className="w-3.5 h-3.5 text-cyan-700" />
             <span>ESTUDOS DE CASO DOCUMENTADOS • DR. RICARDO CEZAR</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
             Acervo Completo de <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyber-cyan via-blue-400 to-indigo-400">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-700 via-teal-700 to-slate-900">
               Casos Clínicos & Cirurgias Guiadas
             </span>
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-            Consulte a documentação passo a passo de cirurgias guiadas, reconstruções totais, enxertos e reabilitações em áreas críticas. Filtre por patologia, baixe laudos cirúrgicos e inspecione as métricas milimétricas.
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+            Consulte a documentação passo a passo de cirurgias guiadas, reconstruções totais, enxertos e reabilitações em áreas críticas. Filtre por patologia, baixe laudos cirúrgicos e inspecione as métricas milimétricas com alto conforto visual de leitura.
           </p>
         </div>
 
         {/* 🔍 Painel de Busca e Filtros Inteligentes */}
-        <div className="mt-8 p-4 sm:p-6 rounded-3xl glass-panel-glow border border-cyber-border bg-cyber-card/85 space-y-4">
+        <div className="mt-8 p-4 sm:p-6 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-4">
           
           <div className="flex flex-col sm:flex-row gap-3">
             {/* Input de Busca */}
             <div className="relative flex-1">
-              <Search className="w-4 h-4 text-cyber-cyan absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-cyan-700 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Pesquise por diagnóstico, técnica (ex: All-on-4, Flapless, Dente 21, Nervo Alveolar)..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-10 py-3 rounded-2xl bg-slate-900/90 border border-cyber-border text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan transition-all font-mono"
+                className="w-full pl-10 pr-10 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/20 transition-all font-sans"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -231,11 +231,11 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
               onClick={() => setHasPdfOnly(!hasPdfOnly)}
               className={`px-4 py-3 rounded-2xl border text-xs font-mono flex items-center space-x-2 transition-all cursor-pointer whitespace-nowrap ${
                 hasPdfOnly
-                  ? 'bg-cyber-cyan/15 border-cyber-cyan text-cyber-cyan font-bold'
-                  : 'glass-panel border-cyber-border text-slate-400 hover:text-slate-200'
+                  ? 'bg-cyan-50 border-cyan-600 text-cyan-800 font-bold shadow-xs'
+                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
-              <FileText className="w-4 h-4" />
+              <FileText className="w-4 h-4 text-cyan-700" />
               <span>Apenas com Laudo PDF</span>
             </button>
           </div>
@@ -244,10 +244,10 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
           <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar">
             <button
               onClick={() => setSelectedCategory('ALL')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-mono transition-all cursor-pointer whitespace-nowrap ${
+              className={`px-4 py-2 rounded-full text-xs font-mono transition-all cursor-pointer whitespace-nowrap ${
                 selectedCategory === 'ALL'
-                  ? 'bg-gradient-to-r from-cyber-cyan to-blue-500 text-black font-bold shadow-glow-cyan'
-                  : 'glass-panel border border-cyber-border text-slate-400 hover:text-white hover:border-slate-600'
+                  ? 'bg-cyan-700 text-white font-bold shadow-sm'
+                  : 'bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
               }`}
             >
               Todos os Casos ({activeCases.length})
@@ -257,10 +257,10 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-mono transition-all cursor-pointer whitespace-nowrap ${
+                className={`px-4 py-2 rounded-full text-xs font-mono transition-all cursor-pointer whitespace-nowrap ${
                   selectedCategory === cat
-                    ? 'bg-gradient-to-r from-cyber-cyan to-blue-500 text-black font-bold shadow-glow-cyan'
-                    : 'glass-panel border border-cyber-border text-slate-400 hover:text-white hover:border-slate-600'
+                    ? 'bg-cyan-700 text-white font-bold shadow-sm'
+                    : 'bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
                 }`}
               >
                 {cat}
@@ -269,9 +269,9 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
           </div>
 
           {/* Contador de Resultados */}
-          <div className="pt-2 border-t border-cyber-border/60 flex items-center justify-between text-xs font-mono text-slate-400">
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-mono text-slate-500">
             <span>
-              Exibindo <strong className="text-cyber-cyan">{filteredCases.length}</strong> de {activeCases.length} estudos de caso
+              Exibindo <strong className="text-cyan-800 font-bold">{filteredCases.length}</strong> de {activeCases.length} estudos de caso
             </span>
             {(searchQuery || selectedCategory !== 'ALL' || hasPdfOnly) && (
               <button
@@ -280,7 +280,7 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
                   setSelectedCategory('ALL');
                   setHasPdfOnly(false);
                 }}
-                className="text-cyber-cyan hover:underline"
+                className="text-cyan-700 hover:text-cyan-900 font-medium hover:underline cursor-pointer"
               >
                 Limpar filtros
               </button>
@@ -293,12 +293,12 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
       {/* 📚 Grid de Casos Clínicos */}
       <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-24">
         {filteredCases.length === 0 ? (
-          <div className="text-center py-20 rounded-3xl glass-panel border border-cyber-border space-y-4 max-w-xl mx-auto my-10">
-            <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyber-cyan/30 flex items-center justify-center mx-auto text-cyber-cyan">
+          <div className="text-center py-20 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-4 max-w-xl mx-auto my-10">
+            <div className="w-14 h-14 rounded-2xl bg-cyan-50 border border-cyan-200 flex items-center justify-center mx-auto text-cyan-700">
               <Search className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-bold text-white">Nenhum estudo de caso encontrado</h3>
-            <p className="text-xs text-slate-400 max-w-md mx-auto">
+            <h3 className="text-lg font-bold text-slate-900">Nenhum estudo de caso encontrado</h3>
+            <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
               Não encontramos nenhum caso clínico correspondente aos termos ou filtros selecionados. Tente buscar por outros termos ou redefinir os filtros.
             </p>
             <button
@@ -307,7 +307,7 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
                 setSelectedCategory('ALL');
                 setHasPdfOnly(false);
               }}
-              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-mono text-cyber-cyan transition-colors"
+              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-mono text-cyan-800 font-semibold transition-colors cursor-pointer"
             >
               Ver todos os casos
             </button>
@@ -318,36 +318,36 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
               <div
                 key={c.id}
                 onClick={() => setSelectedCase(c)}
-                className="p-6 rounded-3xl glass-panel-glow border border-cyber-border bg-cyber-card/85 hover:border-cyber-cyan/60 transition-all flex flex-col justify-between group cursor-pointer shadow-lg hover:shadow-cyan-500/10"
+                className="p-6 rounded-3xl bg-white border border-slate-200/90 hover:border-cyan-500/60 transition-all flex flex-col justify-between group cursor-pointer shadow-sm hover:shadow-md"
               >
                 <div className="space-y-4">
                   
                   {/* Foto ou Render 3D */}
                   {c.imageUrl ? (
-                    <div className="w-full h-48 rounded-2xl overflow-hidden bg-slate-900 border border-cyber-border relative group">
+                    <div className="w-full h-48 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 relative group">
                       <img 
                         src={c.imageUrl} 
                         alt={c.title} 
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
-                      <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-md text-[10px] font-mono text-cyber-cyan flex items-center space-x-1 border border-cyber-cyan/30">
-                        <Eye className="w-3 h-3" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent pointer-events-none" />
+                      <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-white/90 backdrop-blur-md text-[10px] font-mono text-cyan-900 font-bold flex items-center space-x-1 border border-slate-200 shadow-xs">
+                        <Eye className="w-3 h-3 text-cyan-700" />
                         <span>Ver Estudo</span>
                       </div>
                     </div>
                   ) : (
-                    <div className="w-full h-24 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-cyber-border/80 flex items-center justify-between px-4 py-3 text-xs">
+                    <div className="w-full h-24 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between px-4 py-3 text-xs">
                       <div className="flex items-center space-x-3">
-                        <div className="w-9 h-9 rounded-xl bg-cyber-cyan/15 border border-cyber-cyan/40 flex items-center justify-center text-cyber-cyan flex-shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-cyan-50 border border-cyan-200 flex items-center justify-center text-cyan-700 flex-shrink-0">
                           <ImageIcon className="w-4 h-4" />
                         </div>
                         <div>
-                          <span className="text-white font-bold text-xs block">Render Cirúrgico 3D</span>
-                          <span className="text-[10px] text-slate-400 font-mono">Modelo Digital Concluído</span>
+                          <span className="text-slate-800 font-bold text-xs block">Render Cirúrgico 3D</span>
+                          <span className="text-[10px] text-slate-500 font-mono">Modelo Digital Concluído</span>
                         </div>
                       </div>
-                      <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-cyber-border text-slate-300 text-[10px] font-mono">
+                      <span className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 text-[10px] font-mono font-medium">
                         Dossiê
                       </span>
                     </div>
@@ -355,67 +355,67 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
 
                   {/* Badges de Categoria */}
                   <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <span className="px-2.5 py-1 rounded-lg bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/30 text-[10px] font-mono font-semibold">
+                    <span className="px-2.5 py-1 rounded-lg bg-cyan-50 text-cyan-800 border border-cyan-200 text-[10px] font-mono font-bold">
                       {c.badge}
                     </span>
-                    <span className="text-[10px] font-mono text-slate-400">
+                    <span className="text-[10px] font-mono text-slate-500 font-medium">
                       {c.tag}
                     </span>
                   </div>
 
                   {/* Título */}
-                  <h3 className="text-base font-bold text-white group-hover:text-cyber-cyan transition-colors leading-snug line-clamp-2 min-h-[3rem]">
+                  <h3 className="text-base font-bold text-slate-900 group-hover:text-cyan-700 transition-colors leading-snug line-clamp-2 min-h-[3rem]">
                     {c.title}
                   </h3>
 
                   {/* Resumo */}
-                  <p className="text-xs text-slate-300 leading-relaxed line-clamp-3 min-h-[3rem]">
+                  <p className="text-xs text-slate-600 leading-relaxed line-clamp-3 min-h-[3rem]">
                     {c.description}
                   </p>
 
                   {/* Marca de Implante e Tempo se houver */}
                   {(c.implantBrand || c.surgicalTime) && (
-                    <div className="flex items-center gap-2 pt-1 text-[11px] font-mono text-slate-400">
+                    <div className="flex items-center gap-2 pt-1 text-[11px] font-mono text-slate-600">
                       {c.implantBrand && (
-                        <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-slate-900 border border-slate-800 text-slate-300">
+                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 text-slate-700">
                           <span>🔩</span>
-                          <span className="truncate max-w-[140px]">{c.implantBrand}</span>
+                          <span className="truncate max-w-[140px] font-medium">{c.implantBrand}</span>
                         </span>
                       )}
                       {c.surgicalTime && (
-                        <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-slate-900 border border-slate-800 text-slate-300">
-                          <Clock className="w-3 h-3 text-cyber-cyan" />
-                          <span>{c.surgicalTime}</span>
+                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 text-slate-700">
+                          <Clock className="w-3 h-3 text-cyan-700" />
+                          <span className="font-medium">{c.surgicalTime}</span>
                         </span>
                       )}
                     </div>
                   )}
 
                   {/* Métricas */}
-                  <div className="grid grid-cols-2 gap-3 pt-3 border-t border-cyber-border/70">
-                    <div className="p-2.5 rounded-xl bg-slate-900/60 border border-cyber-border/80">
-                      <span className="text-[10px] font-mono text-slate-400 block mb-0.5">{c.metric1Label}</span>
-                      <span className="text-xs font-mono font-bold text-cyber-cyan">{c.metric1Value}</span>
+                  <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
+                    <div className="p-2.5 rounded-xl bg-cyan-50/60 border border-cyan-100">
+                      <span className="text-[10px] font-mono text-slate-500 block mb-0.5">{c.metric1Label}</span>
+                      <span className="text-xs font-mono font-bold text-cyan-800">{c.metric1Value}</span>
                     </div>
-                    <div className="p-2.5 rounded-xl bg-slate-900/60 border border-cyber-border/80">
-                      <span className="text-[10px] font-mono text-slate-400 block mb-0.5">{c.metric2Label}</span>
-                      <span className="text-xs font-mono font-bold text-emerald-400">{c.metric2Value}</span>
+                    <div className="p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-100">
+                      <span className="text-[10px] font-mono text-slate-500 block mb-0.5">{c.metric2Label}</span>
+                      <span className="text-xs font-mono font-bold text-emerald-700">{c.metric2Value}</span>
                     </div>
                   </div>
 
                 </div>
 
                 {/* Rodapé do Card */}
-                <div className="pt-4 mt-3 border-t border-cyber-border/70 flex items-center justify-between">
-                  <span className="text-xs font-mono text-cyber-cyan font-bold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+                <div className="pt-4 mt-3 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-xs font-mono text-cyan-700 font-bold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
                     <span>Ler estudo clínico</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </span>
 
                   {(c.pdfUrl || c.pdfName) && (
-                    <span className="inline-flex items-center space-x-1 text-[10px] font-mono text-slate-400 px-2 py-0.5 rounded-md bg-slate-900 border border-slate-800">
-                      <FileText className="w-3 h-3 text-cyber-cyan" />
-                      <span>PDF</span>
+                    <span className="inline-flex items-center space-x-1 text-[10px] font-mono text-slate-600 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200">
+                      <FileText className="w-3 h-3 text-cyan-700" />
+                      <span className="font-medium">PDF</span>
                     </span>
                   )}
                 </div>
@@ -430,34 +430,34 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
       {/* 📖 MODAL DO DOSSIÊ COMPLETO DO CASO CLÍNICO */}
       {/* ========================================================================= */}
       {selectedCase && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-          <div className="bg-cyber-card border border-cyber-border/90 rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl space-y-6 my-auto max-h-[92vh] overflow-y-auto animate-scale-up">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+          <div className="bg-white border border-slate-200 rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl space-y-6 my-auto max-h-[92vh] overflow-y-auto animate-scale-up">
             
             {/* Header do Modal */}
-            <div className="flex items-start justify-between gap-4 border-b border-cyber-border pb-4">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-4">
               <div className="space-y-2">
                 <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                  <span className="px-3 py-1 rounded-full bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/30 text-xs font-mono font-bold">
+                  <span className="px-3 py-1 rounded-full bg-cyan-50 text-cyan-800 border border-cyan-200 text-xs font-mono font-bold">
                     {selectedCase.badge}
                   </span>
-                  <span className="px-3 py-1 rounded-full bg-slate-900 text-slate-300 border border-cyber-border text-xs font-mono">
+                  <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-xs font-mono font-medium">
                     {selectedCase.tag}
                   </span>
                   {selectedCase.surgicalTime && (
-                    <span className="px-3 py-1 rounded-full bg-slate-900 text-slate-300 border border-cyber-border text-xs font-mono flex items-center space-x-1">
-                      <Clock className="w-3 h-3 text-cyber-cyan" />
-                      <span>{selectedCase.surgicalTime}</span>
+                    <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-xs font-mono flex items-center space-x-1">
+                      <Clock className="w-3 h-3 text-cyan-700" />
+                      <span className="font-medium">{selectedCase.surgicalTime}</span>
                     </span>
                   )}
                 </div>
-                <h2 className="text-xl sm:text-2xl font-extrabold text-white leading-tight">
+                <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">
                   {selectedCase.title}
                 </h2>
               </div>
 
               <button
                 onClick={() => setSelectedCase(null)}
-                className="p-2 rounded-xl bg-slate-900 border border-cyber-border text-slate-400 hover:text-white hover:border-cyber-cyan/50 transition-colors cursor-pointer flex-shrink-0"
+                className="p-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-200 transition-colors cursor-pointer flex-shrink-0"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -465,7 +465,7 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
 
             {/* Imagem Principal ou Galeria */}
             {selectedCase.imageUrl ? (
-              <div className="w-full h-64 sm:h-80 rounded-2xl overflow-hidden bg-slate-950 border border-cyber-border relative">
+              <div className="w-full h-64 sm:h-80 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 relative">
                 <img 
                   src={selectedCase.imageUrl} 
                   alt={selectedCase.title} 
@@ -473,13 +473,13 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
                 />
               </div>
             ) : (
-              <div className="w-full h-32 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 border border-cyber-border flex items-center justify-center p-6 text-center">
+              <div className="w-full h-32 rounded-2xl bg-gradient-to-r from-cyan-50 via-slate-50 to-cyan-50 border border-cyan-200 flex items-center justify-center p-6 text-center">
                 <div className="space-y-1">
-                  <div className="inline-flex items-center space-x-2 text-cyber-cyan font-mono text-xs font-bold">
-                    <Sparkles className="w-4 h-4" />
+                  <div className="inline-flex items-center space-x-2 text-cyan-800 font-mono text-xs font-bold">
+                    <Sparkles className="w-4 h-4 text-cyan-700" />
                     <span>PLANEJAMENTO VIRTUAL 3D CONCLUÍDO</span>
                   </div>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-600">
                     Arquivos tomográficos DICOM e escaneamento oral alinhados com precisão sub-milimétrica.
                   </p>
                 </div>
@@ -489,10 +489,10 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
             {/* Galeria de Fotos Adicionais se houver */}
             {selectedCase.galleryImages && selectedCase.galleryImages.length > 0 && (
               <div className="space-y-2">
-                <span className="text-xs font-mono text-slate-400">Outras imagens do caso:</span>
+                <span className="text-xs font-mono text-slate-500 font-medium">Outras imagens do caso:</span>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                   {selectedCase.galleryImages.map((imgUrl, i) => (
-                    <div key={i} className="h-20 rounded-xl overflow-hidden border border-cyber-border bg-slate-900">
+                    <div key={i} className="h-20 rounded-xl overflow-hidden border border-slate-200 bg-slate-100">
                       <img src={imgUrl} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
                     </div>
                   ))}
@@ -502,17 +502,17 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
 
             {/* HUD de Métricas e Telemetria Cirúrgica */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="p-3 rounded-2xl bg-slate-900/80 border border-cyber-border">
-                <span className="text-[10px] font-mono text-slate-400 block">{selectedCase.metric1Label}</span>
-                <span className="text-sm font-mono font-bold text-cyber-cyan">{selectedCase.metric1Value}</span>
+              <div className="p-3.5 rounded-2xl bg-cyan-50/70 border border-cyan-100">
+                <span className="text-[10px] font-mono text-slate-500 block">{selectedCase.metric1Label}</span>
+                <span className="text-sm font-mono font-bold text-cyan-800">{selectedCase.metric1Value}</span>
               </div>
-              <div className="p-3 rounded-2xl bg-slate-900/80 border border-cyber-border">
-                <span className="text-[10px] font-mono text-slate-400 block">{selectedCase.metric2Label}</span>
-                <span className="text-sm font-mono font-bold text-emerald-400">{selectedCase.metric2Value}</span>
+              <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-100">
+                <span className="text-[10px] font-mono text-slate-500 block">{selectedCase.metric2Label}</span>
+                <span className="text-sm font-mono font-bold text-emerald-700">{selectedCase.metric2Value}</span>
               </div>
-              <div className="p-3 rounded-2xl bg-slate-900/80 border border-cyber-border col-span-2 sm:col-span-2">
-                <span className="text-[10px] font-mono text-slate-400 block">Sistema / Marca</span>
-                <span className="text-xs font-mono font-bold text-slate-200 truncate block">
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 col-span-2 sm:col-span-2">
+                <span className="text-[10px] font-mono text-slate-500 block">Sistema / Marca</span>
+                <span className="text-xs font-mono font-bold text-slate-800 truncate block">
                   {selectedCase.implantBrand || 'Neodent / Straumann Guiado'}
                 </span>
               </div>
@@ -520,27 +520,27 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
 
             {/* Descrição e Conduta Clínica Aprofundada */}
             <div className="space-y-3 pt-2">
-              <h3 className="text-sm font-bold font-mono text-cyber-cyan uppercase tracking-wider flex items-center space-x-2">
-                <Layers className="w-4 h-4" />
+              <h3 className="text-sm font-bold font-mono text-cyan-800 uppercase tracking-wider flex items-center space-x-2">
+                <Layers className="w-4 h-4 text-cyan-700" />
                 <span>Conduta Clínica & Detalhamento do Planejamento</span>
               </h3>
               
-              <div className="text-sm text-slate-200 leading-relaxed space-y-3 font-sans whitespace-pre-line p-4 rounded-2xl bg-slate-900/60 border border-cyber-border/70">
+              <div className="text-sm text-slate-700 leading-relaxed space-y-3 font-sans whitespace-pre-line p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-xs">
                 {selectedCase.fullContent || selectedCase.description}
               </div>
             </div>
 
             {/* Seção de Documento / PDF para Download */}
-            <div className="p-4 rounded-2xl glass-panel border border-cyber-cyan/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="p-4 rounded-2xl bg-cyan-50/60 border border-cyan-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-xl bg-cyber-cyan/15 border border-cyber-cyan/40 flex items-center justify-center text-cyber-cyan flex-shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-cyan-100 border border-cyan-200 flex items-center justify-center text-cyan-700 flex-shrink-0">
                   <FileText className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-white font-mono">
+                  <h4 className="text-xs font-bold text-slate-900 font-mono">
                     {selectedCase.pdfName || `Laudo_Cirurgico_${selectedCase.badge.replace(/\s+/g, '_')}.pdf`}
                   </h4>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-slate-500">
                     Ficha técnica, posicionamento axial e tolerâncias de broca
                   </p>
                 </div>
@@ -548,7 +548,7 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
 
               <button
                 onClick={() => handleDownloadPdf(selectedCase)}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyber-cyan to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-black font-mono font-bold text-xs flex items-center space-x-1.5 transition-all shadow-glow-cyan cursor-pointer whitespace-nowrap"
+                className="px-4 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white font-mono font-bold text-xs flex items-center space-x-1.5 transition-all shadow-sm hover:shadow cursor-pointer whitespace-nowrap"
               >
                 <Download className="w-4 h-4" />
                 <span>Baixar Laudo / PDF</span>
@@ -556,8 +556,8 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
             </div>
 
             {/* CTA WhatsApp Direto com Dr. Ricardo */}
-            <div className="pt-2 border-t border-cyber-border flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="text-xs text-slate-400 text-center sm:text-left">
+            <div className="pt-2 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="text-xs text-slate-500 text-center sm:text-left">
                 Deseja planejar um caso semelhante ou tirar dúvidas clínicas?
               </div>
 
@@ -565,7 +565,7 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
                 href={`https://wa.me/55${cleanWhatsApp}?text=${encodeURIComponent(`Olá Dr. Ricardo! Estive no seu acervo e gostaria de planejar um caso semelhante a: "${selectedCase.title}".`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs font-mono flex items-center justify-center space-x-2 transition-all shadow-lg hover:shadow-emerald-500/20"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs font-mono flex items-center justify-center space-x-2 transition-all shadow-md hover:shadow-lg"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span>Falar com Dr. Ricardo no WhatsApp</span>
