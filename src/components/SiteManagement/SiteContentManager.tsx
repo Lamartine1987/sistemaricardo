@@ -1185,8 +1185,8 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                   </div>
 
                   {editingCase.imageUrl ? (
-                    <div className="w-full h-44 rounded-xl overflow-hidden border border-slate-200 bg-white relative group">
-                      <img src={editingCase.imageUrl} alt="Capa" className="w-full h-full object-cover" />
+                    <div className="w-full h-44 rounded-xl overflow-hidden border border-slate-200 bg-slate-950 relative group flex items-center justify-center p-1">
+                      <img src={editingCase.imageUrl} alt="Capa" className="w-full h-full object-contain" />
                       <div className="absolute bottom-2 left-2 px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-sm text-white text-[11px] font-mono">
                         Capa Ativa
                       </div>
@@ -1289,8 +1289,8 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                   {(editingCase.galleryImages && editingCase.galleryImages.length > 0) ? (
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                       {editingCase.galleryImages.map((imgUrl, idx) => (
-                        <div key={idx} className="relative group rounded-xl overflow-hidden border border-slate-200 bg-white aspect-video shadow-xs">
-                          <img src={imgUrl} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover" />
+                        <div key={idx} className="relative group rounded-xl overflow-hidden border border-slate-200 bg-slate-950 aspect-video shadow-xs flex items-center justify-center p-1">
+                          <img src={imgUrl} alt={`Foto ${idx + 1}`} className="w-full h-full object-contain" />
                           <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-1.5">
                             <div className="flex items-center justify-between">
                               <span className="text-[10px] font-mono text-white/90 bg-black/60 px-1.5 py-0.5 rounded">

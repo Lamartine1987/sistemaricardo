@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ClinicalCaseItem, SiteContentConfig } from '../../types/siteContent';
 import { 
   ArrowLeft, 
@@ -15,6 +15,8 @@ import {
   ArrowRight,
   ShieldCheck,
   ChevronRight,
+  ChevronLeft,
+  Maximize2,
   Layers,
   Image as ImageIcon
 } from 'lucide-react';
@@ -40,12 +42,57 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [hasPdfOnly, setHasPdfOnly] = useState<boolean>(false);
   const [activeModalImage, setActiveModalImage] = useState<string | null>(null);
+  const [isLightboxOpen, setIsLightboxOpen] = useState<boolean>(false);
   const [selectedCase, setSelectedCase] = useState<ClinicalCaseItem | null>(() => {
     if (initialSelectedCaseId) {
       return siteContent.cases.find(c => c.id === initialSelectedCaseId) || null;
     }
     return null;
   });
+
+  const activeModalImages = useMemo(() => {
+    if (!selectedCase) return [];
+    const list = [
+      ...(selectedCase.imageUrl ? [selectedCase.imageUrl] : []),
+      ...(selectedCase.galleryImages || [])
+    ];
+    return list.filter((img, idx, arr) => arr.indexOf(img) === idx);
+  }, [selectedCase]);
+
+  const activeImageToDisplay = activeModalImage && activeModalImages.includes(activeModalImage)
+    ? activeModalImage
+    : (activeModalImages[0] || null);
+
+  const handleNextImage = () => {
+    if (activeModalImages.length <= 1) return;
+    const currentIdx = activeModalImages.indexOf(activeImageToDisplay || '');
+    const nextIdx = (currentIdx + 1) % activeModalImages.length;
+    setActiveModalImage(activeModalImages[nextIdx]);
+  };
+
+  const handlePrevImage = () => {
+    if (activeModalImages.length <= 1) return;
+    const currentIdx = activeModalImages.indexOf(activeImageToDisplay || '');
+    const prevIdx = (currentIdx - 1 + activeModalImages.length) % activeModalImages.length;
+    setActiveModalImage(activeModalImages[prevIdx]);
+  };
+
+  useEffect(() => {
+    if (!isLightboxOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsLightboxOpen(false);
+      } else if (e.key === 'ArrowRight') {
+        handleNextImage();
+      } else if (e.key === 'ArrowLeft') {
+        handlePrevImage();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isLightboxOpen, activeModalImages, activeImageToDisplay]);
 
   const activeCases = useMemo(() => {
     return siteContent.cases.filter(c => c.active);
@@ -481,26 +528,38 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
 
             {/* Imagem Principal ou Galeria Interativa */}
             {(() => {
-              const modalImages = [
-                ...(selectedCase.imageUrl ? [selectedCase.imageUrl] : []),
-                ...(selectedCase.galleryImages || [])
-              ].filter((img, idx, arr) => arr.indexOf(img) === idx);
-
-              const activeImageToDisplay = activeModalImage && modalImages.includes(activeModalImage)
-                ? activeModalImage
-                : (modalImages[0] || null);
+              const modalImages = activeModalImages;
 
               if (activeImageToDisplay) {
                 return (
                   <div className="space-y-3">
-                    <div className="w-full h-64 sm:h-80 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 relative group">
+                    <div 
+                      onClick={() => setIsLightboxOpen(true)}
+                      className="w-full min-h-[300px] max-h-[520px] rounded-2xl overflow-hidden bg-slate-950 border border-slate-200 relative group flex items-center justify-center p-2 cursor-zoom-in shadow-inner transition-colors hover:border-cyan-500/50"
+                      title="Clique para abrir imagem em Tela Cheia com zoom"
+                    >
                       <img 
                         src={activeImageToDisplay} 
                         alt={selectedCase.title} 
-                        className="w-full h-full object-cover transition-all duration-300" 
+                        className="max-h-[500px] w-auto max-w-full object-contain mx-auto select-none rounded-lg shadow-sm transition-transform duration-300 group-hover:scale-[1.01]" 
                       />
+
+                      {/* Botão de Tela Cheia */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsLightboxOpen(true);
+                        }}
+                        className="absolute top-3 right-3 px-3 py-1.5 rounded-xl bg-black/75 hover:bg-black text-white text-xs font-mono font-medium flex items-center space-x-1.5 shadow-md backdrop-blur-sm cursor-pointer transition-colors border border-white/10"
+                        title="Ver em tela cheia com zoom"
+                      >
+                        <Maximize2 className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>Tela Cheia</span>
+                      </button>
+
                       {modalImages.length > 1 && (
-                        <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-md text-[11px] font-mono text-white flex items-center space-x-1 border border-white/20">
+                        <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md text-[11px] font-mono text-white flex items-center space-x-1 border border-white/10 pointer-events-none">
                           <ImageIcon className="w-3.5 h-3.5 text-cyan-400" />
                           <span>{modalImages.indexOf(activeImageToDisplay) + 1} de {modalImages.length} fotos</span>
                         </div>
@@ -626,6 +685,93 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
             </div>
 
           </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 🔍 LIGHTBOX EM TELA CHEIA (FULLSCREEN VIEWER COM ZOOM & NAVEGAÇÃO) */}
+      {/* ========================================================================= */}
+      {isLightboxOpen && selectedCase && activeImageToDisplay && (
+        <div 
+          className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-md flex flex-col justify-between p-4 sm:p-6 animate-fade-in"
+          onClick={() => setIsLightboxOpen(false)}
+        >
+          {/* Header da Lightbox */}
+          <div className="flex items-center justify-between text-white pb-3 border-b border-white/10" onClick={e => e.stopPropagation()}>
+            <div className="space-y-0.5">
+              <span className="text-xs font-mono text-cyan-400 font-bold block">
+                {selectedCase.badge} • FOTO {activeModalImages.indexOf(activeImageToDisplay) + 1} DE {activeModalImages.length}
+              </span>
+              <h3 className="text-sm sm:text-base font-bold text-white truncate max-w-xl">
+                {selectedCase.title}
+              </h3>
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <span className="hidden sm:inline-block text-xs font-mono text-slate-400">
+                <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-slate-200">ESC</kbd> fechar • <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-slate-200">←</kbd> <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-slate-200">→</kbd> navegar
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsLightboxOpen(false)}
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+                title="Fechar Tela Cheia"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Área Central da Imagem com Setas */}
+          <div className="relative flex-1 flex items-center justify-center my-3 overflow-hidden" onClick={e => e.stopPropagation()}>
+            {activeModalImages.length > 1 && (
+              <button
+                type="button"
+                onClick={handlePrevImage}
+                className="absolute left-2 sm:left-4 z-10 p-3 rounded-full bg-black/60 hover:bg-black/90 text-white border border-white/20 backdrop-blur-md transition-all cursor-pointer hover:scale-110"
+                title="Foto Anterior (Seta Esquerda)"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+            )}
+
+            <img 
+              src={activeImageToDisplay} 
+              alt={selectedCase.title} 
+              className="max-h-[80vh] max-w-[92vw] object-contain select-none shadow-2xl rounded-lg" 
+            />
+
+            {activeModalImages.length > 1 && (
+              <button
+                type="button"
+                onClick={handleNextImage}
+                className="absolute right-2 sm:right-4 z-10 p-3 rounded-full bg-black/60 hover:bg-black/90 text-white border border-white/20 backdrop-blur-md transition-all cursor-pointer hover:scale-110"
+                title="Próxima Foto (Seta Direita)"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            )}
+          </div>
+
+          {/* Rodapé com Miniaturas Rápidas na Lightbox */}
+          {activeModalImages.length > 1 && (
+            <div className="flex items-center justify-center gap-2 overflow-x-auto pt-2 no-scrollbar" onClick={e => e.stopPropagation()}>
+              {activeModalImages.map((imgUrl, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setActiveModalImage(imgUrl)}
+                  className={`h-14 w-20 flex-shrink-0 rounded-lg overflow-hidden border transition-all cursor-pointer ${
+                    activeImageToDisplay === imgUrl
+                      ? 'ring-2 ring-cyan-400 border-cyan-400 scale-105'
+                      : 'border-white/20 opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  <img src={imgUrl} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
