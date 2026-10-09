@@ -70,6 +70,7 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
   // Modais de edição/criação
   const [editingCase, setEditingCase] = useState<ClinicalCaseItem | null>(null);
   const [isNewCaseModalOpen, setIsNewCaseModalOpen] = useState(false);
+  const [newGalleryUrl, setNewGalleryUrl] = useState('');
 
   const [editingService, setEditingService] = useState<ServiceItem | null>(null);
   const [isNewServiceModalOpen, setIsNewServiceModalOpen] = useState(false);
@@ -279,9 +280,17 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                   metric2Label: 'Torque Final',
                   metric2Value: '45 N.cm',
                   imageUrl: '',
+                  galleryImages: [],
+                  fullContent: '',
+                  implantBrand: '',
+                  surgicalTime: '',
+                  pdfName: '',
+                  pdfUrl: '',
+                  featuredOnHome: false,
                   active: true,
                   order: content.cases.length + 1
                 });
+                setNewGalleryUrl('');
                 setIsNewCaseModalOpen(true);
               }}
               className="px-4 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-semibold flex items-center space-x-2 transition-all cursor-pointer shadow-xs whitespace-nowrap flex-shrink-0"
@@ -321,7 +330,8 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                     <button
                       type="button"
                       onClick={() => {
-                        setEditingCase({ ...c });
+                        setEditingCase({ ...c, galleryImages: c.galleryImages || [] });
+                        setNewGalleryUrl('');
                         setIsNewCaseModalOpen(true);
                       }}
                       className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 text-[11px] font-sans font-medium transition-colors flex-shrink-0"
@@ -339,6 +349,11 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                     {c.featuredOnHome && (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200">
                         ⭐ Capa (Home)
+                      </span>
+                    )}
+                    {c.galleryImages && c.galleryImages.length > 0 && (
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-800 border border-cyan-200 font-medium">
+                        📸 +{c.galleryImages.length} fotos
                       </span>
                     )}
                     {(c.pdfUrl || c.pdfName) && (
@@ -387,7 +402,8 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                   <div className="flex items-center space-x-1.5">
                     <button
                       onClick={() => {
-                        setEditingCase({ ...c });
+                        setEditingCase({ ...c, galleryImages: c.galleryImages || [] });
+                        setNewGalleryUrl('');
                         setIsNewCaseModalOpen(true);
                       }}
                       className="p-1.5 rounded-lg text-slate-500 hover:text-cyan-700 hover:bg-slate-100 transition-colors"
@@ -933,31 +949,36 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
       {/* MODAL DE CASO CLÍNICO */}
       {/* ========================================================================= */}
       {isNewCaseModalOpen && editingCase && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto animate-scale-up">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-3xl sm:max-w-4xl w-full p-6 sm:p-8 shadow-2xl space-y-6 my-auto max-h-[92vh] overflow-y-auto animate-scale-up">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-sm font-bold text-slate-900">
-                {editingCase.title ? 'Editar Caso Clínico' : 'Novo Caso Clínico'}
-              </h3>
-              <button onClick={() => setIsNewCaseModalOpen(false)} className="p-1 text-slate-400 hover:text-slate-700">
-                <X className="w-4 h-4" />
+              <div>
+                <h3 className="text-base font-bold text-slate-900">
+                  {editingCase.title ? 'Editar Caso Clínico' : 'Novo Caso Clínico'}
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Preencha as informações técnicas, conduta cirúrgica e anexe fotos tomográficas e clínicas.
+                </p>
+              </div>
+              <button onClick={() => setIsNewCaseModalOpen(false)} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer">
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div className="space-y-1">
-                <label className="text-[11px] font-semibold text-slate-700">Título do Caso</label>
+                <label className="text-xs font-bold text-slate-700">Título do Caso Clínico</label>
                 <input
                   type="text"
-                  placeholder="Ex: Reabilitação Total Superior com Seio Pneumatizado"
+                  placeholder="Ex: Reabilitação Total Superior com Carga Imediata e Seio Pneumatizado"
                   value={editingCase.title}
                   onChange={e => setEditingCase({ ...editingCase, title: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 focus:bg-white focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600"
                 />
               </div>
 
               {/* Checkbox Destaque na Capa */}
-              <div className="flex items-center space-x-2 p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/80">
+              <div className="flex items-center space-x-2.5 p-3 rounded-xl bg-amber-50/80 border border-amber-200">
                 <input
                   type="checkbox"
                   id="caseFeaturedOnHome"
@@ -965,119 +986,142 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                   onChange={e => setEditingCase({ ...editingCase, featuredOnHome: e.target.checked })}
                   className="w-4 h-4 rounded text-cyan-700 focus:ring-cyan-500 cursor-pointer"
                 />
-                <label htmlFor="caseFeaturedOnHome" className="text-xs font-semibold text-amber-950 cursor-pointer flex items-center space-x-1">
+                <label htmlFor="caseFeaturedOnHome" className="text-xs font-semibold text-amber-950 cursor-pointer flex items-center space-x-1.5">
                   <span>⭐ Destacar este caso na Página Inicial (Exibir na vitrine de 3 casos da capa)</span>
                 </label>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-700">Badge / Categoria</label>
+                  <label className="text-xs font-semibold text-slate-700">Badge / Categoria Principal</label>
                   <input
                     type="text"
-                    placeholder="Ex: Protocolo All-on-4"
+                    placeholder="Ex: Protocolo All-on-4 / All-on-6"
                     value={editingCase.badge}
                     onChange={e => setEditingCase({ ...editingCase, badge: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-500"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-600"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-700">Tag Secundária</label>
+                  <label className="text-xs font-semibold text-slate-700">Tag Secundária / Técnica</label>
                   <input
                     type="text"
-                    placeholder="Ex: Carga Imediata"
+                    placeholder="Ex: Carga Imediata / Flapless"
                     value={editingCase.tag}
                     onChange={e => setEditingCase({ ...editingCase, tag: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-500"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-600"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-700">Sistema / Marca do Implante</label>
+                  <label className="text-xs font-semibold text-slate-700">Sistema / Marca do Implante</label>
                   <input
                     type="text"
-                    placeholder="Ex: Neodent GM / Straumann BLT"
+                    placeholder="Ex: Neodent Grand Morse (GM) / Straumann BLX"
                     value={editingCase.implantBrand || ''}
                     onChange={e => setEditingCase({ ...editingCase, implantBrand: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-500"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-600"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-700">Tempo Cirúrgico</label>
+                  <label className="text-xs font-semibold text-slate-700">Tempo Cirúrgico Estimado</label>
                   <input
                     type="text"
                     placeholder="Ex: 25 min"
                     value={editingCase.surgicalTime || ''}
                     onChange={e => setEditingCase({ ...editingCase, surgicalTime: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-500"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-600"
                   />
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <label className="text-[11px] font-semibold text-slate-700">Resumo da Técnica (Breve)</label>
-                <textarea
-                  rows={2}
-                  placeholder="Resumo exibido no card da vitrine..."
-                  value={editingCase.description}
-                  onChange={e => setEditingCase({ ...editingCase, description: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-500"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[11px] font-semibold text-slate-700 flex items-center justify-between">
-                  <span>Estudo de Caso Completo & Conduta Clínica (Artigo / Dossiê)</span>
-                  <span className="text-[10px] text-slate-400 font-normal">Exibido na página do acervo</span>
-                </label>
+              {/* 1. Resumo da Técnica (Área Aumentada) */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-700">
+                    Resumo da Técnica (Exibido no Card da Vitrine / Capa)
+                  </label>
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    {(editingCase.description || '').length} caracteres
+                  </span>
+                </div>
                 <textarea
                   rows={4}
-                  placeholder="Detalhamento passo a passo da conduta, exames tomográficos, planejamento das guias e resultado pós-operatório..."
-                  value={editingCase.fullContent || ''}
-                  onChange={e => setEditingCase({ ...editingCase, fullContent: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-500 leading-relaxed font-sans"
+                  placeholder="Resumo executivo do caso para a vitrine e cards (ex: Implantes posteriores angulados a 30° com ancoragem no pilar zigomático-maxilar, dispensando enxertos ósseos invasivos e reduzindo o tempo cirúrgico para 25 minutos)..."
+                  value={editingCase.description}
+                  onChange={e => setEditingCase({ ...editingCase, description: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/15 leading-relaxed font-sans min-h-[100px] resize-y"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {/* 2. Estudo de Caso Completo (Área Ampla para Artigo / Dossiê) */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <label className="text-xs font-bold text-slate-700 flex items-center space-x-2">
+                    <span>Estudo de Caso Completo & Conduta Clínica (Artigo / Dossiê Detalhado)</span>
+                    <span className="px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-800 border border-cyan-200 text-[10px] font-mono font-medium">
+                      Página do Acervo
+                    </span>
+                  </label>
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    {(editingCase.fullContent || '').length} caracteres
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  Área ampla para redação técnica: descreva a anamnese, diagnóstico tomográfico 3D, guia cirúrgico, sequência de fresagem, torques, estabilidade e protocolo protético.
+                </p>
+                <textarea
+                  rows={10}
+                  placeholder={`Detalhamento completo do caso para estudo dos colegas cirurgiões:
+1. Diagnóstico e Planejamento Virtual 3D: Análise tomográfica Cone Beam da maxila...
+2. Guia Cirúrgico Prototipado: Posicionamento axial dos implantes e fresagem guiada com irrigação copiosa...
+3. Fixação e Carga Imediata: Estabilidade primária bicortical superior a 45 N.cm com captura dos transferentes no mesmo dia...`}
+                  value={editingCase.fullContent || ''}
+                  onChange={e => setEditingCase({ ...editingCase, fullContent: e.target.value })}
+                  className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/15 leading-relaxed font-sans min-h-[220px] resize-y"
+                />
+              </div>
+
+              {/* Métricas Clínicas */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-700">Métrica 1 (Rótulo / Valor)</label>
-                  <div className="grid grid-cols-2 gap-1.5">
+                  <label className="text-xs font-semibold text-slate-700">Métrica 1 (Rótulo / Valor)</label>
+                  <div className="grid grid-cols-2 gap-2">
                     <input
                       type="text"
                       placeholder="Desvio Angular"
                       value={editingCase.metric1Label}
                       onChange={e => setEditingCase({ ...editingCase, metric1Label: e.target.value })}
-                      className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs"
+                      className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800"
                     />
                     <input
                       type="text"
                       placeholder="< 0.4°"
                       value={editingCase.metric1Value}
                       onChange={e => setEditingCase({ ...editingCase, metric1Value: e.target.value })}
-                      className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-cyan-700"
+                      className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-cyan-800"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-700">Métrica 2 (Rótulo / Valor)</label>
-                  <div className="grid grid-cols-2 gap-1.5">
+                  <label className="text-xs font-semibold text-slate-700">Métrica 2 (Rótulo / Valor)</label>
+                  <div className="grid grid-cols-2 gap-2">
                     <input
                       type="text"
                       placeholder="Torque Final"
                       value={editingCase.metric2Label}
                       onChange={e => setEditingCase({ ...editingCase, metric2Label: e.target.value })}
-                      className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs"
+                      className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800"
                     />
                     <input
                       type="text"
                       placeholder="45 N.cm"
                       value={editingCase.metric2Value}
                       onChange={e => setEditingCase({ ...editingCase, metric2Value: e.target.value })}
-                      className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-emerald-600"
+                      className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-emerald-700"
                     />
                   </div>
                 </div>
@@ -1086,62 +1130,215 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
               {/* Arquivo PDF para Download */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-700">Nome do Arquivo PDF de Laudo</label>
+                  <label className="text-xs font-semibold text-slate-700">Nome do Arquivo PDF de Laudo</label>
                   <input
                     type="text"
                     placeholder="Ex: Laudo_Cirurgico_Caso_01.pdf"
                     value={editingCase.pdfName || ''}
                     onChange={e => setEditingCase({ ...editingCase, pdfName: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-500 font-mono"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-600 font-mono"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-700">Link Externo do PDF (Opcional)</label>
+                  <label className="text-xs font-semibold text-slate-700">Link Externo do PDF (Opcional)</label>
                   <input
                     type="text"
                     placeholder="https://... ou em branco para gerar auto"
                     value={editingCase.pdfUrl || ''}
                     onChange={e => setEditingCase({ ...editingCase, pdfUrl: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-500 font-mono"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-600 font-mono"
                   />
                 </div>
               </div>
 
-              {/* Upload de Foto do Caso */}
-              <div className="space-y-2 pt-2 border-t border-slate-100">
-                <label className="text-[11px] font-semibold text-slate-700 block">Foto do Caso / Cirurgia (Opcional)</label>
-                {editingCase.imageUrl && (
-                  <div className="w-full h-32 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 mb-2 relative">
-                    <img src={editingCase.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+              {/* ======================================================== */}
+              {/* 📸 FOTOS DO CASO CLÍNICO (CAPA E GALERIA MULTI-FOTOS) */}
+              {/* ======================================================== */}
+              <div className="space-y-4 pt-3 border-t border-slate-100">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900 flex items-center space-x-2">
+                    <ImageIcon className="w-4 h-4 text-cyan-700" />
+                    <span>Fotos do Caso Clínico (Foto de Capa & Galeria de Imagens)</span>
+                  </h4>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Anexe a foto de capa e adicione múltiplas fotos complementares (tomografias, radiografias, fotos intraorais antes/depois ou do guia em boca).
+                  </p>
+                </div>
+
+                {/* 1. Foto Principal de Capa */}
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-700 flex items-center space-x-1.5">
+                      <span className="w-2 h-2 rounded-full bg-cyan-600" />
+                      <span>Foto Principal de Capa (Exibida no Card e Vitrine)</span>
+                    </label>
+                    {editingCase.imageUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setEditingCase({ ...editingCase, imageUrl: '' })}
+                        className="text-[11px] text-rose-600 hover:underline flex items-center space-x-1 cursor-pointer"
+                      >
+                        <X className="w-3 h-3" />
+                        <span>Remover Foto de Capa</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {editingCase.imageUrl ? (
+                    <div className="w-full h-44 rounded-xl overflow-hidden border border-slate-200 bg-white relative group">
+                      <img src={editingCase.imageUrl} alt="Capa" className="w-full h-full object-cover" />
+                      <div className="absolute bottom-2 left-2 px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-sm text-white text-[11px] font-mono">
+                        Capa Ativa
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="w-full h-24 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 text-xs">
+                      <span>Nenhuma foto principal selecionada</span>
+                      <span className="text-[10px] text-slate-400 mt-0.5">O site exibirá o gráfico 3D padrão se não houver foto</span>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <label className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 flex items-center justify-center space-x-1.5 cursor-pointer transition-colors shadow-xs">
+                      <UploadCloud className="w-4 h-4 text-cyan-600" />
+                      <span>Escolher Capa do Computador</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={e => handleImageUpload(e, url => setEditingCase({ ...editingCase, imageUrl: url }))}
+                      />
+                    </label>
+                    <span className="text-[11px] text-slate-400 text-center sm:text-left">ou</span>
+                    <input
+                      type="text"
+                      placeholder="Cole a URL da foto de capa aqui..."
+                      value={editingCase.imageUrl || ''}
+                      onChange={e => setEditingCase({ ...editingCase, imageUrl: e.target.value })}
+                      className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-cyan-600"
+                    />
+                  </div>
+                </div>
+
+                {/* 2. Galeria de Fotos Adicionais do Caso */}
+                <div className="p-4 rounded-2xl bg-cyan-50/50 border border-cyan-200/80 space-y-3">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div>
+                      <label className="text-xs font-bold text-slate-800 flex items-center space-x-1.5">
+                        <span className="w-2 h-2 rounded-full bg-cyan-700" />
+                        <span>Galeria de Fotos Adicionais do Caso</span>
+                      </label>
+                      <span className="text-[11px] text-slate-500">
+                        {(editingCase.galleryImages || []).length} fotos adicionadas na galeria
+                      </span>
+                    </div>
+
+                    <label className="px-3 py-1.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-semibold flex items-center space-x-1.5 cursor-pointer transition-colors shadow-xs">
+                      <UploadCloud className="w-3.5 h-3.5" />
+                      <span>+ Adicionar Fotos (Múltiplas)</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={async (e) => {
+                          const files = Array.from(e.target.files || []);
+                          if (!files.length) return;
+                          try {
+                            const base64List = await Promise.all(files.map(f => fileToBase64(f)));
+                            const current = editingCase.galleryImages || [];
+                            setEditingCase({
+                              ...editingCase,
+                              galleryImages: [...current, ...base64List]
+                            });
+                          } catch (err) {
+                            alert('Erro ao carregar fotos da galeria.');
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+
+                  {/* Input para adicionar foto na galeria via URL */}
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      placeholder="Ou cole a URL de uma foto para incluir na galeria..."
+                      value={newGalleryUrl}
+                      onChange={e => setNewGalleryUrl(e.target.value)}
+                      className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-cyan-600"
+                    />
                     <button
                       type="button"
-                      onClick={() => setEditingCase({ ...editingCase, imageUrl: '' })}
-                      className="absolute top-2 right-2 p-1 rounded-lg bg-black/60 text-white hover:bg-rose-600 transition-colors"
-                      title="Remover Imagem"
+                      onClick={() => {
+                        if (!newGalleryUrl.trim()) return;
+                        const current = editingCase.galleryImages || [];
+                        setEditingCase({
+                          ...editingCase,
+                          galleryImages: [...current, newGalleryUrl.trim()]
+                        });
+                        setNewGalleryUrl('');
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 cursor-pointer"
                     >
-                      <X className="w-3.5 h-3.5" />
+                      + Adicionar URL
                     </button>
                   </div>
-                )}
-                <div className="flex items-center space-x-2">
-                  <label className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 flex items-center space-x-1.5 cursor-pointer transition-colors">
-                    <UploadCloud className="w-3.5 h-3.5 text-cyan-600" />
-                    <span>Escolher Foto do Computador</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={e => handleImageUpload(e, url => setEditingCase({ ...editingCase, imageUrl: url }))}
-                    />
-                  </label>
-                  <span className="text-[11px] text-slate-400">ou</span>
-                  <input
-                    type="text"
-                    placeholder="Cole a URL da imagem aqui"
-                    value={editingCase.imageUrl || ''}
-                    onChange={e => setEditingCase({ ...editingCase, imageUrl: e.target.value })}
-                    className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800"
-                  />
+
+                  {/* Grid de Thumbnails da Galeria */}
+                  {(editingCase.galleryImages && editingCase.galleryImages.length > 0) ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                      {editingCase.galleryImages.map((imgUrl, idx) => (
+                        <div key={idx} className="relative group rounded-xl overflow-hidden border border-slate-200 bg-white aspect-video shadow-xs">
+                          <img src={imgUrl} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-1.5">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-mono text-white/90 bg-black/60 px-1.5 py-0.5 rounded">
+                                #{idx + 1}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const current = editingCase.galleryImages || [];
+                                  setEditingCase({
+                                    ...editingCase,
+                                    galleryImages: current.filter((_, i) => i !== idx)
+                                  });
+                                }}
+                                className="p-1 rounded-md bg-rose-600 text-white hover:bg-rose-700 transition-colors cursor-pointer"
+                                title="Remover Foto"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const current = editingCase.galleryImages || [];
+                                const selectedImg = current[idx];
+                                const oldMain = editingCase.imageUrl;
+                                const nextGallery = current.filter((_, i) => i !== idx);
+                                if (oldMain) nextGallery.unshift(oldMain);
+                                setEditingCase({
+                                  ...editingCase,
+                                  imageUrl: selectedImg,
+                                  galleryImages: nextGallery
+                                });
+                              }}
+                              className="w-full py-1 rounded bg-cyan-700/90 hover:bg-cyan-700 text-white text-[10px] font-mono font-medium text-center cursor-pointer transition-colors"
+                              title="Tornar esta imagem a foto principal de capa"
+                            >
+                              Tornar Capa
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-slate-500 italic pt-1">
+                      Nenhuma foto adicional adicionada ainda. Você pode enviar várias imagens de uma vez clicando no botão acima.
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -1151,7 +1348,7 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
               <button
                 type="button"
                 onClick={() => setIsNewCaseModalOpen(false)}
-                className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
               >
                 Cancelar
               </button>
@@ -1172,7 +1369,7 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                   });
                   setIsNewCaseModalOpen(false);
                 }}
-                className="px-4 py-2 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-bold"
+                className="px-5 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-bold shadow-xs cursor-pointer"
               >
                 Concluir & Aplicar
               </button>

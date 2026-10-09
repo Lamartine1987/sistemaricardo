@@ -39,6 +39,7 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [hasPdfOnly, setHasPdfOnly] = useState<boolean>(false);
+  const [activeModalImage, setActiveModalImage] = useState<string | null>(null);
   const [selectedCase, setSelectedCase] = useState<ClinicalCaseItem | null>(() => {
     if (initialSelectedCaseId) {
       return siteContent.cases.find(c => c.id === initialSelectedCaseId) || null;
@@ -317,7 +318,10 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
             {filteredCases.map((c) => (
               <div
                 key={c.id}
-                onClick={() => setSelectedCase(c)}
+                onClick={() => {
+                  setSelectedCase(c);
+                  setActiveModalImage(c.imageUrl || (c.galleryImages?.[0] || null));
+                }}
                 className="p-6 rounded-3xl bg-white border border-slate-200/90 hover:border-cyan-500/60 transition-all flex flex-col justify-between group cursor-pointer shadow-sm hover:shadow-md"
               >
                 <div className="space-y-4">
@@ -412,12 +416,21 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
                     <ChevronRight className="w-3.5 h-3.5" />
                   </span>
 
-                  {(c.pdfUrl || c.pdfName) && (
-                    <span className="inline-flex items-center space-x-1 text-[10px] font-mono text-slate-600 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200">
-                      <FileText className="w-3 h-3 text-cyan-700" />
-                      <span className="font-medium">PDF</span>
-                    </span>
-                  )}
+                  <div className="flex items-center space-x-1.5">
+                    {c.galleryImages && c.galleryImages.length > 0 && (
+                      <span className="inline-flex items-center space-x-1 text-[10px] font-mono text-cyan-800 px-2 py-0.5 rounded-md bg-cyan-50 border border-cyan-200">
+                        <ImageIcon className="w-3 h-3 text-cyan-700" />
+                        <span>+{c.galleryImages.length}</span>
+                      </span>
+                    )}
+
+                    {(c.pdfUrl || c.pdfName) && (
+                      <span className="inline-flex items-center space-x-1 text-[10px] font-mono text-slate-600 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200">
+                        <FileText className="w-3 h-3 text-cyan-700" />
+                        <span className="font-medium">PDF</span>
+                      </span>
+                    )}
+                  </div>
                 </div>
 
               </div>
@@ -456,49 +469,89 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
               </div>
 
               <button
-                onClick={() => setSelectedCase(null)}
+                onClick={() => {
+                  setSelectedCase(null);
+                  setActiveModalImage(null);
+                }}
                 className="p-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-200 transition-colors cursor-pointer flex-shrink-0"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Imagem Principal ou Galeria */}
-            {selectedCase.imageUrl ? (
-              <div className="w-full h-64 sm:h-80 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 relative">
-                <img 
-                  src={selectedCase.imageUrl} 
-                  alt={selectedCase.title} 
-                  className="w-full h-full object-cover" 
-                />
-              </div>
-            ) : (
-              <div className="w-full h-32 rounded-2xl bg-gradient-to-r from-cyan-50 via-slate-50 to-cyan-50 border border-cyan-200 flex items-center justify-center p-6 text-center">
-                <div className="space-y-1">
-                  <div className="inline-flex items-center space-x-2 text-cyan-800 font-mono text-xs font-bold">
-                    <Sparkles className="w-4 h-4 text-cyan-700" />
-                    <span>PLANEJAMENTO VIRTUAL 3D CONCLUÍDO</span>
-                  </div>
-                  <p className="text-xs text-slate-600">
-                    Arquivos tomográficos DICOM e escaneamento oral alinhados com precisão sub-milimétrica.
-                  </p>
-                </div>
-              </div>
-            )}
+            {/* Imagem Principal ou Galeria Interativa */}
+            {(() => {
+              const modalImages = [
+                ...(selectedCase.imageUrl ? [selectedCase.imageUrl] : []),
+                ...(selectedCase.galleryImages || [])
+              ].filter((img, idx, arr) => arr.indexOf(img) === idx);
 
-            {/* Galeria de Fotos Adicionais se houver */}
-            {selectedCase.galleryImages && selectedCase.galleryImages.length > 0 && (
-              <div className="space-y-2">
-                <span className="text-xs font-mono text-slate-500 font-medium">Outras imagens do caso:</span>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                  {selectedCase.galleryImages.map((imgUrl, i) => (
-                    <div key={i} className="h-20 rounded-xl overflow-hidden border border-slate-200 bg-slate-100">
-                      <img src={imgUrl} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+              const activeImageToDisplay = activeModalImage && modalImages.includes(activeModalImage)
+                ? activeModalImage
+                : (modalImages[0] || null);
+
+              if (activeImageToDisplay) {
+                return (
+                  <div className="space-y-3">
+                    <div className="w-full h-64 sm:h-80 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 relative group">
+                      <img 
+                        src={activeImageToDisplay} 
+                        alt={selectedCase.title} 
+                        className="w-full h-full object-cover transition-all duration-300" 
+                      />
+                      {modalImages.length > 1 && (
+                        <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-md text-[11px] font-mono text-white flex items-center space-x-1 border border-white/20">
+                          <ImageIcon className="w-3.5 h-3.5 text-cyan-400" />
+                          <span>{modalImages.indexOf(activeImageToDisplay) + 1} de {modalImages.length} fotos</span>
+                        </div>
+                      )}
                     </div>
-                  ))}
+
+                    {/* Miniaturas da Galeria Interativa */}
+                    {modalImages.length > 1 && (
+                      <div className="space-y-1.5">
+                        <span className="text-[11px] font-mono text-slate-500 font-medium block">
+                          Galeria de fotos do caso (clique para alternar a imagem):
+                        </span>
+                        <div className="flex items-center gap-2.5 overflow-x-auto pb-1.5 pt-1 no-scrollbar">
+                          {modalImages.map((imgUrl, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              onClick={() => setActiveModalImage(imgUrl)}
+                              className={`h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden border transition-all cursor-pointer relative group ${
+                                activeImageToDisplay === imgUrl
+                                  ? 'ring-2 ring-cyan-600 border-cyan-600 shadow-sm scale-[1.02]'
+                                  : 'border-slate-200 hover:border-slate-300 opacity-75 hover:opacity-100'
+                              }`}
+                            >
+                              <img src={imgUrl} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+                              <span className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-black/60 text-white text-[9px] font-mono">
+                                #{i + 1}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              return (
+                <div className="w-full h-32 rounded-2xl bg-gradient-to-r from-cyan-50 via-slate-50 to-cyan-50 border border-cyan-200 flex items-center justify-center p-6 text-center">
+                  <div className="space-y-1">
+                    <div className="inline-flex items-center space-x-2 text-cyan-800 font-mono text-xs font-bold">
+                      <Sparkles className="w-4 h-4 text-cyan-700" />
+                      <span>PLANEJAMENTO VIRTUAL 3D CONCLUÍDO</span>
+                    </div>
+                    <p className="text-xs text-slate-600">
+                      Arquivos tomográficos DICOM e escaneamento oral alinhados com precisão sub-milimétrica.
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* HUD de Métricas e Telemetria Cirúrgica */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
