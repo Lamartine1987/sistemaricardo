@@ -173,6 +173,18 @@ export const saveAdminToFirestore = async (admin: AdminUser) => {
 };
 
 /**
+ * Exclui administrador do Firestore
+ */
+export const deleteAdminFromFirestore = async (adminId: string) => {
+  if (!isFirebaseConfigured || !db) return;
+  try {
+    await deleteDoc(doc(db, ADMINS_COLLECTION, adminId));
+  } catch (error) {
+    console.error('Erro ao excluir administrador do Firestore:', error);
+  }
+};
+
+/**
  * Salva ou atualiza dentista parceiro no Firestore
  */
 export const saveDentistToFirestore = async (dentist: Dentist) => {

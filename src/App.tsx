@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DentalCase, Dentist, AdminUser, UserType, CaseFile } from './types';
+import { DentalCase, Dentist, AdminUser, UserType, CaseFile, AdminRole } from './types';
 import { INITIAL_CASES, INITIAL_DENTISTS, INITIAL_ADMINS } from './services/mockData';
 import { Header } from './components/Header/Header';
 import { StatsGrid } from './components/Dashboard/StatsGrid';
@@ -14,6 +14,7 @@ import { UserProfileModal } from './components/Profile/UserProfileModal';
 import { SettingsTab } from './components/Settings/SettingsTab';
 import { LandingPage } from './components/Landing/LandingPage';
 import { ClinicalCasesArchive } from './components/Landing/ClinicalCasesArchive';
+import { AccessControlManager, ROOT_SUPERADMIN_EMAIL } from './components/AccessControl/AccessControlManager';
 import { AppNotification } from './types/notifications';
 import { 
   getStoredWhatsAppConfig, 
@@ -32,6 +33,7 @@ import {
   saveCaseToFirestore,
   updateCasePaymentInFirestore,
   saveAdminToFirestore,
+  deleteAdminFromFirestore,
   saveDentistToFirestore,
   deleteCaseFromFirestore,
   saveNotificationToFirestore,
@@ -49,9 +51,10 @@ import {
   FolderKanban, 
   Users, 
   Lock, 
-  UserCheck,
-  Settings,
-  Globe
+  UserCheck, 
+  Settings, 
+  Globe,
+  Crown
 } from 'lucide-react';
 
 const DEFAULT_DENTIST_FALLBACK: Dentist = {
@@ -161,39 +164,29 @@ export function App() {
     };
   }, []);
 
-  // Sincronizar perfil ativo com o usuário autenticado do Firebase (Lamartine Cezar como Super Admin, outros como Dentistas Clientes)
+  // Sincronizar perfil ativo com o usuário autenticado do Firebase (Lamartine Cezar como Super Admin, outros conforme administradores cadastrados)
   useEffect(() => {
     if (firebaseUser?.email) {
-      const emailLower = firebaseUser.email.toLowerCase();
-      const isAdmin = emailLower === 'lamartinecezar3@gmail.com' || emailLower === 'ricardo@implantprecision.com.br';
+      const emailLower = firebaseUser.email.toLowerCase().trim();
+      const isRoot = emailLower === ROOT_SUPERADMIN_EMAIL;
+      const matchedAdmin = admins.find(a => a.active && a.email?.toLowerCase().trim() === emailLower);
+      const isAdmin = isRoot || Boolean(matchedAdmin);
 
       if (isAdmin) {
-        const activeName = firebaseUser.displayName || 'Lamartine Cezar';
+        const activeName = firebaseUser.displayName || matchedAdmin?.name || (isRoot ? 'Lamartine Cezar' : 'Administrador');
         setUserType('ADMIN');
         setCurrentAdmin({
-          id: 'admin-01',
+          id: matchedAdmin?.id || (isRoot ? 'admin-01' : `admin-${Date.now()}`),
           name: activeName,
           email: firebaseUser.email,
-          role: 'SUPER_ADMIN',
-          roleTitle: 'Administrador Geral',
+          role: matchedAdmin?.role || 'SUPER_ADMIN',
+          roleTitle: matchedAdmin?.roleTitle || 'Administrador Geral',
           active: true,
-          createdAt: '2026-01-01T08:00:00Z'
-        });
-        setAdmins(prev => {
-          const others = prev.filter(a => a.id !== 'admin-01' && a.email?.toLowerCase() !== emailLower);
-          return [{
-            id: 'admin-01',
-            name: activeName,
-            email: firebaseUser.email!,
-            role: 'SUPER_ADMIN',
-            roleTitle: 'Administrador Geral',
-            active: true,
-            createdAt: '2026-01-01T08:00:00Z'
-          }, ...others];
+          createdAt: matchedAdmin?.createdAt || '2026-01-01T08:00:00Z'
         });
       } else {
         setUserType('CLIENT');
-        const matched = dentists.find(d => d.email.toLowerCase() === emailLower);
+        const matched = dentists.find(d => d.email.toLowerCase().trim() === emailLower);
         if (matched) {
           setCurrentDentist(matched);
         } else {
@@ -213,10 +206,13 @@ export function App() {
         }
       }
     }
-  }, [firebaseUser]);
+  }, [firebaseUser, admins]);
+
+  // Verificação exclusiva de Super Administrador Raiz
+  const isRootSuperAdmin = firebaseUser?.email?.toLowerCase().trim() === ROOT_SUPERADMIN_EMAIL;
 
   // Navegação
-  const [activeTab, setActiveTab] = useState<'CASES' | 'DENTISTS' | 'TEAM' | 'CONFIG' | 'SITE'>('CASES');
+  const [activeTab, setActiveTab] = useState<'CASES' | 'DENTISTS' | 'TEAM' | 'CONFIG' | 'SITE' | 'ACCESS'>('CASES');
   const [selectedDentistFilter, setSelectedDentistFilter] = useState<string>('ALL');
   
   // Modais
@@ -343,17 +339,14 @@ export function App() {
   const handleSelectDentist = (dentist: Dentist) => {
     setCurrentDentist(dentist);
     setUserType('CLIENT');
-    if (activeTab === 'DENTISTS' || activeTab === 'TEAM' || activeTab === 'CONFIG' || activeTab === 'SITE') {
+    if (activeTab === 'DENTISTS' || activeTab === 'TEAM' || activeTab === 'CONFIG' || activeTab === 'SITE' || activeTab === 'ACCESS') {
       setActiveTab('CASES');
     }
   };
 
   // Usuários com permissão para alternar entre painel do administrador e portal do cliente
-  const canSwitchRole = !firebaseUser || Boolean(
-    firebaseUser.email && (
-      firebaseUser.email.toLowerCase() === 'lamartinecezar3@gmail.com' ||
-      firebaseUser.email.toLowerCase() === 'ricardo@implantprecision.com.br'
-    )
+  const canSwitchRole = !firebaseUser || isRootSuperAdmin || admins.some(
+    a => a.active && a.email?.toLowerCase().trim() === firebaseUser.email?.toLowerCase().trim()
   );
 
   const handleToggleUserType = () => {
@@ -362,7 +355,7 @@ export function App() {
       if (dentists.length > 0) {
         setCurrentDentist(dentists[0]);
       }
-      if (activeTab === 'DENTISTS' || activeTab === 'TEAM' || activeTab === 'CONFIG' || activeTab === 'SITE') {
+      if (activeTab === 'DENTISTS' || activeTab === 'TEAM' || activeTab === 'CONFIG' || activeTab === 'SITE' || activeTab === 'ACCESS') {
         setActiveTab('CASES');
       }
     } else {
@@ -645,18 +638,84 @@ export function App() {
     });
   };
 
-  // Gestão da Equipe de Administradores
+  // Gestão e Promoção de Administradores (Exclusivo SuperAdmin Lamartine Cezar)
+  const handlePromoteToAdmin = async (
+    email: string,
+    name: string,
+    role: AdminRole = 'SUPER_ADMIN',
+    roleTitle?: string
+  ) => {
+    const emailLower = email.toLowerCase().trim();
+    const existingAdmin = admins.find(a => a.email?.toLowerCase().trim() === emailLower);
+    const resolvedRoleTitle = roleTitle || (
+      role === 'SUPER_ADMIN' ? 'Administrador Geral' :
+      role === 'CAD_PLANNER' ? 'Planejador CAD 3D' : 'Operador Técnico'
+    );
+
+    let updatedAdmin: AdminUser;
+    if (existingAdmin) {
+      updatedAdmin = {
+        ...existingAdmin,
+        name: name || existingAdmin.name,
+        role,
+        roleTitle: resolvedRoleTitle,
+        active: true
+      };
+      setAdmins(prev => prev.map(a => a.id === existingAdmin.id ? updatedAdmin : a));
+    } else {
+      updatedAdmin = {
+        id: `admin-${Date.now()}`,
+        name: name || email.split('@')[0],
+        email,
+        role,
+        roleTitle: resolvedRoleTitle,
+        active: true,
+        createdAt: new Date().toISOString()
+      };
+      setAdmins(prev => [...prev, updatedAdmin]);
+    }
+
+    await saveAdminToFirestore(updatedAdmin);
+  };
+
+  const handleRevokeAdmin = async (adminId: string, email: string) => {
+    if (email.toLowerCase().trim() === ROOT_SUPERADMIN_EMAIL) {
+      alert('Não é possível revogar o Super Administrador Raiz (lamartinecezar3@gmail.com).');
+      return;
+    }
+    setAdmins(prev => prev.filter(a => a.id !== adminId));
+    await deleteAdminFromFirestore(adminId);
+  };
+
+  const handleUpdateAdminRole = async (adminId: string, role: AdminRole, roleTitle?: string) => {
+    const target = admins.find(a => a.id === adminId);
+    if (!target) return;
+    const resolvedRoleTitle = roleTitle || (
+      role === 'SUPER_ADMIN' ? 'Administrador Geral' :
+      role === 'CAD_PLANNER' ? 'Planejador CAD 3D' : 'Operador Técnico'
+    );
+    const updatedAdmin: AdminUser = {
+      ...target,
+      role,
+      roleTitle: resolvedRoleTitle
+    };
+    setAdmins(prev => prev.map(a => a.id === adminId ? updatedAdmin : a));
+    await saveAdminToFirestore(updatedAdmin);
+  };
+
   const handleAddAdmin = (newAdmin: AdminUser) => {
     setAdmins(prev => [...prev, newAdmin]);
     saveAdminToFirestore(newAdmin);
   };
 
-  const handleRemoveAdmin = (adminId: string) => {
-    if (adminId === 'admin-01') {
-      alert('Não é possível remover o Administrador Principal (Lamartine Cezar).');
+  const handleRemoveAdmin = async (adminId: string) => {
+    const target = admins.find(a => a.id === adminId);
+    if (adminId === 'admin-01' || target?.email?.toLowerCase().trim() === ROOT_SUPERADMIN_EMAIL) {
+      alert('Não é possível remover o Super Administrador Raiz (Lamartine Cezar).');
       return;
     }
     setAdmins(prev => prev.filter(a => a.id !== adminId));
+    await deleteAdminFromFirestore(adminId);
   };
 
   // Sucesso na autenticação (Login ou Cadastro com Nome e Telefone)
@@ -665,20 +724,22 @@ export function App() {
     setViewMode('DASHBOARD');
     localStorage.setItem('implantprecision_view_mode', 'DASHBOARD');
 
-    const emailLower = email.toLowerCase();
-    const isAdmin = emailLower === 'lamartinecezar3@gmail.com' || emailLower === 'ricardo@implantprecision.com.br';
+    const emailLower = email.toLowerCase().trim();
+    const isRoot = emailLower === ROOT_SUPERADMIN_EMAIL;
+    const matchedAdmin = admins.find(a => a.active && a.email?.toLowerCase().trim() === emailLower);
+    const isAdmin = isRoot || Boolean(matchedAdmin);
 
     if (isAdmin) {
       setUserType('ADMIN');
-      const activeName = name || 'Lamartine Cezar';
+      const activeName = name || matchedAdmin?.name || (isRoot ? 'Lamartine Cezar' : 'Administrador');
       const adminObj: AdminUser = {
-        id: 'admin-01',
+        id: matchedAdmin?.id || (isRoot ? 'admin-01' : `admin-${Date.now()}`),
         name: activeName,
         email,
-        role: 'SUPER_ADMIN',
-        roleTitle: 'Administrador Geral',
+        role: matchedAdmin?.role || 'SUPER_ADMIN',
+        roleTitle: matchedAdmin?.roleTitle || 'Administrador Geral',
         active: true,
-        createdAt: '2026-01-01T08:00:00Z'
+        createdAt: matchedAdmin?.createdAt || '2026-01-01T08:00:00Z'
       };
       setCurrentAdmin(adminObj);
       saveAdminToFirestore(adminObj);
@@ -921,6 +982,27 @@ export function App() {
                 <Globe className="w-4 h-4" />
                 <span>Gestão do Site</span>
               </button>
+
+              {/* Aba Exclusiva de Gestão de Acessos (SuperAdmin lamartinecezar3@gmail.com) */}
+              {isRootSuperAdmin && (
+                <button
+                  onClick={() => setActiveTab('ACCESS')}
+                  className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all whitespace-nowrap cursor-pointer ${
+                    activeTab === 'ACCESS'
+                      ? 'bg-amber-600 text-white shadow-xs font-bold'
+                      : 'text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200'
+                  }`}
+                  title="Painel Exclusivo de Gestão de Acessos de Administrador"
+                >
+                  <Crown className={`w-4 h-4 ${activeTab === 'ACCESS' ? 'text-amber-200' : 'text-amber-600'}`} />
+                  <span>Gestão de Acessos</span>
+                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wider ${
+                    activeTab === 'ACCESS' ? 'bg-amber-700 text-amber-100' : 'bg-amber-200 text-amber-950'
+                  }`}>
+                    SUPER ADMIN
+                  </span>
+                </button>
+              )}
             </>
           )}
         </div>
@@ -1036,7 +1118,25 @@ export function App() {
           />
         )}
 
-
+        {/* Gestão Exclusiva de Acessos de Administrador (SuperAdmin lamartinecezar3@gmail.com) */}
+        {activeTab === 'ACCESS' && isRootSuperAdmin && (
+          <AccessControlManager
+            currentUserEmail={firebaseUser?.email}
+            admins={admins}
+            dentists={dentists}
+            onPromoteToAdmin={handlePromoteToAdmin}
+            onRevokeAdmin={handleRevokeAdmin}
+            onUpdateAdminRole={handleUpdateAdminRole}
+            onNotifyFeedback={(title, msg) => {
+              addNotification({
+                targetUserType: 'ADMIN',
+                title,
+                message: msg,
+                type: 'INFO'
+              });
+            }}
+          />
+        )}
       </main>
 
       {/* Modal de Detalhes do Caso com 3D Viewer e Paywall */}
