@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
-  loginWithGoogle, 
+  loginWithGoogleDetailed, 
   loginWithEmail, 
   registerWithEmail,
-  sendPasswordReset
+  sendPasswordReset,
+  checkEmailExistsInFirebaseAuth
 } from '../../services/firebase/auth';
 import { Dentist, AdminUser } from '../../types';
 import { 
@@ -44,10 +45,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [resetSuccessMessage, setResetSuccessMessage] = useState<string | null>(null);
   const [existingAccountConflict, setExistingAccountConflict] = useState<{
-    type: 'EMAIL' | 'PHONE';
+    type: 'EMAIL' | 'PHONE' | 'GOOGLE';
     matchedEmail: string;
     matchedName?: string;
   } | null>(null);
+
+  // Verificação assíncrona no Firebase Auth enquanto digita o e-mail no modo "Criar Conta"
+  useEffect(() => {
+    if (!isRegister) return;
+    const cleanEmail = email.toLowerCase().trim();
+    if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) return;
+
+    const timer = setTimeout(async () => {
+      const existsInAuth = await checkEmailExistsInFirebaseAuth(cleanEmail);
+      if (existsInAuth) {
+        setExistingAccountConflict(prev => prev || {
+          type: 'EMAIL',
+          matchedEmail: cleanEmail
+        });
+      }
+    }, 450);
+
+    return () => clearTimeout(timer);
+  }, [isRegister, email]);
 
   // Verificação em tempo real enquanto o usuário digita no modo "Criar Conta"
   const liveConflict = useMemo(() => {
@@ -139,16 +159,35 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setResetSuccessMessage(null);
     setExistingAccountConflict(null);
     try {
-      const user = await loginWithGoogle();
-      if (user) {
-        onSuccess(user.email || '', user.displayName || undefined);
+      const res = await loginWithGoogleDetailed();
+      if (res && res.user) {
+        const googleEmail = (res.user.email || '').toLowerCase().trim();
+        const alreadyInDatabase =
+          existingDentists.some(d => d.email?.toLowerCase().trim() === googleEmail) ||
+          existingAdmins.some(a => a.email?.toLowerCase().trim() === googleEmail);
+
+        // Se o usuário estava na tela de "Criar Conta" e a conta Google já existia, avisá-lo claramente
+        if (isRegister && (!res.isNewUser || alreadyInDatabase)) {
+          setExistingAccountConflict({
+            type: 'GOOGLE',
+            matchedEmail: res.user.email || googleEmail,
+            matchedName: res.user.displayName || undefined
+          });
+          return;
+        }
+
+        onSuccess(res.user.email || '', res.user.displayName || undefined);
         onClose();
       }
     } catch (err: any) {
       if (err.code === 'auth/unauthorized-domain') {
         setErrorMessage(`Domínio não autorizado no Firebase Auth (${window.location.hostname}). Adicione este domínio no Firebase Console > Authentication > Configurações > Domínios autorizados.`);
+      } else if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+        setErrorMessage('A janela de autenticação do Google foi fechada antes de concluir.');
+      } else if (err.code === 'auth/popup-blocked') {
+        setErrorMessage('O navegador bloqueou a janela popup do Google. Permita popups para este site e tente novamente.');
       } else {
-        setErrorMessage(err.message || 'Falha ao autenticar com Google.');
+        setErrorMessage('Não foi possível concluir a autenticação com o Google. Tente novamente ou use seu e-mail.');
       }
     } finally {
       setLoading(false);
@@ -195,7 +234,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     } catch (err: any) {
       if (err.code === 'auth/unauthorized-domain') {
         setErrorMessage(`Domínio não autorizado no Firebase Auth (${window.location.hostname}). Adicione este domínio no Firebase Console > Authentication > Configurações > Domínios autorizados.`);
-      } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+      } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
         setErrorMessage('E-mail ou senha incorretos.');
       } else if (err.code === 'auth/email-already-in-use') {
         setExistingAccountConflict({
@@ -204,8 +243,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         });
       } else if (err.code === 'auth/weak-password') {
         setErrorMessage('A senha deve ter pelo menos 6 caracteres.');
+      } else if (err.code === 'auth/invalid-email') {
+        setErrorMessage('O formato do endereço de e-mail informado é inválido.');
+      } else if (err.code === 'auth/too-many-requests') {
+        setErrorMessage('Muitas tentativas seguidas. Aguarde alguns instantes ou redefina sua senha.');
       } else {
-        setErrorMessage(err.message || 'Erro ao realizar autenticação.');
+        setErrorMessage('Não foi possível realizar a autenticação. Verifique seus dados e tente novamente.');
       }
     } finally {
       setLoading(false);
@@ -263,12 +306,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-600" />
                 <div className="space-y-1">
                   <p className="font-bold text-amber-900">
-                    {activeConflict.type === 'EMAIL'
+                    {activeConflict.type === 'GOOGLE'
+                      ? 'Esta conta Google já possui um cadastro ativo!'
+                      : activeConflict.type === 'EMAIL'
                       ? 'Este e-mail já possui um cadastro ativo!'
                       : 'Este telefone/WhatsApp já possui um cadastro!'}
                   </p>
                   <p className="text-[11px] text-amber-800 leading-relaxed">
-                    {activeConflict.type === 'EMAIL' ? (
+                    {activeConflict.type === 'GOOGLE' ? (
+                      <>
+                        Identificamos que a conta Google <strong>{activeConflict.matchedEmail}</strong>
+                        {activeConflict.matchedName ? ` (${activeConflict.matchedName})` : ''} já está cadastrada na plataforma. Clique abaixo para acessar seu painel existente.
+                      </>
+                    ) : activeConflict.type === 'EMAIL' ? (
                       <>
                         Encontramos uma conta existente para <strong>{activeConflict.matchedEmail}</strong>
                         {activeConflict.matchedName ? ` (${activeConflict.matchedName})` : ''}. Você pode entrar diretamente sem criar uma nova conta.
@@ -283,22 +333,38 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
 
               <div className="flex flex-wrap items-center gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => handleSwitchToExistingLogin(activeConflict.matchedEmail)}
-                  className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold text-[11px] flex items-center space-x-1.5 transition-colors cursor-pointer shadow-2xs"
-                >
-                  <LogIn className="w-3.5 h-3.5" />
-                  <span>Entrar com esta conta</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handlePasswordReset(activeConflict.matchedEmail)}
-                  className="px-3 py-1.5 rounded-lg bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 font-semibold text-[11px] flex items-center space-x-1.5 transition-colors cursor-pointer"
-                >
-                  <KeyRound className="w-3.5 h-3.5 text-amber-700" />
-                  <span>Recuperar senha por e-mail</span>
-                </button>
+                {activeConflict.type === 'GOOGLE' ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSuccess(activeConflict.matchedEmail, activeConflict.matchedName);
+                      onClose();
+                    }}
+                    className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-[11px] flex items-center space-x-1.5 transition-colors cursor-pointer shadow-2xs"
+                  >
+                    <LogIn className="w-3.5 h-3.5" />
+                    <span>Acessar minha conta existente agora</span>
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchToExistingLogin(activeConflict.matchedEmail)}
+                      className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold text-[11px] flex items-center space-x-1.5 transition-colors cursor-pointer shadow-2xs"
+                    >
+                      <LogIn className="w-3.5 h-3.5" />
+                      <span>Entrar com esta conta</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handlePasswordReset(activeConflict.matchedEmail)}
+                      className="px-3 py-1.5 rounded-lg bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 font-semibold text-[11px] flex items-center space-x-1.5 transition-colors cursor-pointer"
+                    >
+                      <KeyRound className="w-3.5 h-3.5 text-amber-700" />
+                      <span>Recuperar senha por e-mail</span>
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           )}

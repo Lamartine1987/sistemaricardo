@@ -292,7 +292,24 @@ export function App() {
     };
   }, []);
 
-  // 2. Sincronização em tempo real com o Firestore (Apenas quando autenticado para evitar erros de permissão)
+  // 2. Sincronização de perfis (Dentistas e Administradores) ativa desde o carregamento inicial
+  // para permitir verificação de contas já existentes mesmo em abas anônimas antes do login
+  useEffect(() => {
+    const unsubDentists = subscribeToDentists((updatedDentists) => {
+      setDentists(updatedDentists);
+    });
+
+    const unsubAdmins = subscribeToAdmins((updatedAdmins) => {
+      setAdmins(updatedAdmins);
+    });
+
+    return () => {
+      unsubDentists();
+      unsubAdmins();
+    };
+  }, [firebaseUser]);
+
+  // 3. Sincronização de casos, notificações e configurações (quando autenticado)
   useEffect(() => {
     if (!firebaseUser) return;
 
@@ -301,14 +318,6 @@ export function App() {
 
     const unsubCases = subscribeToCases((updatedCases) => {
       setCases(updatedCases);
-    });
-
-    const unsubDentists = subscribeToDentists((updatedDentists) => {
-      setDentists(updatedDentists);
-    });
-
-    const unsubAdmins = subscribeToAdmins((updatedAdmins) => {
-      setAdmins(updatedAdmins);
     });
 
     const unsubNotifications = subscribeToNotifications((updatedNotifications) => {
@@ -325,8 +334,6 @@ export function App() {
 
     return () => {
       unsubCases();
-      unsubDentists();
-      unsubAdmins();
       unsubNotifications();
       unsubWhatsApp();
     };

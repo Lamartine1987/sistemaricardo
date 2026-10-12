@@ -4,6 +4,8 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   sendPasswordResetEmail,
+  fetchSignInMethodsForEmail,
+  getAdditionalUserInfo,
   updateProfile,
   signOut, 
   onAuthStateChanged,
@@ -13,17 +15,41 @@ import { auth, isFirebaseConfigured } from './config';
 
 const googleProvider = new GoogleAuthProvider();
 
+export interface GoogleAuthResult {
+  user: FirebaseUser;
+  isNewUser: boolean;
+}
+
 export const loginWithGoogle = async (): Promise<FirebaseUser | null> => {
+  const res = await loginWithGoogleDetailed();
+  return res ? res.user : null;
+};
+
+export const loginWithGoogleDetailed = async (): Promise<GoogleAuthResult | null> => {
   if (!isFirebaseConfigured || !auth) {
     console.warn('Firebase não configurado');
     return null;
   }
   try {
     const result = await signInWithPopup(auth, googleProvider);
-    return result.user;
+    const info = getAdditionalUserInfo(result);
+    return {
+      user: result.user,
+      isNewUser: Boolean(info?.isNewUser)
+    };
   } catch (error: any) {
     console.error('Erro ao fazer login com Google:', error);
     throw error;
+  }
+};
+
+export const checkEmailExistsInFirebaseAuth = async (email: string): Promise<boolean> => {
+  if (!isFirebaseConfigured || !auth) return false;
+  try {
+    const methods = await fetchSignInMethodsForEmail(auth, email.trim());
+    return Array.isArray(methods) && methods.length > 0;
+  } catch {
+    return false;
   }
 };
 
