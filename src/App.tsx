@@ -926,17 +926,17 @@ export function App() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         
         {/* Abas Principais de Navegação */}
-        <div className="flex items-center space-x-2 border-b border-slate-200 pb-3 overflow-x-auto">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 border-b border-slate-200 pb-3">
           {/* Aba de Casos */}
           <button
             onClick={() => setActiveTab('CASES')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all whitespace-nowrap cursor-pointer ${
+            className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'CASES'
                 ? 'bg-white border border-slate-200 text-cyan-700 shadow-xs font-bold'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
             }`}
           >
-            <FolderKanban className="w-4 h-4" />
+            <FolderKanban className="w-4 h-4 flex-shrink-0" />
             <span>
               {userType === 'ADMIN' 
                 ? `Todos os Casos (${displayedCases.length})` 
@@ -949,49 +949,49 @@ export function App() {
             <>
               <button
                 onClick={() => setActiveTab('DENTISTS')}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all whitespace-nowrap cursor-pointer ${
                   activeTab === 'DENTISTS'
                     ? 'bg-white border border-slate-200 text-cyan-700 shadow-xs font-bold'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
                 }`}
               >
-                <Users className="w-4 h-4" />
+                <Users className="w-4 h-4 flex-shrink-0" />
                 <span>Dentistas Clientes ({dentists.length})</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('TEAM')}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all whitespace-nowrap cursor-pointer ${
                   activeTab === 'TEAM'
                     ? 'bg-white border border-slate-200 text-cyan-700 shadow-xs font-bold'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
                 }`}
               >
-                <UserCheck className="w-4 h-4" />
+                <UserCheck className="w-4 h-4 flex-shrink-0" />
                 <span>Equipe & Administradores ({admins.length})</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('CONFIG')}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all whitespace-nowrap cursor-pointer ${
                   activeTab === 'CONFIG'
                     ? 'bg-white border border-slate-200 text-cyan-700 shadow-xs font-bold'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
                 }`}
               >
-                <Settings className="w-4 h-4" />
+                <Settings className="w-4 h-4 flex-shrink-0" />
                 <span>Configurações & WhatsApp</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('SITE')}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all whitespace-nowrap cursor-pointer ${
                   activeTab === 'SITE'
                     ? 'bg-white border border-slate-200 text-cyan-700 shadow-xs font-bold'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
                 }`}
               >
-                <Globe className="w-4 h-4" />
+                <Globe className="w-4 h-4 flex-shrink-0" />
                 <span>Gestão do Site</span>
               </button>
 
@@ -999,14 +999,14 @@ export function App() {
               {isRootSuperAdmin && (
                 <button
                   onClick={() => setActiveTab('ACCESS')}
-                  className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all whitespace-nowrap cursor-pointer ${
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all whitespace-nowrap cursor-pointer ${
                     activeTab === 'ACCESS'
                       ? 'bg-amber-600 text-white shadow-xs font-bold'
                       : 'text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200'
                   }`}
                   title="Painel Exclusivo de Gestão de Acessos de Administrador"
                 >
-                  <Crown className={`w-4 h-4 ${activeTab === 'ACCESS' ? 'text-amber-200' : 'text-amber-600'}`} />
+                  <Crown className={`w-4 h-4 flex-shrink-0 ${activeTab === 'ACCESS' ? 'text-amber-200' : 'text-amber-600'}`} />
                   <span>Gestão de Acessos</span>
                   <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wider ${
                     activeTab === 'ACCESS' ? 'bg-amber-700 text-amber-100' : 'bg-amber-200 text-amber-950'

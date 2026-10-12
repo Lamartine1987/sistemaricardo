@@ -277,7 +277,7 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
       )}
 
       {/* Sub-Abas dos 5 Menus */}
-      <div className="flex items-center space-x-2 border-b border-slate-200 pb-2 overflow-x-auto">
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-2">
         <button
           onClick={() => setActiveSubTab('CASES')}
           className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all cursor-pointer whitespace-nowrap ${
