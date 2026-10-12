@@ -3,6 +3,7 @@ import {
   signInWithPopup, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
+  sendPasswordResetEmail,
   updateProfile,
   signOut, 
   onAuthStateChanged,
@@ -51,6 +52,16 @@ export const registerWithEmail = async (
     return result.user;
   } catch (error: any) {
     console.error('Erro ao registrar com e-mail:', error);
+    throw error;
+  }
+};
+
+export const sendPasswordReset = async (email: string): Promise<void> => {
+  if (!isFirebaseConfigured || !auth) return;
+  try {
+    await sendPasswordResetEmail(auth, email.trim());
+  } catch (error: any) {
+    console.error('Erro ao enviar e-mail de recuperação de senha:', error);
     throw error;
   }
 };

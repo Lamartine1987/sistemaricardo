@@ -41,7 +41,10 @@ import {
   markAllNotificationsReadInFirestore,
   subscribeToWhatsAppConfig,
   subscribeToSiteContent,
-  saveSiteContentToFirestore
+  saveSiteContentToFirestore,
+  buildDentistIdFromEmail,
+  buildAdminIdFromEmail,
+  deduplicateDentistsByEmail
 } from './services/firebase/firestore';
 import { subscribeToAuth, logoutFirebase, updateCurrentUserProfile } from './services/firebase/auth';
 import { SiteContentManager } from './components/SiteManagement/SiteContentManager';
@@ -100,7 +103,14 @@ export function App() {
   // Dentistas Clientes (Inicialmente vazio para testes reais)
   const [dentists, setDentists] = useState<Dentist[]>(() => {
     const saved = localStorage.getItem('implantprecision_dentists');
-    return saved ? JSON.parse(saved) : INITIAL_DENTISTS;
+    if (saved) {
+      try {
+        return deduplicateDentistsByEmail(JSON.parse(saved));
+      } catch (e) {
+        return INITIAL_DENTISTS;
+      }
+    }
+    return INITIAL_DENTISTS;
   });
 
   // Casos de Implante (Inicialmente vazio para testes reais)
@@ -181,7 +191,7 @@ export function App() {
         const activeName = firebaseUser.displayName || matchedAdmin?.name || (isRoot ? 'Lamartine Cezar' : 'Administrador');
         setUserType('ADMIN');
         setCurrentAdmin({
-          id: matchedAdmin?.id || (isRoot ? 'admin-01' : `admin-${Date.now()}`),
+          id: matchedAdmin?.id || (isRoot ? 'admin-01' : buildAdminIdFromEmail(firebaseUser.email)),
           name: activeName,
           email: firebaseUser.email,
           role: matchedAdmin?.role || 'SUPER_ADMIN',
@@ -196,7 +206,7 @@ export function App() {
           setCurrentDentist(matched);
         } else {
           const fallbackDentist: Dentist = {
-            id: `dentist-${Date.now()}`,
+            id: buildDentistIdFromEmail(firebaseUser.email),
             name: firebaseUser.displayName || 'Dr(a). Dentista Parceiro',
             email: firebaseUser.email,
             phone: '',
@@ -205,13 +215,13 @@ export function App() {
             casesCount: 0,
             totalSpent: 0
           };
-          setDentists(prev => [fallbackDentist, ...prev]);
+          setDentists(prev => deduplicateDentistsByEmail([fallbackDentist, ...prev]));
           setCurrentDentist(fallbackDentist);
           saveDentistToFirestore(fallbackDentist);
         }
       }
     }
-  }, [firebaseUser, admins]);
+  }, [firebaseUser, admins, dentists]);
 
   // Verificação exclusiva de Super Administrador Raiz
   const isRootSuperAdmin = firebaseUser?.email?.toLowerCase().trim() === ROOT_SUPERADMIN_EMAIL;
@@ -738,7 +748,7 @@ export function App() {
       setUserType('ADMIN');
       const activeName = name || matchedAdmin?.name || (isRoot ? 'Lamartine Cezar' : 'Administrador');
       const adminObj: AdminUser = {
-        id: matchedAdmin?.id || (isRoot ? 'admin-01' : `admin-${Date.now()}`),
+        id: matchedAdmin?.id || (isRoot ? 'admin-01' : buildAdminIdFromEmail(email)),
         name: activeName,
         email,
         role: matchedAdmin?.role || 'SUPER_ADMIN',
@@ -750,19 +760,19 @@ export function App() {
       saveAdminToFirestore(adminObj);
     } else {
       setUserType('CLIENT');
-      const existing = dentists.find(d => d.email.toLowerCase() === emailLower);
+      const existing = dentists.find(d => d.email.toLowerCase().trim() === emailLower);
       if (existing) {
         const updated: Dentist = {
           ...existing,
           name: name || existing.name,
           phone: phone || existing.phone
         };
-        setDentists(prev => prev.map(d => d.id === existing.id ? updated : d));
+        setDentists(prev => deduplicateDentistsByEmail(prev.map(d => d.id === existing.id ? updated : d)));
         setCurrentDentist(updated);
         saveDentistToFirestore(updated);
       } else {
         const newDentist: Dentist = {
-          id: `dentist-${Date.now()}`,
+          id: buildDentistIdFromEmail(email),
           name: name || 'Dr(a). Dentista Parceiro',
           email,
           phone: phone || '',
@@ -771,7 +781,7 @@ export function App() {
           casesCount: 0,
           totalSpent: 0
         };
-        setDentists(prev => [newDentist, ...prev]);
+        setDentists(prev => deduplicateDentistsByEmail([newDentist, ...prev]));
         setCurrentDentist(newDentist);
         saveDentistToFirestore(newDentist);
       }
@@ -849,6 +859,8 @@ export function App() {
           isOpen={isAuthModalOpen}
           onClose={() => setIsAuthModalOpen(false)}
           onSuccess={handleAuthSuccess}
+          existingDentists={dentists}
+          existingAdmins={admins}
         />
       </>
     );
@@ -880,6 +892,8 @@ export function App() {
           isOpen={isAuthModalOpen}
           onClose={() => setIsAuthModalOpen(false)}
           onSuccess={handleAuthSuccess}
+          existingDentists={dentists}
+          existingAdmins={admins}
         />
       </>
     );
@@ -1187,6 +1201,8 @@ export function App() {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         onSuccess={handleAuthSuccess}
+        existingDentists={dentists}
+        existingAdmins={admins}
       />
 
       {/* Modal de Meu Perfil (Editar Informações do Usuário) */}

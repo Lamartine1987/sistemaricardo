@@ -91,6 +91,66 @@ export const subscribeToCases = (callback: (cases: DentalCase[]) => void) => {
 };
 
 /**
+ * Gera um ID determinístico baseado no e-mail para evitar duplicação de perfis entre dispositivos
+ */
+export const buildDentistIdFromEmail = (email: string): string => {
+  const clean = email.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+  return `dentist-${clean || Date.now()}`;
+};
+
+export const buildAdminIdFromEmail = (email: string): string => {
+  const clean = email.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+  return `admin-${clean || Date.now()}`;
+};
+
+/**
+ * Remove eventuais duplicatas de dentistas com o mesmo e-mail, mantendo o registro mais completo
+ */
+export const deduplicateDentistsByEmail = (items: Dentist[]): Dentist[] => {
+  const byEmail = new Map<string, Dentist>();
+
+  for (const item of items) {
+    const key = (item.email || '').toLowerCase().trim();
+    if (!key) {
+      byEmail.set(item.id, item);
+      continue;
+    }
+
+    const existing = byEmail.get(key);
+    if (!existing) {
+      byEmail.set(key, item);
+    } else {
+      // Mesclar mantendo dados mais completos (telefone preenchido, nome real, maior contagem de casos)
+      const pickPhone = existing.phone && existing.phone.trim() ? existing.phone : item.phone;
+      const pickCro = existing.cro && existing.cro !== 'Aguardando CRO' ? existing.cro : item.cro;
+      const pickName =
+        existing.name && existing.name !== 'Dr(a). Dentista Parceiro'
+          ? existing.name
+          : item.name || existing.name;
+      // Preferir ID fixo (ex: dentist-01 ou determinístico) ao invés de timestamp aleatório
+      const preferredId = !existing.id.match(/^dentist-\d{10,}$/)
+        ? existing.id
+        : !item.id.match(/^dentist-\d{10,}$/)
+        ? item.id
+        : existing.id;
+
+      byEmail.set(key, {
+        ...existing,
+        ...item,
+        id: preferredId,
+        name: pickName,
+        phone: pickPhone || '',
+        cro: pickCro || 'Aguardando CRO',
+        casesCount: Math.max(existing.casesCount || 0, item.casesCount || 0),
+        totalSpent: Math.max(existing.totalSpent || 0, item.totalSpent || 0)
+      });
+    }
+  }
+
+  return Array.from(byEmail.values());
+};
+
+/**
  * Listener em tempo real para dentistas parceiros
  */
 export const subscribeToDentists = (callback: (dentists: Dentist[]) => void) => {
@@ -99,7 +159,8 @@ export const subscribeToDentists = (callback: (dentists: Dentist[]) => void) => 
   return onSnapshot(
     collection(db, DENTISTS_COLLECTION),
     (snapshot) => {
-      const items = snapshot.docs.map(d => d.data() as Dentist);
+      const rawItems = snapshot.docs.map(d => d.data() as Dentist);
+      const items = deduplicateDentistsByEmail(rawItems);
       if (items.length > 0) {
         callback(items);
       }

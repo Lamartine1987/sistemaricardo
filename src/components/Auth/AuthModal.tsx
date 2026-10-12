@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   loginWithGoogle, 
   loginWithEmail, 
-  registerWithEmail 
+  registerWithEmail,
+  sendPasswordReset
 } from '../../services/firebase/auth';
+import { Dentist, AdminUser } from '../../types';
 import { 
   X, 
   Mail, 
@@ -12,6 +14,8 @@ import {
   LogIn, 
   UserPlus, 
   AlertCircle,
+  CheckCircle2,
+  KeyRound,
   User,
   Phone
 } from 'lucide-react';
@@ -20,12 +24,16 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (userEmail: string, displayName?: string, phone?: string) => void;
+  existingDentists?: Dentist[];
+  existingAdmins?: AdminUser[];
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
   onClose,
-  onSuccess
+  onSuccess,
+  existingDentists = [],
+  existingAdmins = []
 }) => {
   const [isRegister, setIsRegister] = useState(false);
   const [name, setName] = useState('');
@@ -34,12 +42,102 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [resetSuccessMessage, setResetSuccessMessage] = useState<string | null>(null);
+  const [existingAccountConflict, setExistingAccountConflict] = useState<{
+    type: 'EMAIL' | 'PHONE';
+    matchedEmail: string;
+    matchedName?: string;
+  } | null>(null);
+
+  // Verificação em tempo real enquanto o usuário digita no modo "Criar Conta"
+  const liveConflict = useMemo(() => {
+    if (!isRegister) return null;
+
+    const cleanEmail = email.toLowerCase().trim();
+    if (cleanEmail && cleanEmail.includes('@') && cleanEmail.includes('.')) {
+      const matchedDentistByEmail = existingDentists.find(
+        d => d.email?.toLowerCase().trim() === cleanEmail
+      );
+      if (matchedDentistByEmail) {
+        return {
+          type: 'EMAIL' as const,
+          matchedEmail: matchedDentistByEmail.email,
+          matchedName: matchedDentistByEmail.name
+        };
+      }
+
+      const matchedAdminByEmail = existingAdmins.find(
+        a => a.email?.toLowerCase().trim() === cleanEmail
+      );
+      if (matchedAdminByEmail) {
+        return {
+          type: 'EMAIL' as const,
+          matchedEmail: matchedAdminByEmail.email || cleanEmail,
+          matchedName: matchedAdminByEmail.name
+        };
+      }
+    }
+
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.length >= 10) {
+      const last9 = cleanPhone.slice(-9);
+      const matchedDentistByPhone = existingDentists.find(d => {
+        const dDigits = (d.phone || '').replace(/\D/g, '');
+        return dDigits.length >= 9 && dDigits.slice(-9) === last9;
+      });
+      if (matchedDentistByPhone) {
+        return {
+          type: 'PHONE' as const,
+          matchedEmail: matchedDentistByPhone.email,
+          matchedName: matchedDentistByPhone.name
+        };
+      }
+    }
+
+    return null;
+  }, [isRegister, email, phone, existingDentists, existingAdmins]);
+
+  const activeConflict = existingAccountConflict || liveConflict;
 
   if (!isOpen) return null;
+
+  const handleSwitchToExistingLogin = (targetEmail?: string) => {
+    if (targetEmail) {
+      setEmail(targetEmail);
+    }
+    setIsRegister(false);
+    setExistingAccountConflict(null);
+    setErrorMessage(null);
+    setResetSuccessMessage(null);
+  };
+
+  const handlePasswordReset = async (targetEmail?: string) => {
+    const emailToReset = (targetEmail || email).trim();
+    if (!emailToReset || !emailToReset.includes('@')) {
+      setErrorMessage('Informe seu e-mail no campo abaixo para receber o link de recuperação de senha.');
+      return;
+    }
+
+    setLoading(true);
+    setErrorMessage(null);
+    setResetSuccessMessage(null);
+    try {
+      await sendPasswordReset(emailToReset);
+      setResetSuccessMessage(
+        `Enviamos um link de redefinição de senha para ${emailToReset}. Verifique sua caixa de entrada e spam.`
+      );
+    } catch (err: any) {
+      setErrorMessage('Não foi possível enviar o e-mail de redefinição. Verifique se o endereço está correto.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleGoogleLogin = async () => {
     setLoading(true);
     setErrorMessage(null);
+    setResetSuccessMessage(null);
+    setExistingAccountConflict(null);
     try {
       const user = await loginWithGoogle();
       if (user) {
@@ -61,24 +159,34 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     e.preventDefault();
     if (!email || !password) return;
 
-    if (isRegister && !name.trim()) {
-      setErrorMessage('Por favor, informe seu nome completo.');
-      return;
+    setErrorMessage(null);
+    setResetSuccessMessage(null);
+
+    if (isRegister) {
+      if (!name.trim()) {
+        setErrorMessage('Por favor, informe seu nome completo.');
+        return;
+      }
+
+      // Bloquear criação duplicada caso já conste no cadastro de dentistas ou administradores
+      if (liveConflict) {
+        setExistingAccountConflict(liveConflict);
+        return;
+      }
     }
 
     setLoading(true);
-    setErrorMessage(null);
     try {
       let user;
       if (isRegister) {
-        user = await registerWithEmail(email, password, name.trim());
+        user = await registerWithEmail(email.trim(), password, name.trim());
       } else {
-        user = await loginWithEmail(email, password);
+        user = await loginWithEmail(email.trim(), password);
       }
 
       if (user) {
         onSuccess(
-          user.email || '', 
+          user.email || email.trim(), 
           user.displayName || name.trim() || undefined,
           phone.trim() || undefined
         );
@@ -90,7 +198,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
         setErrorMessage('E-mail ou senha incorretos.');
       } else if (err.code === 'auth/email-already-in-use') {
-        setErrorMessage('Este e-mail já está cadastrado. Tente entrar.');
+        setExistingAccountConflict({
+          type: 'EMAIL',
+          matchedEmail: email.trim()
+        });
       } else if (err.code === 'auth/weak-password') {
         setErrorMessage('A senha deve ter pelo menos 6 caracteres.');
       } else {
@@ -116,14 +227,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 {isRegister ? 'Criar Conta no Implant Precision' : 'Entrar no Sistema'}
               </h3>
               <p className="text-xs text-slate-500 font-sans">
-                Autenticação direta com Firebase Auth
+                Autenticação segura com verificação de conta existente
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -138,12 +249,66 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
           )}
 
+          {resetSuccessMessage && (
+            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-start space-x-2 font-sans">
+              <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5 text-emerald-600" />
+              <span>{resetSuccessMessage}</span>
+            </div>
+          )}
+
+          {/* Alerta Inteligente de Cadastro Já Existente */}
+          {isRegister && activeConflict && (
+            <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs space-y-2.5 font-sans animate-fade-in">
+              <div className="flex items-start space-x-2">
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-600" />
+                <div className="space-y-1">
+                  <p className="font-bold text-amber-900">
+                    {activeConflict.type === 'EMAIL'
+                      ? 'Este e-mail já possui um cadastro ativo!'
+                      : 'Este telefone/WhatsApp já possui um cadastro!'}
+                  </p>
+                  <p className="text-[11px] text-amber-800 leading-relaxed">
+                    {activeConflict.type === 'EMAIL' ? (
+                      <>
+                        Encontramos uma conta existente para <strong>{activeConflict.matchedEmail}</strong>
+                        {activeConflict.matchedName ? ` (${activeConflict.matchedName})` : ''}. Você pode entrar diretamente sem criar uma nova conta.
+                      </>
+                    ) : (
+                      <>
+                        Este WhatsApp já está vinculado ao cadastro de <strong>{activeConflict.matchedName || 'Dentista Parceiro'}</strong> (e-mail: <strong>{activeConflict.matchedEmail}</strong>).
+                      </>
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => handleSwitchToExistingLogin(activeConflict.matchedEmail)}
+                  className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold text-[11px] flex items-center space-x-1.5 transition-colors cursor-pointer shadow-2xs"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>Entrar com esta conta</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handlePasswordReset(activeConflict.matchedEmail)}
+                  className="px-3 py-1.5 rounded-lg bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 font-semibold text-[11px] flex items-center space-x-1.5 transition-colors cursor-pointer"
+                >
+                  <KeyRound className="w-3.5 h-3.5 text-amber-700" />
+                  <span>Recuperar senha por e-mail</span>
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Botão Google Login */}
           <button
             type="button"
             onClick={handleGoogleLogin}
             disabled={loading}
-            className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-semibold text-xs transition-all flex items-center justify-center space-x-2.5 shadow-2xs active:scale-[0.99] font-sans"
+            className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-semibold text-xs transition-all flex items-center justify-center space-x-2.5 shadow-2xs active:scale-[0.99] font-sans cursor-pointer"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
@@ -203,7 +368,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       type="tel"
                       required={isRegister}
                       value={phone}
-                      onChange={e => setPhone(e.target.value)}
+                      onChange={e => {
+                        setPhone(e.target.value);
+                        setExistingAccountConflict(null);
+                      }}
                       placeholder="(11) 99999-9999"
                       className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-cyan-500 focus:bg-white font-sans transition-all"
                     />
@@ -220,7 +388,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   type="email"
                   required
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  onChange={e => {
+                    setEmail(e.target.value);
+                    setExistingAccountConflict(null);
+                  }}
                   placeholder="seuemail@odonto.com"
                   className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-cyan-500 focus:bg-white font-sans transition-all"
                 />
@@ -228,7 +399,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-slate-700 block mb-1 font-sans">Senha</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-semibold text-slate-700 font-sans">Senha</label>
+                {!isRegister && (
+                  <button
+                    type="button"
+                    onClick={() => handlePasswordReset()}
+                    className="text-[11px] text-cyan-700 hover:underline font-medium cursor-pointer"
+                  >
+                    Esqueci minha senha
+                  </button>
+                )}
+              </div>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -245,7 +427,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-semibold text-xs transition-all shadow-sm flex items-center justify-center space-x-2 font-sans"
+              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-semibold text-xs transition-all shadow-sm flex items-center justify-center space-x-2 font-sans cursor-pointer"
             >
               {isRegister ? <UserPlus className="w-4 h-4" /> : <LogIn className="w-4 h-4" />}
               <span>{loading ? 'Aguarde...' : isRegister ? 'Criar Conta' : 'Entrar na Plataforma'}</span>
@@ -259,8 +441,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               onClick={() => {
                 setIsRegister(!isRegister);
                 setErrorMessage(null);
+                setResetSuccessMessage(null);
+                setExistingAccountConflict(null);
               }}
-              className="text-xs text-cyan-700 hover:underline font-sans font-medium"
+              className="text-xs text-cyan-700 hover:underline font-sans font-medium cursor-pointer"
             >
               {isRegister 
                 ? 'Já possui uma conta? Faça login aqui' 
