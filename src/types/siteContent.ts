@@ -1,3 +1,16 @@
+export interface ClinicalCaseVisibility {
+  showBadge?: boolean;
+  showTag?: boolean;
+  showImplantBrand?: boolean;
+  showSurgicalTime?: boolean;
+  showDescription?: boolean;
+  showFullContent?: boolean;
+  showMetric1?: boolean;
+  showMetric2?: boolean;
+  showPdf?: boolean;
+  showPhotos?: boolean;
+}
+
 export interface ClinicalCaseItem {
   id: string;
   title: string;
@@ -16,8 +29,55 @@ export interface ClinicalCaseItem {
   implantBrand?: string;
   surgicalTime?: string;
   featuredOnHome?: boolean;
+  visibility?: ClinicalCaseVisibility;
   active: boolean;
   order: number;
+}
+
+export function isCaseFieldVisible(
+  caseItem: ClinicalCaseItem,
+  field: keyof ClinicalCaseVisibility
+): boolean {
+  if (caseItem.visibility && caseItem.visibility[field] === false) {
+    return false;
+  }
+
+  switch (field) {
+    case 'showBadge':
+      return Boolean(caseItem.badge && caseItem.badge.trim().length > 0);
+    case 'showTag':
+      return Boolean(caseItem.tag && caseItem.tag.trim().length > 0);
+    case 'showImplantBrand':
+      return Boolean(caseItem.implantBrand && caseItem.implantBrand.trim().length > 0);
+    case 'showSurgicalTime':
+      return Boolean(caseItem.surgicalTime && caseItem.surgicalTime.trim().length > 0);
+    case 'showDescription':
+      return Boolean(caseItem.description && caseItem.description.trim().length > 0);
+    case 'showFullContent':
+      return Boolean(caseItem.fullContent && caseItem.fullContent.trim().length > 0);
+    case 'showMetric1':
+      return Boolean(
+        (caseItem.metric1Label && caseItem.metric1Label.trim().length > 0) ||
+        (caseItem.metric1Value && caseItem.metric1Value.trim().length > 0)
+      );
+    case 'showMetric2':
+      return Boolean(
+        (caseItem.metric2Label && caseItem.metric2Label.trim().length > 0) ||
+        (caseItem.metric2Value && caseItem.metric2Value.trim().length > 0)
+      );
+    case 'showPdf':
+      return Boolean(
+        (caseItem.pdfUrl && caseItem.pdfUrl.trim().length > 0) ||
+        (caseItem.pdfName && caseItem.pdfName.trim().length > 0)
+      );
+    case 'showPhotos':
+      return Boolean(
+        (caseItem.imageUrl && caseItem.imageUrl.trim().length > 0) ||
+        (caseItem.galleryImages && caseItem.galleryImages.length > 0)
+      );
+    default:
+      return true;
+  }
 }
 
 export interface ServiceItem {

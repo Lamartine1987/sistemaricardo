@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   ClinicalCaseItem, 
+  ClinicalCaseVisibility,
+  isCaseFieldVisible,
   ServiceItem, 
   CourseItem, 
   TestimonialItem, 
@@ -17,6 +19,7 @@ import {
   Save, 
   RotateCcw, 
   Eye, 
+  EyeOff,
   Plus, 
   Trash2, 
   Edit3, 
@@ -75,6 +78,64 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
   const [editingCase, setEditingCase] = useState<ClinicalCaseItem | null>(null);
   const [isNewCaseModalOpen, setIsNewCaseModalOpen] = useState(false);
   const [newGalleryUrl, setNewGalleryUrl] = useState('');
+
+  const toggleCaseFieldVisibility = (field: keyof ClinicalCaseVisibility) => {
+    if (!editingCase) return;
+    const currentlyEnabled = editingCase.visibility?.[field] !== false;
+    setEditingCase({
+      ...editingCase,
+      visibility: {
+        ...(editingCase.visibility || {}),
+        [field]: !currentlyEnabled
+      }
+    });
+  };
+
+  const renderFieldVisibilityToggle = (field: keyof ClinicalCaseVisibility) => {
+    if (!editingCase) return null;
+    const isExplicitlyHidden = editingCase.visibility?.[field] === false;
+    const isVisibleInPost = isCaseFieldVisible(editingCase, field);
+
+    if (isExplicitlyHidden) {
+      return (
+        <button
+          type="button"
+          onClick={() => toggleCaseFieldVisibility(field)}
+          className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition-colors cursor-pointer"
+          title="Campo ocultado manualmente. Clique para voltar a exibir na postagem"
+        >
+          <EyeOff className="w-3 h-3" />
+          <span>Oculto na postagem</span>
+        </button>
+      );
+    }
+
+    if (!isVisibleInPost) {
+      return (
+        <button
+          type="button"
+          onClick={() => toggleCaseFieldVisibility(field)}
+          className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200 transition-colors cursor-pointer"
+          title="Campo em branco não aparece na postagem. Clique se quiser bloquear exibição"
+        >
+          <EyeOff className="w-3 h-3 text-slate-400" />
+          <span>Vazio (Não aparece)</span>
+        </button>
+      );
+    }
+
+    return (
+      <button
+        type="button"
+        onClick={() => toggleCaseFieldVisibility(field)}
+        className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors cursor-pointer"
+        title="Este campo aparecerá na postagem. Clique se desejar ocultá-lo"
+      >
+        <Eye className="w-3 h-3" />
+        <span>Visível na postagem</span>
+      </button>
+    );
+  };
 
   // Se o administrador clicou em "Editar Caso" lá na visualização do site/acervo, abre o modal diretamente
   useEffect(() => {
@@ -372,28 +433,32 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
 
                 <div className="flex items-center justify-between gap-1 flex-wrap">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-cyan-50 text-cyan-700 border border-cyan-200">
-                      {c.badge || 'Caso Clínico'}
-                    </span>
+                    {isCaseFieldVisible(c, 'showBadge') && (
+                      <span className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-cyan-50 text-cyan-700 border border-cyan-200">
+                        {c.badge}
+                      </span>
+                    )}
                     {c.featuredOnHome && (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200">
                         ⭐ Capa (Home)
                       </span>
                     )}
-                    {c.galleryImages && c.galleryImages.length > 0 && (
+                    {isCaseFieldVisible(c, 'showPhotos') && c.galleryImages && c.galleryImages.length > 0 && (
                       <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-800 border border-cyan-200 font-medium">
                         📸 +{c.galleryImages.length} fotos
                       </span>
                     )}
-                    {(c.pdfUrl || c.pdfName) && (
+                    {isCaseFieldVisible(c, 'showPdf') && (
                       <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
                         PDF
                       </span>
                     )}
                   </div>
-                  <span className="text-[10px] text-slate-500 font-mono">
-                    {c.tag}
-                  </span>
+                  {isCaseFieldVisible(c, 'showTag') && (
+                    <span className="text-[10px] text-slate-500 font-mono">
+                      {c.tag}
+                    </span>
+                  )}
                 </div>
 
                 <div 
@@ -405,25 +470,43 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                   className="cursor-pointer group/text space-y-2"
                   title="Clique para editar as informações deste caso"
                 >
-                  <h3 className="text-sm font-bold text-slate-900 group-hover/text:text-cyan-700 transition-colors line-clamp-2 min-h-[2.5rem] leading-snug">
+                  <h3 className="text-sm font-bold text-slate-900 group-hover/text:text-cyan-700 transition-colors line-clamp-2 leading-snug">
                     {c.title || 'Sem título'}
                   </h3>
 
-                  <p className="text-xs text-slate-600 line-clamp-2 min-h-[2.25rem] leading-relaxed">
-                    {c.description || 'Sem descrição cadastrada.'}
-                  </p>
+                  {isCaseFieldVisible(c, 'showDescription') ? (
+                    <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                      {c.description}
+                    </p>
+                  ) : isCaseFieldVisible(c, 'showFullContent') ? (
+                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed italic">
+                      {c.fullContent}
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-slate-400 italic">
+                      Clique para editar texto ou visibilidade dos campos.
+                    </p>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-                    <span className="text-slate-400 text-[10px] block font-sans mb-0.5">{c.metric1Label}</span>
-                    <span className="font-bold text-xs font-mono text-cyan-800">{c.metric1Value}</span>
+                {(isCaseFieldVisible(c, 'showMetric1') || isCaseFieldVisible(c, 'showMetric2')) && (
+                  <div className={`grid gap-3 pt-3 border-t border-slate-100 ${
+                    isCaseFieldVisible(c, 'showMetric1') && isCaseFieldVisible(c, 'showMetric2') ? 'grid-cols-2' : 'grid-cols-1'
+                  }`}>
+                    {isCaseFieldVisible(c, 'showMetric1') && (
+                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                        {c.metric1Label && <span className="text-slate-400 text-[10px] block font-sans mb-0.5">{c.metric1Label}</span>}
+                        {c.metric1Value && <span className="font-bold text-xs font-mono text-cyan-800">{c.metric1Value}</span>}
+                      </div>
+                    )}
+                    {isCaseFieldVisible(c, 'showMetric2') && (
+                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                        {c.metric2Label && <span className="text-slate-400 text-[10px] block font-sans mb-0.5">{c.metric2Label}</span>}
+                        {c.metric2Value && <span className="font-bold text-xs font-mono text-emerald-700">{c.metric2Value}</span>}
+                      </div>
+                    )}
                   </div>
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-                    <span className="text-slate-400 text-[10px] block font-sans mb-0.5">{c.metric2Label}</span>
-                    <span className="font-bold text-xs font-mono text-emerald-700">{c.metric2Value}</span>
-                  </div>
-                </div>
+                )}
 
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                   <button
@@ -1033,9 +1116,20 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                 </label>
               </div>
 
+              {/* Dica de Visibilidade dos Campos */}
+              <div className="p-3 rounded-xl bg-cyan-50/70 border border-cyan-200/80 flex items-start space-x-2.5">
+                <Eye className="w-4 h-4 text-cyan-700 mt-0.5 flex-shrink-0" />
+                <p className="text-[11px] text-cyan-950 leading-relaxed">
+                  <strong>Controle de Exibição por Campo:</strong> Clique no botão <strong>Visível / Oculto na postagem</strong> ao lado de cada informação para escolher se ela deve aparecer ou não na publicação. Campos deixados em branco também são ocultados automaticamente no site (sem deixar caixas vazias).
+                </p>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-700">Badge / Categoria Principal</label>
+                <div className={`space-y-1 transition-opacity ${editingCase.visibility?.showBadge === false ? 'opacity-60' : ''}`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="text-xs font-semibold text-slate-700">Badge / Categoria Principal</label>
+                    {renderFieldVisibilityToggle('showBadge')}
+                  </div>
                   <input
                     type="text"
                     placeholder="Ex: Protocolo All-on-4 / All-on-6"
@@ -1044,8 +1138,11 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                     className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-600"
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-700">Tag Secundária / Técnica</label>
+                <div className={`space-y-1 transition-opacity ${editingCase.visibility?.showTag === false ? 'opacity-60' : ''}`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="text-xs font-semibold text-slate-700">Tag Secundária / Técnica</label>
+                    {renderFieldVisibilityToggle('showTag')}
+                  </div>
                   <input
                     type="text"
                     placeholder="Ex: Carga Imediata / Flapless"
@@ -1057,8 +1154,11 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-700">Sistema / Marca do Implante</label>
+                <div className={`space-y-1 transition-opacity ${editingCase.visibility?.showImplantBrand === false ? 'opacity-60' : ''}`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="text-xs font-semibold text-slate-700">Sistema / Marca do Implante</label>
+                    {renderFieldVisibilityToggle('showImplantBrand')}
+                  </div>
                   <input
                     type="text"
                     placeholder="Ex: Neodent Grand Morse (GM) / Straumann BLX"
@@ -1067,8 +1167,11 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                     className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-600"
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-700">Tempo Cirúrgico Estimado</label>
+                <div className={`space-y-1 transition-opacity ${editingCase.visibility?.showSurgicalTime === false ? 'opacity-60' : ''}`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="text-xs font-semibold text-slate-700">Tempo Cirúrgico Estimado</label>
+                    {renderFieldVisibilityToggle('showSurgicalTime')}
+                  </div>
                   <input
                     type="text"
                     placeholder="Ex: 25 min"
@@ -1080,14 +1183,17 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
               </div>
 
               {/* 1. Resumo da Técnica (Área Aumentada) */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
+              <div className={`space-y-1.5 transition-opacity ${editingCase.visibility?.showDescription === false ? 'opacity-60' : ''}`}>
+                <div className="flex items-center justify-between flex-wrap gap-2">
                   <label className="text-xs font-bold text-slate-700">
-                    Resumo da Técnica (Exibido no Card da Vitrine / Capa)
+                    Resumo da Técnica (Exibido no Card e no Topo do Estudo)
                   </label>
-                  <span className="text-[11px] text-slate-400 font-mono">
-                    {(editingCase.description || '').length} caracteres
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      {(editingCase.description || '').length} caracteres
+                    </span>
+                    {renderFieldVisibilityToggle('showDescription')}
+                  </div>
                 </div>
                 <textarea
                   rows={4}
@@ -1099,7 +1205,7 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
               </div>
 
               {/* 2. Estudo de Caso Completo (Área Ampla para Artigo / Dossiê) */}
-              <div className="space-y-1.5">
+              <div className={`space-y-1.5 transition-opacity ${editingCase.visibility?.showFullContent === false ? 'opacity-60' : ''}`}>
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <label className="text-xs font-bold text-slate-700 flex items-center space-x-2">
                     <span>Estudo de Caso Completo & Conduta Clínica (Artigo / Dossiê Detalhado)</span>
@@ -1107,9 +1213,12 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                       Página do Acervo
                     </span>
                   </label>
-                  <span className="text-[11px] text-slate-400 font-mono">
-                    {(editingCase.fullContent || '').length} caracteres
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      {(editingCase.fullContent || '').length} caracteres
+                    </span>
+                    {renderFieldVisibilityToggle('showFullContent')}
+                  </div>
                 </div>
                 <p className="text-[11px] text-slate-500">
                   Área ampla para redação técnica: descreva a anamnese, diagnóstico tomográfico 3D, guia cirúrgico, sequência de fresagem, torques, estabilidade e protocolo protético.
@@ -1128,8 +1237,11 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
 
               {/* Métricas Clínicas */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-700">Métrica 1 (Rótulo / Valor)</label>
+                <div className={`space-y-1 transition-opacity ${editingCase.visibility?.showMetric1 === false ? 'opacity-60' : ''}`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="text-xs font-semibold text-slate-700">Métrica 1 (Rótulo / Valor)</label>
+                    {renderFieldVisibilityToggle('showMetric1')}
+                  </div>
                   <div className="grid grid-cols-2 gap-2">
                     <input
                       type="text"
@@ -1148,8 +1260,11 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-700">Métrica 2 (Rótulo / Valor)</label>
+                <div className={`space-y-1 transition-opacity ${editingCase.visibility?.showMetric2 === false ? 'opacity-60' : ''}`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="text-xs font-semibold text-slate-700">Métrica 2 (Rótulo / Valor)</label>
+                    {renderFieldVisibilityToggle('showMetric2')}
+                  </div>
                   <div className="grid grid-cols-2 gap-2">
                     <input
                       type="text"
@@ -1170,41 +1285,50 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
               </div>
 
               {/* Arquivo PDF para Download */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-700">Nome do Arquivo PDF de Laudo</label>
-                  <input
-                    type="text"
-                    placeholder="Ex: Laudo_Cirurgico_Caso_01.pdf"
-                    value={editingCase.pdfName || ''}
-                    onChange={e => setEditingCase({ ...editingCase, pdfName: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-600 font-mono"
-                  />
+              <div className={`space-y-2 pt-1 transition-opacity ${editingCase.visibility?.showPdf === false ? 'opacity-60' : ''}`}>
+                <div className="flex items-center justify-between gap-2">
+                  <label className="text-xs font-bold text-slate-700">Documento / Laudo PDF para Download</label>
+                  {renderFieldVisibilityToggle('showPdf')}
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-700">Link Externo do PDF (Opcional)</label>
-                  <input
-                    type="text"
-                    placeholder="https://... ou em branco para gerar auto"
-                    value={editingCase.pdfUrl || ''}
-                    onChange={e => setEditingCase({ ...editingCase, pdfUrl: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-600 font-mono"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-medium text-slate-600">Nome do Arquivo PDF de Laudo</label>
+                    <input
+                      type="text"
+                      placeholder="Ex: Laudo_Cirurgico_Caso_01.pdf (Deixe vazio para não exibir)"
+                      value={editingCase.pdfName || ''}
+                      onChange={e => setEditingCase({ ...editingCase, pdfName: e.target.value })}
+                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-600 font-mono"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-medium text-slate-600">Link Externo do PDF (Opcional)</label>
+                    <input
+                      type="text"
+                      placeholder="https://... ou em branco"
+                      value={editingCase.pdfUrl || ''}
+                      onChange={e => setEditingCase({ ...editingCase, pdfUrl: e.target.value })}
+                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:border-cyan-600 font-mono"
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* ======================================================== */}
               {/* 📸 FOTOS DO CASO CLÍNICO (CAPA E GALERIA MULTI-FOTOS) */}
               {/* ======================================================== */}
-              <div className="space-y-4 pt-3 border-t border-slate-100">
-                <div>
-                  <h4 className="text-xs font-bold text-slate-900 flex items-center space-x-2">
-                    <ImageIcon className="w-4 h-4 text-cyan-700" />
-                    <span>Fotos do Caso Clínico (Foto de Capa & Galeria de Imagens)</span>
-                  </h4>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
-                    Anexe a foto de capa e adicione múltiplas fotos complementares (tomografias, radiografias, fotos intraorais antes/depois ou do guia em boca).
-                  </p>
+              <div className={`space-y-4 pt-3 border-t border-slate-100 transition-opacity ${editingCase.visibility?.showPhotos === false ? 'opacity-60' : ''}`}>
+                <div className="flex items-start justify-between gap-2 flex-wrap">
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-900 flex items-center space-x-2">
+                      <ImageIcon className="w-4 h-4 text-cyan-700" />
+                      <span>Fotos do Caso Clínico (Foto de Capa & Galeria de Imagens)</span>
+                    </h4>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Anexe a foto de capa e adicione múltiplas fotos complementares (tomografias, radiografias, fotos intraorais antes/depois ou do guia em boca).
+                    </p>
+                  </div>
+                  {renderFieldVisibilityToggle('showPhotos')}
                 </div>
 
                 {/* 1. Foto Principal de Capa */}

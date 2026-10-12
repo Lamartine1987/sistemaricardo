@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { ClinicalCaseItem, SiteContentConfig } from '../../types/siteContent';
+import { ClinicalCaseItem, isCaseFieldVisible, SiteContentConfig } from '../../types/siteContent';
 import { 
   ArrowLeft, 
   Search, 
@@ -65,12 +65,12 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
   }, [siteContent.cases]);
 
   const activeModalImages = useMemo(() => {
-    if (!selectedCase) return [];
+    if (!selectedCase || !isCaseFieldVisible(selectedCase, 'showPhotos')) return [];
     const list = [
       ...(selectedCase.imageUrl ? [selectedCase.imageUrl] : []),
       ...(selectedCase.galleryImages || [])
     ];
-    return list.filter((img, idx, arr) => arr.indexOf(img) === idx);
+    return list.filter((img, idx, arr) => Boolean(img) && arr.indexOf(img) === idx);
   }, [selectedCase]);
 
   const activeImageToDisplay = activeModalImage && activeModalImages.includes(activeModalImage)
@@ -116,8 +116,8 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
   const categories = useMemo(() => {
     const set = new Set<string>();
     activeCases.forEach(c => {
-      if (c.badge) set.add(c.badge);
-      if (c.tag) set.add(c.tag);
+      if (isCaseFieldVisible(c, 'showBadge') && c.badge) set.add(c.badge);
+      if (isCaseFieldVisible(c, 'showTag') && c.tag) set.add(c.tag);
     });
     return Array.from(set);
   }, [activeCases]);
@@ -128,17 +128,17 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
       const q = searchQuery.toLowerCase().trim();
       const matchesSearch = !q || 
         c.title.toLowerCase().includes(q) ||
-        c.description.toLowerCase().includes(q) ||
-        (c.fullContent && c.fullContent.toLowerCase().includes(q)) ||
-        c.badge.toLowerCase().includes(q) ||
-        c.tag.toLowerCase().includes(q) ||
-        (c.implantBrand && c.implantBrand.toLowerCase().includes(q));
+        (isCaseFieldVisible(c, 'showDescription') && c.description.toLowerCase().includes(q)) ||
+        (isCaseFieldVisible(c, 'showFullContent') && c.fullContent && c.fullContent.toLowerCase().includes(q)) ||
+        (isCaseFieldVisible(c, 'showBadge') && c.badge.toLowerCase().includes(q)) ||
+        (isCaseFieldVisible(c, 'showTag') && c.tag.toLowerCase().includes(q)) ||
+        (isCaseFieldVisible(c, 'showImplantBrand') && c.implantBrand && c.implantBrand.toLowerCase().includes(q));
 
       const matchesCategory = selectedCategory === 'ALL' || 
-        c.badge === selectedCategory || 
-        c.tag === selectedCategory;
+        (isCaseFieldVisible(c, 'showBadge') && c.badge === selectedCategory) || 
+        (isCaseFieldVisible(c, 'showTag') && c.tag === selectedCategory);
 
-      const matchesPdf = !hasPdfOnly || Boolean(c.pdfUrl || c.pdfName);
+      const matchesPdf = !hasPdfOnly || isCaseFieldVisible(c, 'showPdf');
 
       return matchesSearch && matchesCategory && matchesPdf;
     });
@@ -153,6 +153,11 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
       return;
     }
 
+    const badgeParts = [
+      isCaseFieldVisible(caseItem, 'showBadge') ? caseItem.badge : '',
+      isCaseFieldVisible(caseItem, 'showTag') ? caseItem.tag : ''
+    ].filter(Boolean).join(' • ');
+
     // Gerar um documento de laudo clínico elegante via Blob de texto/HTML formatado
     const reportHtml = `
       <!DOCTYPE html>
@@ -163,40 +168,51 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
         <style>
           body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #1e293b; max-width: 800px; margin: auto; }
           .header { border-bottom: 2px solid #0891b2; padding-bottom: 20px; margin-bottom: 25px; }
-          .logo { font-size: 20px; font-weight: bold; color: #0891b2; }
+          .logo { font-size: 20px; font-weight: bold; color: #0891b2; margin-bottom: 8px; }
           h1 { font-size: 22px; color: #0f172a; margin-top: 15px; }
           .badge { display: inline-block; background: #cffafe; color: #0e7490; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; }
-          .metrics { display: flex; gap: 15px; margin: 25px 0; }
-          .metric-box { flex: 1; padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; }
+          .metrics { display: flex; gap: 15px; margin: 25px 0; flex-wrap: wrap; }
+          .metric-box { flex: 1; min-width: 140px; padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; }
           .metric-label { font-size: 11px; color: #64748b; text-transform: uppercase; }
           .metric-val { font-size: 16px; font-weight: bold; color: #0891b2; margin-top: 4px; }
-          .content { line-height: 1.8; font-size: 14px; white-space: pre-line; }
+          .content { line-height: 1.8; font-size: 14px; white-space: pre-line; margin-bottom: 20px; }
           .footer { margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 20px; font-size: 12px; color: #94a3b8; text-align: center; }
         </style>
       </head>
       <body>
         <div class="header">
           <div class="logo">IMPLANT PRECISION 3D • DR. RICARDO CEZAR</div>
-          <span class="badge">${caseItem.badge} • ${caseItem.tag}</span>
+          ${badgeParts ? `<span class="badge">${badgeParts}</span>` : ''}
           <h1>${caseItem.title}</h1>
         </div>
         <div class="metrics">
+          ${isCaseFieldVisible(caseItem, 'showMetric1') ? `
           <div class="metric-box">
             <div class="metric-label">${caseItem.metric1Label}</div>
             <div class="metric-val">${caseItem.metric1Value}</div>
-          </div>
+          </div>` : ''}
+          ${isCaseFieldVisible(caseItem, 'showMetric2') ? `
           <div class="metric-box">
             <div class="metric-label">${caseItem.metric2Label}</div>
             <div class="metric-val">${caseItem.metric2Value}</div>
-          </div>
-          ${caseItem.implantBrand ? `
+          </div>` : ''}
+          ${isCaseFieldVisible(caseItem, 'showImplantBrand') ? `
           <div class="metric-box">
             <div class="metric-label">Sistema de Implante</div>
             <div class="metric-val" style="font-size: 13px;">${caseItem.implantBrand}</div>
           </div>` : ''}
+          ${isCaseFieldVisible(caseItem, 'showSurgicalTime') ? `
+          <div class="metric-box">
+            <div class="metric-label">Tempo Cirúrgico</div>
+            <div class="metric-val" style="font-size: 13px;">${caseItem.surgicalTime}</div>
+          </div>` : ''}
         </div>
+        ${isCaseFieldVisible(caseItem, 'showDescription') ? `
+        <h3>Resumo da Técnica</h3>
+        <div class="content">${caseItem.description}</div>` : ''}
+        ${isCaseFieldVisible(caseItem, 'showFullContent') ? `
         <h3>Conduta de Planejamento & Execução Cirúrgica</h3>
-        <div class="content">${caseItem.fullContent || caseItem.description}</div>
+        <div class="content">${caseItem.fullContent}</div>` : ''}
         <div class="footer">
           Documento gerado pela Plataforma Implant Precision 3D • Responsável Técnico: ${siteContent.about.name} (${siteContent.about.cro})
         </div>
@@ -376,126 +392,160 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCases.map((c) => (
-              <div
-                key={c.id}
-                onClick={() => {
-                  setSelectedCase(c);
-                  setActiveModalImage(c.imageUrl || (c.galleryImages?.[0] || null));
-                }}
-                className="p-6 rounded-3xl bg-white border border-slate-200/90 hover:border-cyan-500/60 transition-all flex flex-col justify-between group cursor-pointer shadow-sm hover:shadow-md"
-              >
-                <div className="space-y-4">
-                  
-                  {/* Foto ou Render 3D */}
-                  {c.imageUrl ? (
-                    <div className="w-full h-48 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 relative group">
-                      <img 
-                        src={c.imageUrl} 
-                        alt={c.title} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent pointer-events-none" />
-                      <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-white/90 backdrop-blur-md text-[10px] font-mono text-cyan-900 font-bold flex items-center space-x-1 border border-slate-200 shadow-xs">
-                        <Eye className="w-3 h-3 text-cyan-700" />
-                        <span>Ver Estudo</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="w-full h-24 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between px-4 py-3 text-xs">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-9 h-9 rounded-xl bg-cyan-50 border border-cyan-200 flex items-center justify-center text-cyan-700 flex-shrink-0">
-                          <ImageIcon className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <span className="text-slate-800 font-bold text-xs block">Render Cirúrgico 3D</span>
-                          <span className="text-[10px] text-slate-500 font-mono">Modelo Digital Concluído</span>
-                        </div>
-                      </div>
-                      <span className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 text-[10px] font-mono font-medium">
-                        Dossiê
-                      </span>
-                    </div>
-                  )}
+            {filteredCases.map((c) => {
+              const coverImg = isCaseFieldVisible(c, 'showPhotos')
+                ? (c.imageUrl || c.galleryImages?.[0] || null)
+                : null;
+              const showBadge = isCaseFieldVisible(c, 'showBadge');
+              const showTag = isCaseFieldVisible(c, 'showTag');
+              const showDesc = isCaseFieldVisible(c, 'showDescription');
+              const showFull = isCaseFieldVisible(c, 'showFullContent');
+              const showBrand = isCaseFieldVisible(c, 'showImplantBrand');
+              const showTime = isCaseFieldVisible(c, 'showSurgicalTime');
+              const showM1 = isCaseFieldVisible(c, 'showMetric1');
+              const showM2 = isCaseFieldVisible(c, 'showMetric2');
+              const showPdf = isCaseFieldVisible(c, 'showPdf');
+              const showPhotos = isCaseFieldVisible(c, 'showPhotos');
 
-                  {/* Badges de Categoria */}
-                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <span className="px-2.5 py-1 rounded-lg bg-cyan-50 text-cyan-800 border border-cyan-200 text-[10px] font-mono font-bold">
-                      {c.badge}
-                    </span>
-                    <span className="text-[10px] font-mono text-slate-500 font-medium">
-                      {c.tag}
-                    </span>
+              return (
+                <div
+                  key={c.id}
+                  onClick={() => {
+                    setSelectedCase(c);
+                    setActiveModalImage(c.imageUrl || (c.galleryImages?.[0] || null));
+                  }}
+                  className="p-6 rounded-3xl bg-white border border-slate-200/90 hover:border-cyan-500/60 transition-all flex flex-col justify-between group cursor-pointer shadow-sm hover:shadow-md"
+                >
+                  <div className="space-y-4">
+                    
+                    {/* Foto ou Render 3D */}
+                    {coverImg ? (
+                      <div className="w-full h-48 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 relative group">
+                        <img 
+                          src={coverImg} 
+                          alt={c.title} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent pointer-events-none" />
+                        <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-white/90 backdrop-blur-md text-[10px] font-mono text-cyan-900 font-bold flex items-center space-x-1 border border-slate-200 shadow-xs">
+                          <Eye className="w-3 h-3 text-cyan-700" />
+                          <span>Ver Estudo</span>
+                        </div>
+                      </div>
+                    ) : c.visibility?.showPhotos !== false && c.id.startsWith('case-0') ? (
+                      <div className="w-full h-24 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between px-4 py-3 text-xs">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-9 h-9 rounded-xl bg-cyan-50 border border-cyan-200 flex items-center justify-center text-cyan-700 flex-shrink-0">
+                            <ImageIcon className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <span className="text-slate-800 font-bold text-xs block">Render Cirúrgico 3D</span>
+                            <span className="text-[10px] text-slate-500 font-mono">Modelo Digital Concluído</span>
+                          </div>
+                        </div>
+                        <span className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 text-[10px] font-mono font-medium">
+                          Dossiê
+                        </span>
+                      </div>
+                    ) : null}
+
+                    {/* Badges de Categoria */}
+                    {(showBadge || showTag) && (
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        {showBadge ? (
+                          <span className="px-2.5 py-1 rounded-lg bg-cyan-50 text-cyan-800 border border-cyan-200 text-[10px] font-mono font-bold">
+                            {c.badge}
+                          </span>
+                        ) : <span />}
+                        {showTag && (
+                          <span className="text-[10px] font-mono text-slate-500 font-medium">
+                            {c.tag}
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Título */}
+                    <h3 className="text-base font-bold text-slate-900 group-hover:text-cyan-700 transition-colors leading-snug line-clamp-2">
+                      {c.title}
+                    </h3>
+
+                    {/* Resumo */}
+                    {showDesc ? (
+                      <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
+                        {c.description}
+                      </p>
+                    ) : showFull ? (
+                      <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
+                        {c.fullContent}
+                      </p>
+                    ) : null}
+
+                    {/* Marca de Implante e Tempo se houver */}
+                    {(showBrand || showTime) && (
+                      <div className="flex items-center gap-2 pt-1 text-[11px] font-mono text-slate-600 flex-wrap">
+                        {showBrand && (
+                          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 text-slate-700">
+                            <span>🔩</span>
+                            <span className="truncate max-w-[160px] font-medium">{c.implantBrand}</span>
+                          </span>
+                        )}
+                        {showTime && (
+                          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 text-slate-700">
+                            <Clock className="w-3 h-3 text-cyan-700" />
+                            <span className="font-medium">{c.surgicalTime}</span>
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Métricas */}
+                    {(showM1 || showM2) && (
+                      <div className={`grid gap-3 pt-3 border-t border-slate-100 ${showM1 && showM2 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                        {showM1 && (
+                          <div className="p-2.5 rounded-xl bg-cyan-50/60 border border-cyan-100">
+                            {c.metric1Label && <span className="text-[10px] font-mono text-slate-500 block mb-0.5">{c.metric1Label}</span>}
+                            {c.metric1Value && <span className="text-xs font-mono font-bold text-cyan-800">{c.metric1Value}</span>}
+                          </div>
+                        )}
+                        {showM2 && (
+                          <div className="p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-100">
+                            {c.metric2Label && <span className="text-[10px] font-mono text-slate-500 block mb-0.5">{c.metric2Label}</span>}
+                            {c.metric2Value && <span className="text-xs font-mono font-bold text-emerald-700">{c.metric2Value}</span>}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                   </div>
 
-                  {/* Título */}
-                  <h3 className="text-base font-bold text-slate-900 group-hover:text-cyan-700 transition-colors leading-snug line-clamp-2 min-h-[3rem]">
-                    {c.title}
-                  </h3>
+                  {/* Rodapé do Card */}
+                  <div className="pt-4 mt-3 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-xs font-mono text-cyan-700 font-bold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+                      <span>Ler estudo clínico</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </span>
 
-                  {/* Resumo */}
-                  <p className="text-xs text-slate-600 leading-relaxed line-clamp-3 min-h-[3rem]">
-                    {c.description}
-                  </p>
-
-                  {/* Marca de Implante e Tempo se houver */}
-                  {(c.implantBrand || c.surgicalTime) && (
-                    <div className="flex items-center gap-2 pt-1 text-[11px] font-mono text-slate-600">
-                      {c.implantBrand && (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 text-slate-700">
-                          <span>🔩</span>
-                          <span className="truncate max-w-[140px] font-medium">{c.implantBrand}</span>
+                    <div className="flex items-center space-x-1.5">
+                      {showPhotos && c.galleryImages && c.galleryImages.length > 0 && (
+                        <span className="inline-flex items-center space-x-1 text-[10px] font-mono text-cyan-800 px-2 py-0.5 rounded-md bg-cyan-50 border border-cyan-200">
+                          <ImageIcon className="w-3 h-3 text-cyan-700" />
+                          <span>+{c.galleryImages.length}</span>
                         </span>
                       )}
-                      {c.surgicalTime && (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 text-slate-700">
-                          <Clock className="w-3 h-3 text-cyan-700" />
-                          <span className="font-medium">{c.surgicalTime}</span>
+
+                      {showPdf && (
+                        <span className="inline-flex items-center space-x-1 text-[10px] font-mono text-slate-600 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200">
+                          <FileText className="w-3 h-3 text-cyan-700" />
+                          <span className="font-medium">PDF</span>
                         </span>
                       )}
-                    </div>
-                  )}
-
-                  {/* Métricas */}
-                  <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
-                    <div className="p-2.5 rounded-xl bg-cyan-50/60 border border-cyan-100">
-                      <span className="text-[10px] font-mono text-slate-500 block mb-0.5">{c.metric1Label}</span>
-                      <span className="text-xs font-mono font-bold text-cyan-800">{c.metric1Value}</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-100">
-                      <span className="text-[10px] font-mono text-slate-500 block mb-0.5">{c.metric2Label}</span>
-                      <span className="text-xs font-mono font-bold text-emerald-700">{c.metric2Value}</span>
                     </div>
                   </div>
 
                 </div>
-
-                {/* Rodapé do Card */}
-                <div className="pt-4 mt-3 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-xs font-mono text-cyan-700 font-bold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
-                    <span>Ler estudo clínico</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </span>
-
-                  <div className="flex items-center space-x-1.5">
-                    {c.galleryImages && c.galleryImages.length > 0 && (
-                      <span className="inline-flex items-center space-x-1 text-[10px] font-mono text-cyan-800 px-2 py-0.5 rounded-md bg-cyan-50 border border-cyan-200">
-                        <ImageIcon className="w-3 h-3 text-cyan-700" />
-                        <span>+{c.galleryImages.length}</span>
-                      </span>
-                    )}
-
-                    {(c.pdfUrl || c.pdfName) && (
-                      <span className="inline-flex items-center space-x-1 text-[10px] font-mono text-slate-600 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200">
-                        <FileText className="w-3 h-3 text-cyan-700" />
-                        <span className="font-medium">PDF</span>
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>
@@ -510,20 +560,28 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
             {/* Header do Modal */}
             <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-4">
               <div className="space-y-2">
-                <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                  <span className="px-3 py-1 rounded-full bg-cyan-50 text-cyan-800 border border-cyan-200 text-xs font-mono font-bold">
-                    {selectedCase.badge}
-                  </span>
-                  <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-xs font-mono font-medium">
-                    {selectedCase.tag}
-                  </span>
-                  {selectedCase.surgicalTime && (
-                    <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-xs font-mono flex items-center space-x-1">
-                      <Clock className="w-3 h-3 text-cyan-700" />
-                      <span className="font-medium">{selectedCase.surgicalTime}</span>
-                    </span>
-                  )}
-                </div>
+                {(isCaseFieldVisible(selectedCase, 'showBadge') ||
+                  isCaseFieldVisible(selectedCase, 'showTag') ||
+                  isCaseFieldVisible(selectedCase, 'showSurgicalTime')) && (
+                  <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                    {isCaseFieldVisible(selectedCase, 'showBadge') && (
+                      <span className="px-3 py-1 rounded-full bg-cyan-50 text-cyan-800 border border-cyan-200 text-xs font-mono font-bold">
+                        {selectedCase.badge}
+                      </span>
+                    )}
+                    {isCaseFieldVisible(selectedCase, 'showTag') && (
+                      <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-xs font-mono font-medium">
+                        {selectedCase.tag}
+                      </span>
+                    )}
+                    {isCaseFieldVisible(selectedCase, 'showSurgicalTime') && (
+                      <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-xs font-mono flex items-center space-x-1">
+                        <Clock className="w-3 h-3 text-cyan-700" />
+                        <span className="font-medium">{selectedCase.surgicalTime}</span>
+                      </span>
+                    )}
+                  </div>
+                )}
                 <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">
                   {selectedCase.title}
                 </h2>
@@ -623,75 +681,152 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
                 );
               }
 
-              return (
-                <div className="w-full h-32 rounded-2xl bg-gradient-to-r from-cyan-50 via-slate-50 to-cyan-50 border border-cyan-200 flex items-center justify-center p-6 text-center">
-                  <div className="space-y-1">
-                    <div className="inline-flex items-center space-x-2 text-cyan-800 font-mono text-xs font-bold">
-                      <Sparkles className="w-4 h-4 text-cyan-700" />
-                      <span>PLANEJAMENTO VIRTUAL 3D CONCLUÍDO</span>
+              if (selectedCase.visibility?.showPhotos !== false && selectedCase.id.startsWith('case-0')) {
+                return (
+                  <div className="w-full h-32 rounded-2xl bg-gradient-to-r from-cyan-50 via-slate-50 to-cyan-50 border border-cyan-200 flex items-center justify-center p-6 text-center">
+                    <div className="space-y-1">
+                      <div className="inline-flex items-center space-x-2 text-cyan-800 font-mono text-xs font-bold">
+                        <Sparkles className="w-4 h-4 text-cyan-700" />
+                        <span>PLANEJAMENTO VIRTUAL 3D CONCLUÍDO</span>
+                      </div>
+                      <p className="text-xs text-slate-600">
+                        Arquivos tomográficos DICOM e escaneamento oral alinhados com precisão sub-milimétrica.
+                      </p>
                     </div>
-                    <p className="text-xs text-slate-600">
-                      Arquivos tomográficos DICOM e escaneamento oral alinhados com precisão sub-milimétrica.
-                    </p>
                   </div>
+                );
+              }
+
+              return null;
+            })()}
+
+            {/* HUD de Métricas e Telemetria Cirúrgica (Apenas itens preenchidos e visíveis) */}
+            {(() => {
+              const showM1 = isCaseFieldVisible(selectedCase, 'showMetric1');
+              const showM2 = isCaseFieldVisible(selectedCase, 'showMetric2');
+              const showBrand = isCaseFieldVisible(selectedCase, 'showImplantBrand');
+              const showTime = isCaseFieldVisible(selectedCase, 'showSurgicalTime');
+
+              const visibleCount = [showM1, showM2, showBrand, showTime].filter(Boolean).length;
+              if (visibleCount === 0) return null;
+
+              const gridColsClass =
+                visibleCount === 1
+                  ? 'grid-cols-1'
+                  : visibleCount === 2
+                  ? 'grid-cols-1 sm:grid-cols-2'
+                  : visibleCount === 3
+                  ? 'grid-cols-1 sm:grid-cols-3'
+                  : 'grid-cols-2 sm:grid-cols-4';
+
+              return (
+                <div className={`grid ${gridColsClass} gap-3`}>
+                  {showM1 && (
+                    <div className="p-3.5 rounded-2xl bg-cyan-50/70 border border-cyan-100">
+                      {selectedCase.metric1Label && (
+                        <span className="text-[10px] font-mono text-slate-500 block">{selectedCase.metric1Label}</span>
+                      )}
+                      {selectedCase.metric1Value && (
+                        <span className="text-sm font-mono font-bold text-cyan-800">{selectedCase.metric1Value}</span>
+                      )}
+                    </div>
+                  )}
+                  {showM2 && (
+                    <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-100">
+                      {selectedCase.metric2Label && (
+                        <span className="text-[10px] font-mono text-slate-500 block">{selectedCase.metric2Label}</span>
+                      )}
+                      {selectedCase.metric2Value && (
+                        <span className="text-sm font-mono font-bold text-emerald-700">{selectedCase.metric2Value}</span>
+                      )}
+                    </div>
+                  )}
+                  {showBrand && (
+                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                      <span className="text-[10px] font-mono text-slate-500 block">Sistema / Marca</span>
+                      <span className="text-xs font-mono font-bold text-slate-800 block">
+                        {selectedCase.implantBrand}
+                      </span>
+                    </div>
+                  )}
+                  {showTime && (
+                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                      <span className="text-[10px] font-mono text-slate-500 block">Tempo Cirúrgico</span>
+                      <span className="text-xs font-mono font-bold text-slate-800 block">
+                        {selectedCase.surgicalTime}
+                      </span>
+                    </div>
+                  )}
                 </div>
               );
             })()}
 
-            {/* HUD de Métricas e Telemetria Cirúrgica */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="p-3.5 rounded-2xl bg-cyan-50/70 border border-cyan-100">
-                <span className="text-[10px] font-mono text-slate-500 block">{selectedCase.metric1Label}</span>
-                <span className="text-sm font-mono font-bold text-cyan-800">{selectedCase.metric1Value}</span>
-              </div>
-              <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-100">
-                <span className="text-[10px] font-mono text-slate-500 block">{selectedCase.metric2Label}</span>
-                <span className="text-sm font-mono font-bold text-emerald-700">{selectedCase.metric2Value}</span>
-              </div>
-              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 col-span-2 sm:col-span-2">
-                <span className="text-[10px] font-mono text-slate-500 block">Sistema / Marca</span>
-                <span className="text-xs font-mono font-bold text-slate-800 truncate block">
-                  {selectedCase.implantBrand || 'Neodent / Straumann Guiado'}
-                </span>
-              </div>
-            </div>
+            {/* Resumo da Técnica & Conduta Clínica Aprofundada */}
+            {(() => {
+              const showDesc = isCaseFieldVisible(selectedCase, 'showDescription');
+              const showFull = isCaseFieldVisible(selectedCase, 'showFullContent');
+              if (!showDesc && !showFull) return null;
 
-            {/* Descrição e Conduta Clínica Aprofundada */}
-            <div className="space-y-3 pt-2">
-              <h3 className="text-sm font-bold font-mono text-cyan-800 uppercase tracking-wider flex items-center space-x-2">
-                <Layers className="w-4 h-4 text-cyan-700" />
-                <span>Conduta Clínica & Detalhamento do Planejamento</span>
-              </h3>
-              
-              <div className="text-sm text-slate-700 leading-relaxed space-y-3 font-sans whitespace-pre-line p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-xs">
-                {selectedCase.fullContent || selectedCase.description}
-              </div>
-            </div>
+              const isSameText =
+                showDesc &&
+                showFull &&
+                selectedCase.description.trim() === (selectedCase.fullContent || '').trim();
 
-            {/* Seção de Documento / PDF para Download */}
-            <div className="p-4 rounded-2xl bg-cyan-50/60 border border-cyan-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-xl bg-cyan-100 border border-cyan-200 flex items-center justify-center text-cyan-700 flex-shrink-0">
-                  <FileText className="w-5 h-5" />
+              return (
+                <div className="space-y-4 pt-2">
+                  {showDesc && (
+                    <div className="space-y-2">
+                      <h3 className="text-xs font-bold font-mono text-cyan-800 uppercase tracking-wider flex items-center space-x-2">
+                        <Stethoscope className="w-4 h-4 text-cyan-700" />
+                        <span>Resumo da Técnica</span>
+                      </h3>
+                      <div className="text-sm text-slate-700 leading-relaxed font-sans whitespace-pre-line p-4 rounded-2xl bg-cyan-50/40 border border-cyan-100 shadow-xs">
+                        {selectedCase.description}
+                      </div>
+                    </div>
+                  )}
+
+                  {showFull && !isSameText && (
+                    <div className="space-y-2">
+                      <h3 className="text-xs font-bold font-mono text-cyan-800 uppercase tracking-wider flex items-center space-x-2">
+                        <Layers className="w-4 h-4 text-cyan-700" />
+                        <span>Conduta Clínica & Detalhamento do Planejamento</span>
+                      </h3>
+                      <div className="text-sm text-slate-700 leading-relaxed space-y-3 font-sans whitespace-pre-line p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-xs">
+                        {selectedCase.fullContent}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-900 font-mono">
-                    {selectedCase.pdfName || `Laudo_Cirurgico_${selectedCase.badge.replace(/\s+/g, '_')}.pdf`}
-                  </h4>
-                  <p className="text-[11px] text-slate-500">
-                    Ficha técnica, posicionamento axial e tolerâncias de broca
-                  </p>
-                </div>
-              </div>
+              );
+            })()}
 
-              <button
-                onClick={() => handleDownloadPdf(selectedCase)}
-                className="px-4 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white font-mono font-bold text-xs flex items-center space-x-1.5 transition-all shadow-sm hover:shadow cursor-pointer whitespace-nowrap"
-              >
-                <Download className="w-4 h-4" />
-                <span>Baixar Laudo / PDF</span>
-              </button>
-            </div>
+            {/* Seção de Documento / PDF para Download (Apenas quando visível e preenchido) */}
+            {isCaseFieldVisible(selectedCase, 'showPdf') && (
+              <div className="p-4 rounded-2xl bg-cyan-50/60 border border-cyan-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-xl bg-cyan-100 border border-cyan-200 flex items-center justify-center text-cyan-700 flex-shrink-0">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-900 font-mono">
+                      {selectedCase.pdfName || 'Laudo_Planejamento_3D.pdf'}
+                    </h4>
+                    <p className="text-[11px] text-slate-500">
+                      Ficha técnica, posicionamento axial e tolerâncias de broca
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => handleDownloadPdf(selectedCase)}
+                  className="px-4 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white font-mono font-bold text-xs flex items-center space-x-1.5 transition-all shadow-sm hover:shadow cursor-pointer whitespace-nowrap"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Baixar Laudo / PDF</span>
+                </button>
+              </div>
+            )}
 
             {/* CTA WhatsApp Direto com Dr. Ricardo */}
             <div className="pt-2 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">

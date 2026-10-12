@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { ImplantScrollCanvas } from './ImplantScrollCanvas';
 import { LandingNavbar } from './LandingNavbar';
 import { 
-  SiteContentConfig 
+  SiteContentConfig,
+  isCaseFieldVisible
 } from '../../types/siteContent';
 import { 
   getStoredSiteContent 
@@ -28,7 +29,8 @@ import {
   Award,
   Phone,
   Calendar,
-  UserCheck
+  UserCheck,
+  Clock
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -225,70 +227,120 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               .slice()
               .sort((a, b) => (b.featuredOnHome ? 1 : 0) - (a.featuredOnHome ? 1 : 0))
               .slice(0, 3)
-              .map((c) => (
-                <div 
-                  key={c.id}
-                  onClick={() => onOpenCasesArchive?.(c.id)}
-                  className="p-6 rounded-3xl glass-panel-glow border border-cyber-border bg-cyber-card/85 backdrop-blur-2xl space-y-4 shadow-xl hover:border-cyber-cyan/60 transition-all group flex flex-col justify-between cursor-pointer"
-                >
-                  <div className="space-y-3">
-                    {/* Imagem do Caso se cadastrada */}
-                    {c.imageUrl && (
-                      <div className="w-full h-44 rounded-2xl overflow-hidden bg-slate-900 border border-cyber-border/80 mb-3 relative group">
-                        <img 
-                          src={c.imageUrl} 
-                          alt={c.title} 
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
-                      </div>
-                    )}
+              .map((c) => {
+                const coverImg = isCaseFieldVisible(c, 'showPhotos')
+                  ? (c.imageUrl || c.galleryImages?.[0] || null)
+                  : null;
+                const showBadge = isCaseFieldVisible(c, 'showBadge');
+                const showTag = isCaseFieldVisible(c, 'showTag');
+                const showDesc = isCaseFieldVisible(c, 'showDescription');
+                const showFull = isCaseFieldVisible(c, 'showFullContent');
+                const showBrand = isCaseFieldVisible(c, 'showImplantBrand');
+                const showTime = isCaseFieldVisible(c, 'showSurgicalTime');
+                const showM1 = isCaseFieldVisible(c, 'showMetric1');
+                const showM2 = isCaseFieldVisible(c, 'showMetric2');
+                const showPdf = isCaseFieldVisible(c, 'showPdf');
 
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/30 font-semibold">
-                        {c.badge}
-                      </span>
-                      <span className="text-[11px] font-mono text-emerald-400">
-                        {c.tag}
-                      </span>
-                    </div>
+                return (
+                  <div 
+                    key={c.id}
+                    onClick={() => onOpenCasesArchive?.(c.id)}
+                    className="p-6 rounded-3xl glass-panel-glow border border-cyber-border bg-cyber-card/85 backdrop-blur-2xl space-y-4 shadow-xl hover:border-cyber-cyan/60 transition-all group flex flex-col justify-between cursor-pointer"
+                  >
+                    <div className="space-y-3">
+                      {/* Imagem do Caso se cadastrada e visível */}
+                      {coverImg && (
+                        <div className="w-full h-44 rounded-2xl overflow-hidden bg-slate-900 border border-cyber-border/80 mb-3 relative group">
+                          <img 
+                            src={coverImg} 
+                            alt={c.title} 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
+                        </div>
+                      )}
 
-                    <h3 className="text-lg font-bold text-white group-hover:text-cyber-cyan transition-colors line-clamp-2">
-                      {c.title}
-                    </h3>
+                      {(showBadge || showTag) && (
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          {showBadge ? (
+                            <span className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/30 font-semibold">
+                              {c.badge}
+                            </span>
+                          ) : <span />}
+                          {showTag && (
+                            <span className="text-[11px] font-mono text-emerald-400">
+                              {c.tag}
+                            </span>
+                          )}
+                        </div>
+                      )}
 
-                    <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
-                      {c.description}
-                    </p>
-                  </div>
+                      <h3 className="text-lg font-bold text-white group-hover:text-cyber-cyan transition-colors line-clamp-2">
+                        {c.title}
+                      </h3>
 
-                  <div className="space-y-3 pt-3 border-t border-cyber-border/70">
-                    <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-                      <div>
-                        <span className="text-slate-400 block text-[10px]">{c.metric1Label}</span>
-                        <span className="text-cyber-cyan font-bold">{c.metric1Value}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-400 block text-[10px]">{c.metric2Label}</span>
-                        <span className="text-emerald-400 font-bold">{c.metric2Value}</span>
-                      </div>
-                    </div>
+                      {showDesc ? (
+                        <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
+                          {c.description}
+                        </p>
+                      ) : showFull ? (
+                        <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
+                          {c.fullContent}
+                        </p>
+                      ) : null}
 
-                    <div className="pt-2 flex items-center justify-between text-xs font-mono text-cyber-cyan">
-                      <span className="font-bold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
-                        <span>Ver estudo completo</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </span>
-                      {(c.pdfUrl || c.pdfName) && (
-                        <span className="text-[10px] text-slate-400 bg-slate-900/90 border border-slate-800 px-2 py-0.5 rounded">
-                          Laudo PDF
-                        </span>
+                      {(showBrand || showTime) && (
+                        <div className="flex items-center gap-2 pt-1 text-[10px] font-mono text-slate-300 flex-wrap">
+                          {showBrand && (
+                            <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-slate-900/80 border border-slate-700/80 text-slate-200">
+                              <span>🔩</span>
+                              <span className="truncate max-w-[150px]">{c.implantBrand}</span>
+                            </span>
+                          )}
+                          {showTime && (
+                            <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-slate-900/80 border border-slate-700/80 text-slate-200">
+                              <Clock className="w-3 h-3 text-cyber-cyan" />
+                              <span>{c.surgicalTime}</span>
+                            </span>
+                          )}
+                        </div>
                       )}
                     </div>
-                  </div>
 
-                </div>
-              ))}
+                    <div className="space-y-3 pt-3 border-t border-cyber-border/70">
+                      {(showM1 || showM2) && (
+                        <div className={`grid gap-2 text-xs font-mono ${showM1 && showM2 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                          {showM1 && (
+                            <div>
+                              {c.metric1Label && <span className="text-slate-400 block text-[10px]">{c.metric1Label}</span>}
+                              {c.metric1Value && <span className="text-cyber-cyan font-bold">{c.metric1Value}</span>}
+                            </div>
+                          )}
+                          {showM2 && (
+                            <div>
+                              {c.metric2Label && <span className="text-slate-400 block text-[10px]">{c.metric2Label}</span>}
+                              {c.metric2Value && <span className="text-emerald-400 font-bold">{c.metric2Value}</span>}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="pt-2 flex items-center justify-between text-xs font-mono text-cyber-cyan">
+                        <span className="font-bold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+                          <span>Ver estudo completo</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </span>
+                        {showPdf && (
+                          <span className="text-[10px] text-slate-400 bg-slate-900/90 border border-slate-800 px-2 py-0.5 rounded">
+                            Laudo PDF
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                  </div>
+                );
+              })}
           </div>
 
           {/* Botão de Destaque para Abrir o Acervo Completo */}
