@@ -4,6 +4,8 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   sendPasswordResetEmail,
+  verifyPasswordResetCode,
+  confirmPasswordReset,
   fetchSignInMethodsForEmail,
   getAdditionalUserInfo,
   updateProfile,
@@ -85,11 +87,28 @@ export const registerWithEmail = async (
 export const sendPasswordReset = async (email: string): Promise<void> => {
   if (!isFirebaseConfigured || !auth) return;
   try {
-    await sendPasswordResetEmail(auth, email.trim());
+    await sendPasswordResetEmail(auth, email.trim(), {
+      url: window.location.origin,
+      handleCodeInApp: false
+    });
   } catch (error: any) {
-    console.error('Erro ao enviar e-mail de recuperação de senha:', error);
-    throw error;
+    // Caso o domínio atual ainda não esteja autorizado para continueUrl, envia sem actionCodeSettings
+    await sendPasswordResetEmail(auth, email.trim());
   }
+};
+
+export const verifyResetCode = async (oobCode: string): Promise<string> => {
+  if (!isFirebaseConfigured || !auth) {
+    throw new Error('Firebase Auth não configurado.');
+  }
+  return await verifyPasswordResetCode(auth, oobCode.trim());
+};
+
+export const completePasswordReset = async (oobCode: string, newPassword: string): Promise<void> => {
+  if (!isFirebaseConfigured || !auth) {
+    throw new Error('Firebase Auth não configurado.');
+  }
+  await confirmPasswordReset(auth, oobCode.trim(), newPassword);
 };
 
 export const logoutFirebase = async (): Promise<void> => {

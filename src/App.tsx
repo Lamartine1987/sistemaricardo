@@ -234,7 +234,10 @@ export function App() {
   const [selectedCase, setSelectedCase] = useState<DentalCase | null>(null);
   const [isNewCaseOpen, setIsNewCaseOpen] = useState(false);
   const [isNewAdminModalOpen, setIsNewAdminModalOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('mode') === 'resetPassword' && Boolean(params.get('oobCode'));
+  });
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   // Central de Notificações In-App
