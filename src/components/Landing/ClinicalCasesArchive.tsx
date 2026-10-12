@@ -18,7 +18,8 @@ import {
   ChevronLeft,
   Maximize2,
   Layers,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Edit3
 } from 'lucide-react';
 
 interface ClinicalCasesArchiveProps {
@@ -28,6 +29,8 @@ interface ClinicalCasesArchiveProps {
   firebaseUser?: { email?: string | null; displayName?: string | null } | null;
   siteContent: SiteContentConfig;
   initialSelectedCaseId?: string | null;
+  isAdmin?: boolean;
+  onEditCase?: (caseId: string) => void;
 }
 
 export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
@@ -36,7 +39,9 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
   onOpenAuthModal,
   firebaseUser,
   siteContent,
-  initialSelectedCaseId
+  initialSelectedCaseId,
+  isAdmin = false,
+  onEditCase
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -49,6 +54,15 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
     }
     return null;
   });
+
+  useEffect(() => {
+    if (selectedCase) {
+      const updated = siteContent.cases.find(c => c.id === selectedCase.id);
+      if (updated) {
+        setSelectedCase(updated);
+      }
+    }
+  }, [siteContent.cases]);
 
   const activeModalImages = useMemo(() => {
     if (!selectedCase) return [];
@@ -515,15 +529,27 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
                 </h2>
               </div>
 
-              <button
-                onClick={() => {
-                  setSelectedCase(null);
-                  setActiveModalImage(null);
-                }}
-                className="p-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-200 transition-colors cursor-pointer flex-shrink-0"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center space-x-2 flex-shrink-0">
+                {isAdmin && onEditCase && (
+                  <button
+                    onClick={() => onEditCase(selectedCase.id)}
+                    className="px-3.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer shadow-xs"
+                    title="Editar informações e fotos deste caso clínico"
+                  >
+                    <Edit3 className="w-3.5 h-3.5 text-amber-700" />
+                    <span>Editar Caso</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    setSelectedCase(null);
+                    setActiveModalImage(null);
+                  }}
+                  className="p-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-200 transition-colors cursor-pointer flex-shrink-0"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* Imagem Principal ou Galeria Interativa */}

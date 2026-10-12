@@ -12,6 +12,24 @@ export const INITIAL_ADMINS: AdminUser[] = [
     roleTitle: 'Administrador Geral',
     active: true,
     createdAt: '2026-01-01T08:00:00Z',
+  },
+  {
+    id: 'admin-ricardo-gmail',
+    name: 'Ricardo Campos',
+    email: 'ricardo79nc@gmail.com',
+    role: 'SUPER_ADMIN',
+    roleTitle: 'Administrador Geral',
+    active: true,
+    createdAt: '2026-01-01T08:00:00Z',
+  },
+  {
+    id: 'admin-ricardo-hotmail',
+    name: 'Ricardo Campos',
+    email: 'ricardo_ncampos@hotmail.com',
+    role: 'SUPER_ADMIN',
+    roleTitle: 'Administrador Geral',
+    active: true,
+    createdAt: '2026-01-01T08:00:00Z',
   }
 ];
 

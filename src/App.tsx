@@ -76,16 +76,20 @@ export function App() {
     localStorage.removeItem('implantflow_admins');
   }, []);
 
-  // Administradores da Equipe (Lamartine Cezar - Administrador Geral)
+  // Administradores da Equipe (Lamartine Cezar e Administradores autorizados)
   const [admins, setAdmins] = useState<AdminUser[]>(() => {
     const saved = localStorage.getItem('implantprecision_admins');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed.length > 0 && parsed[0].name?.includes('Ricardo')) {
-          return INITIAL_ADMINS;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Garantir que os administradores iniciais estejam presentes até a sincronização do Firestore
+          const existingEmails = new Set(parsed.map((a: AdminUser) => a.email?.toLowerCase().trim()));
+          const missingDefaults = INITIAL_ADMINS.filter(
+            def => !existingEmails.has(def.email.toLowerCase().trim())
+          );
+          return [...parsed, ...missingDefaults];
         }
-        return parsed;
       } catch (e) {
         return INITIAL_ADMINS;
       }
@@ -117,6 +121,7 @@ export function App() {
     return (saved === 'DASHBOARD' || saved === 'LANDING' || saved === 'CASES_ARCHIVE') ? saved : 'LANDING';
   });
   const [selectedArchiveCaseId, setSelectedArchiveCaseId] = useState<string | null>(null);
+  const [editingSiteCaseId, setEditingSiteCaseId] = useState<string | null>(null);
 
   useEffect(() => {
     localStorage.setItem('implantprecision_view_mode', viewMode);
@@ -138,23 +143,23 @@ export function App() {
     };
     window.addEventListener('implantprecision_site_updated', handleImmediateSiteUpdate);
 
-    // Listener do Firestore com resolução de conflitos por timestamp
+    // Listener do Firestore com resolução de conflitos por timestamp monotônico
     const unsubFirestoreSite = subscribeToSiteContent((remoteContent) => {
       if (!remoteContent || (!remoteContent.cases && !remoteContent.services)) return;
 
+      const hasLocalSaved = Boolean(localStorage.getItem('implantprecision_site_content'));
       const local = getStoredSiteContent();
       const localTime = Number(local.updatedAt) || 0;
       const remoteTime = Number(remoteContent.updatedAt) || 0;
 
-      // Se o Firestore tiver uma versão estritamente mais recente que a local
-      if (remoteTime > localTime) {
-        console.log('🔄 [SiteContent] Atualizando com versão mais recente do Firestore:', remoteTime, 'vs local:', localTime);
+      // Atualiza se não houver cache local ou se a versão remota for igual/mais recente
+      if (!hasLocalSaved || remoteTime >= localTime) {
         setSiteContent(remoteContent);
-        localStorage.setItem('implantprecision_site_content', JSON.stringify(remoteContent));
-      } else if (localTime > remoteTime) {
-        // Se a versão local for mais recente (ex: usuário editou no CMS), sincroniza com a nuvem
-        console.log('📤 [SiteContent] Versão local é mais recente que Firestore. Sincronizando com nuvem...');
-        saveSiteContentToFirestore(local);
+        try {
+          localStorage.setItem('implantprecision_site_content', JSON.stringify(remoteContent));
+        } catch (err) {
+          console.warn('ℹ️ [SiteContent] Limite do localStorage atingido, mantendo em memória:', err);
+        }
       }
     });
 
@@ -863,6 +868,13 @@ export function App() {
           firebaseUser={firebaseUser}
           siteContent={siteContent}
           initialSelectedCaseId={selectedArchiveCaseId}
+          isAdmin={userType === 'ADMIN' && Boolean(firebaseUser)}
+          onEditCase={(caseId) => {
+            setSelectedArchiveCaseId(null);
+            setEditingSiteCaseId(caseId);
+            setActiveTab('SITE');
+            setViewMode('DASHBOARD');
+          }}
         />
         <AuthModal
           isOpen={isAuthModalOpen}
@@ -1107,6 +1119,8 @@ export function App() {
             siteContent={siteContent}
             onUpdateSiteContent={handleUpdateSiteContent}
             onBackToLanding={() => setViewMode('LANDING')}
+            initialEditingCaseId={editingSiteCaseId}
+            onClearInitialEditingCase={() => setEditingSiteCaseId(null)}
             onNotifyFeedback={(title, msg) => {
               addNotification({
                 targetUserType: 'ADMIN',

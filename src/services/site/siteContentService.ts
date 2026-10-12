@@ -31,29 +31,40 @@ export const getStoredSiteContent = (): SiteContentConfig => {
 };
 
 /**
- * Salva o conteúdo do site localmente e sincroniza em tempo real no Firestore
+ * Salva o conteúdo do site localmente e sincroniza em tempo real no Firestore.
+ * Usa timestamp monotônico crescente para evitar que diferenças de relógio entre
+ * computadores diferentes revertam alterações salvas por outro administrador.
  */
 export const saveStoredSiteContent = (content: SiteContentConfig): SiteContentConfig => {
+  const currentStored = getStoredSiteContent();
+  const baseTimestamp = Math.max(
+    Date.now(),
+    Number(content.updatedAt) || 0,
+    Number(currentStored.updatedAt) || 0
+  );
+
+  const contentWithTimestamp: SiteContentConfig = {
+    ...content,
+    updatedAt: baseTimestamp + 1
+  };
+
   try {
-    const contentWithTimestamp: SiteContentConfig = {
-      ...content,
-      updatedAt: Date.now()
-    };
     localStorage.setItem(SITE_CONTENT_STORAGE_KEY, JSON.stringify(contentWithTimestamp));
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('implantprecision_site_updated', { detail: contentWithTimestamp }));
-    }
-    saveSiteContentToFirestore(contentWithTimestamp);
-    return contentWithTimestamp;
   } catch (e) {
-    console.warn('ℹ️ Erro ao persistir conteúdo do site:', e);
-    return content;
+    console.warn('ℹ️ Limite do localStorage atingido, mantendo sincronização direta com Firestore:', e);
   }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('implantprecision_site_updated', { detail: contentWithTimestamp }));
+  }
+
+  saveSiteContentToFirestore(contentWithTimestamp);
+  return contentWithTimestamp;
 };
 
 /**
- * Converte um arquivo de imagem em Base64 Data URL com compressão inteligente
- * (limita a 1200px máx e comprime em JPEG 0.8 para economizar storage e acelerar o site)
+ * Converte um arquivo de imagem em Base64 Data URL com compressão adaptativa
+ * (garante que múltiplas fotos na galeria nunca ultrapassem o limite de 1MB do Firestore)
  */
 export const fileToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -68,7 +79,7 @@ export const fileToBase64 = (file: File): Promise<string> => {
 
       const img = new Image();
       img.onload = () => {
-        const maxDim = 1200;
+        const maxDim = 900;
         let width = img.width;
         let height = img.height;
 
@@ -88,7 +99,11 @@ export const fileToBase64 = (file: File): Promise<string> => {
         const ctx = canvas.getContext('2d');
         if (ctx) {
           ctx.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', 0.82));
+          let compressed = canvas.toDataURL('image/jpeg', 0.72);
+          if (compressed.length > 110000) {
+            compressed = canvas.toDataURL('image/jpeg', 0.55);
+          }
+          resolve(compressed);
         } else {
           resolve(dataUrl);
         }

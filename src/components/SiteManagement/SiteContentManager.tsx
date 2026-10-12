@@ -38,13 +38,17 @@ interface SiteContentManagerProps {
   onNotifyFeedback?: (title: string, message: string) => void;
   siteContent?: SiteContentConfig;
   onUpdateSiteContent?: (newContent: SiteContentConfig) => void;
+  initialEditingCaseId?: string | null;
+  onClearInitialEditingCase?: () => void;
 }
 
 export const SiteContentManager: React.FC<SiteContentManagerProps> = ({ 
   onBackToLanding,
   onNotifyFeedback,
   siteContent,
-  onUpdateSiteContent
+  onUpdateSiteContent,
+  initialEditingCaseId,
+  onClearInitialEditingCase
 }) => {
   const [content, setContent] = useState<SiteContentConfig>(() => siteContent || getStoredSiteContent());
   const [activeSubTab, setActiveSubTab] = useState<'CASES' | 'SERVICES' | 'COURSES' | 'TESTIMONIALS' | 'ABOUT'>('CASES');
@@ -71,6 +75,22 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
   const [editingCase, setEditingCase] = useState<ClinicalCaseItem | null>(null);
   const [isNewCaseModalOpen, setIsNewCaseModalOpen] = useState(false);
   const [newGalleryUrl, setNewGalleryUrl] = useState('');
+
+  // Se o administrador clicou em "Editar Caso" lá na visualização do site/acervo, abre o modal diretamente
+  useEffect(() => {
+    if (initialEditingCaseId) {
+      const target = content.cases.find(c => c.id === initialEditingCaseId);
+      if (target) {
+        setActiveSubTab('CASES');
+        setEditingCase({ ...target, galleryImages: target.galleryImages || [] });
+        setNewGalleryUrl('');
+        setIsNewCaseModalOpen(true);
+      }
+      if (onClearInitialEditingCase) {
+        onClearInitialEditingCase();
+      }
+    }
+  }, [initialEditingCaseId, content.cases, onClearInitialEditingCase]);
 
   const [editingService, setEditingService] = useState<ServiceItem | null>(null);
   const [isNewServiceModalOpen, setIsNewServiceModalOpen] = useState(false);
@@ -114,7 +134,7 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
     applyContentChange(updated);
   };
 
-  // Upload genérico de imagem
+  // Upload genérico de imagem (com compressão automática em fileToBase64)
   const handleImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>, 
     onSuccess: (dataUrl: string) => void
@@ -122,8 +142,8 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 3 * 1024 * 1024) {
-      alert('Por favor, selecione uma imagem de até 3MB para garantir carregamento ultrarrápido.');
+    if (file.size > 20 * 1024 * 1024) {
+      alert('Por favor, selecione uma imagem de até 20MB.');
       return;
     }
 
@@ -286,9 +306,9 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                   surgicalTime: '',
                   pdfName: '',
                   pdfUrl: '',
-                  featuredOnHome: false,
+                  featuredOnHome: true,
                   active: true,
-                  order: content.cases.length + 1
+                  order: 1
                 });
                 setNewGalleryUrl('');
                 setIsNewCaseModalOpen(true);
@@ -308,12 +328,21 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                   c.active ? 'border-slate-200/90' : 'border-slate-200/60 opacity-60 bg-slate-50/50'
                 }`}
               >
-                {/* Imagem Preview se houver */}
+                {/* Imagem Preview se houver (Clicável para editar) */}
                 {c.imageUrl ? (
-                  <div className="w-full h-40 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 relative group">
+                  <div 
+                    onClick={() => {
+                      setEditingCase({ ...c, galleryImages: c.galleryImages || [] });
+                      setNewGalleryUrl('');
+                      setIsNewCaseModalOpen(true);
+                    }}
+                    className="w-full h-40 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 relative group cursor-pointer"
+                    title="Clique para editar este caso clínico"
+                  >
                     <img src={c.imageUrl} alt={c.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-medium">
-                      Foto anexada ao caso
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold space-x-1.5">
+                      <Edit3 className="w-4 h-4" />
+                      <span>Clique para editar caso e fotos</span>
                     </div>
                   </div>
                 ) : (
@@ -334,9 +363,9 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                         setNewGalleryUrl('');
                         setIsNewCaseModalOpen(true);
                       }}
-                      className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 text-[11px] font-sans font-medium transition-colors flex-shrink-0"
+                      className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 text-[11px] font-sans font-medium transition-colors flex-shrink-0 cursor-pointer"
                     >
-                      + Foto
+                      + Foto / Editar
                     </button>
                   </div>
                 )}
@@ -367,13 +396,23 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                   </span>
                 </div>
 
-                <h3 className="text-sm font-bold text-slate-900 line-clamp-2 min-h-[2.5rem] leading-snug">
-                  {c.title || 'Sem título'}
-                </h3>
+                <div 
+                  onClick={() => {
+                    setEditingCase({ ...c, galleryImages: c.galleryImages || [] });
+                    setNewGalleryUrl('');
+                    setIsNewCaseModalOpen(true);
+                  }}
+                  className="cursor-pointer group/text space-y-2"
+                  title="Clique para editar as informações deste caso"
+                >
+                  <h3 className="text-sm font-bold text-slate-900 group-hover/text:text-cyan-700 transition-colors line-clamp-2 min-h-[2.5rem] leading-snug">
+                    {c.title || 'Sem título'}
+                  </h3>
 
-                <p className="text-xs text-slate-600 line-clamp-2 min-h-[2.25rem] leading-relaxed">
-                  {c.description || 'Sem descrição cadastrada.'}
-                </p>
+                  <p className="text-xs text-slate-600 line-clamp-2 min-h-[2.25rem] leading-relaxed">
+                    {c.description || 'Sem descrição cadastrada.'}
+                  </p>
+                </div>
 
                 <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
                   <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
@@ -401,24 +440,27 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
 
                   <div className="flex items-center space-x-1.5">
                     <button
+                      type="button"
                       onClick={() => {
                         setEditingCase({ ...c, galleryImages: c.galleryImages || [] });
                         setNewGalleryUrl('');
                         setIsNewCaseModalOpen(true);
                       }}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-cyan-700 hover:bg-slate-100 transition-colors"
-                      title="Editar Caso"
+                      className="px-3 py-1.5 rounded-lg bg-cyan-50 hover:bg-cyan-100 text-cyan-800 border border-cyan-200 text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer"
+                      title="Editar Informações do Caso"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
+                      <span>Editar Caso</span>
                     </button>
                     <button
+                      type="button"
                       onClick={() => {
                         if (confirm(`Excluir o caso "${c.title}"?`)) {
                           const updatedCases = content.cases.filter(item => item.id !== c.id);
                           applyContentChange({ ...content, cases: updatedCases });
                         }
                       }}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                       title="Excluir Caso"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -1359,19 +1401,36 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                     alert('Por favor, informe o título do caso clínico.');
                     return;
                   }
-                  const exists = content.cases.some(item => item.id === editingCase.id);
+                  const finalGallery = newGalleryUrl.trim()
+                    ? [...(editingCase.galleryImages || []), newGalleryUrl.trim()]
+                    : (editingCase.galleryImages || []);
+                  const caseToSave: ClinicalCaseItem = {
+                    ...editingCase,
+                    galleryImages: finalGallery
+                  };
+                  const exists = content.cases.some(item => item.id === caseToSave.id);
                   const updatedCases = exists
-                    ? content.cases.map(item => item.id === editingCase.id ? editingCase : item)
-                    : [...content.cases, editingCase];
+                    ? content.cases.map(item => item.id === caseToSave.id ? caseToSave : item)
+                    : [caseToSave, ...content.cases];
                   applyContentChange({
                     ...content,
                     cases: updatedCases
                   });
+                  setNewGalleryUrl('');
                   setIsNewCaseModalOpen(false);
+                  setSaveSuccess(true);
+                  if (onNotifyFeedback) {
+                    onNotifyFeedback(
+                      exists ? 'Caso Clínico Atualizado!' : 'Novo Caso Clínico Publicado!',
+                      `O caso "${caseToSave.title}" foi salvo e publicado no site principal.`
+                    );
+                  }
+                  setTimeout(() => setSaveSuccess(false), 3500);
                 }}
-                className="px-5 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-bold shadow-xs cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-bold shadow-xs cursor-pointer flex items-center space-x-1.5"
               >
-                Concluir & Aplicar
+                <Save className="w-3.5 h-3.5" />
+                <span>Salvar Caso & Publicar</span>
               </button>
             </div>
           </div>
