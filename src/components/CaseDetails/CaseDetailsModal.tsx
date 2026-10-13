@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DentalCase, UserType, CaseFile } from '../../types';
 import { PaymentModal } from '../PaymentModal/PaymentModal';
 import { DeliverPlanningModal } from './DeliverPlanningModal';
+import { getFileFromCache } from '../../services/fileCache';
+import { getStoredWhatsAppConfig, formatPhoneToInternational } from '../../services/whatsapp/whatsappService';
 import { 
   X, 
   Lock, 
   Unlock, 
   Download, 
-  Calendar, 
   User, 
   Phone, 
-  CheckCircle, 
   CheckCircle2, 
   Clock, 
   FileText, 
@@ -26,7 +26,10 @@ import {
   UploadCloud, 
   Sparkles,
   Layers,
-  Archive
+  Archive,
+  Video,
+  MessageCircle,
+  Play
 } from 'lucide-react';
 
 interface CaseDetailsModalProps {
@@ -42,9 +45,33 @@ interface CaseDetailsModalProps {
     newFiles: CaseFile[], 
     notes?: string, 
     amount?: number,
-    notifyWhatsApp?: boolean
+    notifyWhatsApp?: boolean,
+    videoUrl?: string,
+    videoName?: string
   ) => Promise<void> | void;
 }
+
+// Auxiliar para converter links do YouTube / Loom / Drive em URL de embed quando aplicável
+const getEmbedVideoUrl = (url: string): string | null => {
+  const trimmed = url.trim();
+  if (trimmed.includes('youtube.com/watch?v=')) {
+    const videoId = trimmed.split('v=')[1]?.split('&')[0];
+    if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+  }
+  if (trimmed.includes('youtu.be/')) {
+    const videoId = trimmed.split('youtu.be/')[1]?.split('?')[0];
+    if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+  }
+  if (trimmed.includes('loom.com/share/')) {
+    const loomId = trimmed.split('loom.com/share/')[1]?.split('?')[0];
+    if (loomId) return `https://www.loom.com/embed/${loomId}`;
+  }
+  if (trimmed.includes('drive.google.com/file/d/')) {
+    const match = trimmed.match(/\/file\/d\/([^/]+)/);
+    if (match?.[1]) return `https://drive.google.com/file/d/${match[1]}/preview`;
+  }
+  return null;
+};
 
 export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
   isOpen,
@@ -58,13 +85,66 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
 }) => {
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isDeliverPlanningOpen, setIsDeliverPlanningOpen] = useState(false);
+  const [resolvedVideoUrl, setResolvedVideoUrl] = useState<string | null>(null);
+
+  // Resolver vídeo a partir do cache IndexedDB caso necessário ou usar a URL do Firebase Storage
+  useEffect(() => {
+    let activeObjUrl: string | null = null;
+    let isMounted = true;
+
+    const resolveVideo = async () => {
+      if (!caseItem?.clinicalPreviewVideoUrl) {
+        if (isMounted) setResolvedVideoUrl(null);
+        return;
+      }
+
+      // Tentar buscar no cache local (caso tenha acabado de ser enviado nesta sessão)
+      const cachedBlob =
+        (await getFileFromCache(`video_${caseItem.caseCode}`)) ||
+        (caseItem.clinicalPreviewVideoName ? await getFileFromCache(caseItem.clinicalPreviewVideoName) : null) ||
+        (await getFileFromCache(caseItem.clinicalPreviewVideoUrl));
+
+      if (cachedBlob && isMounted) {
+        activeObjUrl = URL.createObjectURL(cachedBlob);
+        setResolvedVideoUrl(activeObjUrl);
+      } else if (isMounted) {
+        setResolvedVideoUrl(caseItem.clinicalPreviewVideoUrl);
+      }
+    };
+
+    resolveVideo();
+
+    return () => {
+      isMounted = false;
+      if (activeObjUrl) {
+        URL.revokeObjectURL(activeObjUrl);
+      }
+    };
+  }, [caseItem?.clinicalPreviewVideoUrl, caseItem?.clinicalPreviewVideoName, caseItem?.caseCode]);
 
   if (!isOpen || !caseItem) return null;
 
-  const isPaid = caseItem.status === 'APPROVED_PAID' || caseItem.status === 'IN_PRODUCTION' || caseItem.status === 'COMPLETED' || caseItem.payment?.status === 'PAID';
+  const isPaid =
+    caseItem.status === 'APPROVED_PAID' ||
+    caseItem.status === 'IN_PRODUCTION' ||
+    caseItem.status === 'COMPLETED' ||
+    caseItem.payment?.status === 'PAID';
 
-  // Verifica se o laboratório/admin já enviou os arquivos do planejamento (guia cirúrgica STL, relatório PDF ou arquivos bloqueados)
-  const hasDeliveredPlanningFiles = caseItem.files.some(f => f.isLocked || f.type === 'GUIDE_STL');
+  // Verifica se o laboratório/admin já enviou os arquivos do planejamento ou o vídeo 3D
+  const hasDeliveredPlanningFiles =
+    caseItem.files.some(f => f.isLocked || f.type === 'GUIDE_STL') ||
+    Boolean(caseItem.clinicalPreviewVideoUrl);
+
+  const embedUrl = resolvedVideoUrl ? getEmbedVideoUrl(resolvedVideoUrl) : null;
+
+  const handleOpenWhatsAppFeedback = () => {
+    const waConfig = getStoredWhatsAppConfig();
+    const adminPhone = formatPhoneToInternational(waConfig.adminPhone || '5511999999999');
+    const text = encodeURIComponent(
+      `Olá Dr. Ricardo! Assisti ao vídeo da avaliação e planejamento 3D do paciente *${caseItem.patientName}* (${caseItem.caseCode}) na plataforma Implant Precision e gostaria de conversar sobre o caso.`
+    );
+    window.open(`https://wa.me/${adminPhone}?text=${text}`, '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <>
@@ -78,13 +158,19 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
                 <Activity className="w-5 h-5" />
               </div>
               <div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 flex-wrap gap-y-1">
                   <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight font-sans">
                     {caseItem.patientName}
                   </h2>
                   <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 font-medium">
                     {caseItem.caseCode}
                   </span>
+                  {caseItem.clinicalPreviewVideoUrl && (
+                    <span className="text-[11px] font-sans px-2.5 py-0.5 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-800 font-bold flex items-center space-x-1">
+                      <Video className="w-3 h-3 text-cyan-600" />
+                      <span>Vídeo 3D Disponível</span>
+                    </span>
+                  )}
                   {caseItem.priority === 'URGENT' && (
                     <span className="text-[10px] font-sans px-2 py-0.5 rounded-full bg-red-50 border border-red-200 text-red-700 font-semibold">
                       URGENTE
@@ -114,10 +200,10 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
                     <button
                       onClick={() => setIsDeliverPlanningOpen(true)}
                       className="px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs transition-all shadow-xs flex items-center space-x-1.5 active:scale-95 cursor-pointer"
-                      title="Enviar arquivos CAD/CAM (Guia STL e Relatório) para o dentista"
+                      title="Enviar vídeo de avaliação 3D, Guia STL e Relatório para o dentista"
                     >
-                      <Send className="w-3.5 h-3.5" />
-                      <span>Enviar Planejamento</span>
+                      <Video className="w-3.5 h-3.5" />
+                      <span>Enviar Vídeo 3D & Planejamento</span>
                     </button>
                     {onDeleteCase && (
                       <button
@@ -167,10 +253,10 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
                     <button
                       onClick={() => setIsDeliverPlanningOpen(true)}
                       className="px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs transition-all shadow-xs flex items-center space-x-1.5 active:scale-95 cursor-pointer"
-                      title="Enviar ou atualizar arquivos do planejamento CAD para o dentista"
+                      title="Enviar ou atualizar vídeo 3D e arquivos do planejamento CAD para o dentista"
                     >
-                      <Send className="w-3.5 h-3.5" />
-                      <span>Enviar / Atualizar Guia STL</span>
+                      <Video className="w-3.5 h-3.5" />
+                      <span>Atualizar Vídeo 3D / Guia STL</span>
                     </button>
                     <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-sans font-medium">
                       <Clock className="w-3.5 h-3.5 text-amber-600" />
@@ -197,10 +283,10 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
                     <button
                       onClick={() => setIsDeliverPlanningOpen(true)}
                       className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-cyan-50 border border-slate-200 hover:border-cyan-200 text-cyan-700 text-xs font-sans font-medium transition-all flex items-center space-x-1.5 active:scale-95 cursor-pointer"
-                      title="Enviar arquivos adicionais ou atualizados"
+                      title="Enviar vídeo ou arquivos adicionais"
                     >
                       <UploadCloud className="w-3.5 h-3.5" />
-                      <span>Adicionar Arquivo</span>
+                      <span>Vídeo / Arquivos</span>
                     </button>
                   )}
                   {userType === 'ADMIN' && onDeleteCase && (
@@ -226,6 +312,150 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
 
           {/* Body Modal com Scroll */}
           <div className="p-6 overflow-y-auto space-y-6">
+
+            {/* ========================================================================= */}
+            {/* 🎥 PLAYER DE VÍDEO DO PLANEJAMENTO 3D DO DR. RICARDO (DESTAQUE NO TOPO)    */}
+            {/* ========================================================================= */}
+            {resolvedVideoUrl ? (
+              <div className="rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950 border border-cyan-500/30 overflow-hidden shadow-xl text-white">
+                {/* Header do Player */}
+                <div className="p-4 sm:p-5 border-b border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 shrink-0">
+                      <Play className="w-5 h-5 fill-current" />
+                    </div>
+                    <div>
+                      <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                        <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-[10px] font-mono font-bold uppercase tracking-wider">
+                          Avaliação em Vídeo • Dr. Ricardo Campos
+                        </span>
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-sans font-bold flex items-center space-x-1">
+                          <Unlock className="w-3 h-3" />
+                          <span>Liberado para Visualização</span>
+                        </span>
+                      </div>
+                      <h3 className="text-sm sm:text-base font-extrabold text-white mt-1 font-sans">
+                        Apresentação do Planejamento Cirúrgico 3D — {caseItem.patientName}
+                      </h3>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2 self-start sm:self-auto">
+                    {userType === 'ADMIN' && (
+                      <button
+                        type="button"
+                        onClick={() => setIsDeliverPlanningOpen(true)}
+                        className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-semibold text-cyan-200 flex items-center space-x-1.5 transition-colors cursor-pointer"
+                      >
+                        <Video className="w-3.5 h-3.5" />
+                        <span>Substituir Vídeo</span>
+                      </button>
+                    )}
+                    <a
+                      href={resolvedVideoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download={caseItem.clinicalPreviewVideoName || `Planejamento_3D_${caseItem.caseCode}.mp4`}
+                      className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-semibold text-white flex items-center space-x-1.5 transition-colors cursor-pointer"
+                      title="Abrir ou baixar vídeo em tela cheia"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5 text-cyan-300" />
+                      <span>Abrir / Baixar Vídeo</span>
+                    </a>
+                  </div>
+                </div>
+
+                {/* Área do Vídeo */}
+                <div className="bg-black flex items-center justify-center">
+                  {embedUrl ? (
+                    <iframe
+                      src={embedUrl}
+                      title={`Planejamento 3D - ${caseItem.patientName}`}
+                      className="w-full aspect-video max-h-[460px] border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <video
+                      src={resolvedVideoUrl}
+                      controls
+                      playsInline
+                      preload="metadata"
+                      className="w-full max-h-[460px] aspect-video bg-black"
+                    />
+                  )}
+                </div>
+
+                {/* Barra de Aprovação e Dúvidas para o Dentista logo abaixo do Vídeo */}
+                <div className="p-4 sm:p-5 bg-slate-950/80 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-bold text-white">
+                      {userType === 'CLIENT'
+                        ? isPaid
+                          ? 'Planejamento aprovado! Seus arquivos STL e PDF estão liberados abaixo.'
+                          : 'Assistiu ao vídeo do planejamento 3D do Dr. Ricardo?'
+                        : 'O cliente já pode assistir a este vídeo diretamente no painel dele.'}
+                    </p>
+                    <p className="text-[11px] text-slate-300">
+                      {userType === 'CLIENT'
+                        ? isPaid
+                          ? 'Você pode rever o vídeo acima a qualquer momento durante o preparo cirúrgico.'
+                          : 'Aprove o planejamento para desbloquear imediatamente o arquivo STL da Guia Cirúrgica e o Relatório de Perfurações.'
+                        : `Arquivo de vídeo: ${caseItem.clinicalPreviewVideoName || 'Apresentação do Planejamento 3D'}`}
+                    </p>
+                  </div>
+
+                  {userType === 'CLIENT' && (
+                    <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+                      <button
+                        type="button"
+                        onClick={handleOpenWhatsAppFeedback}
+                        className="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all cursor-pointer flex-1 sm:flex-initial"
+                      >
+                        <MessageCircle className="w-4 h-4 text-emerald-400" />
+                        <span>Tirar Dúvida / Pedir Ajuste</span>
+                      </button>
+
+                      {!isPaid && (
+                        <button
+                          type="button"
+                          onClick={() => setIsPaymentOpen(true)}
+                          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs flex items-center justify-center space-x-2 transition-all shadow-lg cursor-pointer flex-1 sm:flex-initial"
+                        >
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>Aprovar Planejamento & Liberar Guia (R$ {caseItem.payment.amount.toFixed(2)})</span>
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : userType === 'ADMIN' ? (
+              /* Callout rápido para o Dr. Ricardo gravar ou subir o vídeo da avaliação */
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-cyan-950 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2.5 rounded-xl bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 shrink-0">
+                    <Video className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-bold text-white">
+                      Enviar ou Gravar Vídeo da Avaliação 3D para o Dentista
+                    </h4>
+                    <p className="text-[11px] text-slate-300 mt-0.5">
+                      Suba um vídeo gravado ou grave a tela do software 3D direto pelo navegador para o cliente assistir na plataforma.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsDeliverPlanningOpen(true)}
+                  className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center space-x-1.5 transition-colors whitespace-nowrap cursor-pointer shrink-0"
+                >
+                  <Video className="w-4 h-4" />
+                  <span>Adicionar Vídeo do Planejamento</span>
+                </button>
+              </div>
+            ) : null}
             
             {/* Se ainda não foi entregue o planejamento: Exibir Painel de Inspeção dos Arquivos do Paciente Enviados */}
             {!hasDeliveredPlanningFiles && !isPaid ? (
@@ -265,7 +495,7 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
                       <button
                         onClick={() => setIsDeliverPlanningOpen(true)}
                         className="px-3.5 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs transition-all shadow-xs flex items-center space-x-1.5 active:scale-95 cursor-pointer"
-                        title="Enviar guia cirúrgica STL e relatório para o dentista"
+                        title="Enviar vídeo 3D, guia cirúrgica STL e relatório para o dentista"
                       >
                         <Send className="w-3.5 h-3.5" />
                         <span>Enviar Planejamento</span>
@@ -282,7 +512,7 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
                       Arquivos Clínicos em Fase de Avaliação
                     </p>
                     <p className="text-blue-800/80 leading-relaxed text-[11px] font-sans">
-                      Os arquivos clínicos brutos foram recebidos com sucesso. A guia cirúrgica sob medida e o relatório de perfurações serão gerados e disponibilizados para download após o Dr. Ricardo realizar o planejamento técnico.
+                      Os arquivos clínicos brutos foram recebidos com sucesso. O vídeo explicativo do planejamento 3D, a guia cirúrgica sob medida e o relatório de perfurações serão disponibilizados aqui após o Dr. Ricardo concluir o planejamento técnico.
                     </p>
                   </div>
                 </div>
@@ -402,7 +632,7 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
 
                   <div>
                     <span className="text-slate-500 block font-medium">Notas Clínicas do Dr. Ricardo:</span>
-                    <p className="mt-1 p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 italic text-[11px] leading-relaxed">
+                    <p className="mt-1 p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 italic text-[11px] leading-relaxed whitespace-pre-line">
                       "{caseItem.notes || 'Sem observações adicionais.'}"
                     </p>
                   </div>
@@ -582,8 +812,8 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
                     </div>
                     <p className="text-[11px] text-slate-500 leading-relaxed font-sans">
                       {userType === 'ADMIN'
-                        ? 'Analise os arquivos do paciente acima. Você pode iniciar o caso ou enviar diretamente a guia STL e relatório final.'
-                        : 'A guia cirúrgica e o relatório de perfurações serão disponibilizados para liberação e download assim que o Dr. Ricardo concluir o planejamento técnico.'}
+                        ? 'Analise os arquivos do paciente acima. Você pode gravar/enviar o vídeo da avaliação 3D, a guia STL e o relatório final.'
+                        : 'O vídeo da avaliação 3D, a guia cirúrgica e o relatório de perfurações serão disponibilizados assim que o Dr. Ricardo concluir o planejamento técnico.'}
                     </p>
                     {userType === 'ADMIN' && (
                       <div className="space-y-2 pt-1">
@@ -591,8 +821,8 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
                           onClick={() => setIsDeliverPlanningOpen(true)}
                           className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold text-xs transition-all shadow-xs flex items-center justify-center space-x-2 active:scale-95 cursor-pointer"
                         >
-                          <Send className="w-4 h-4" />
-                          <span>Enviar Guia STL & Relatório ao Dentista</span>
+                          <Video className="w-4 h-4" />
+                          <span>Enviar Vídeo 3D, Guia STL & Relatório</span>
                         </button>
                         {caseItem.status === 'ANALYSIS' && onAcceptCase && (
                           <button
@@ -622,14 +852,14 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
                         <span>Planejamento Enviado • Aguardando Aprovação/PIX</span>
                       </div>
                       <p className="text-[11px] text-slate-500 leading-relaxed font-sans">
-                        O dentista foi notificado. Caso precise atualizar os arquivos STL ou PDF do planejamento, clique abaixo:
+                        O dentista foi notificado. Caso precise atualizar o vídeo 3D, arquivos STL ou PDF do planejamento, clique abaixo:
                       </p>
                       <button
                         onClick={() => setIsDeliverPlanningOpen(true)}
                         className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold text-xs transition-all shadow-xs flex items-center justify-center space-x-2 active:scale-95 cursor-pointer"
                       >
                         <Send className="w-4 h-4" />
-                        <span>Reenviar / Atualizar Guia STL & Relatório</span>
+                        <span>Atualizar Vídeo 3D / Guia STL & Relatório</span>
                       </button>
                     </div>
                   )
@@ -645,7 +875,7 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
                         className="w-full py-2 px-3 rounded-xl bg-white hover:bg-cyan-50 border border-slate-200 hover:border-cyan-200 text-cyan-700 text-xs font-medium transition-all flex items-center justify-center space-x-1.5 cursor-pointer shadow-xs"
                       >
                         <UploadCloud className="w-3.5 h-3.5" />
-                        <span>Adicionar Arquivo Complementar</span>
+                        <span>Adicionar Vídeo ou Arquivo Complementar</span>
                       </button>
                     </div>
                   ) : null
@@ -656,7 +886,7 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
         </div>
       </div>
 
-      {/* Modal de Envio de Planejamento CAD/CAM (Dr. Ricardo -> Dentista) */}
+      {/* Modal de Envio de Planejamento CAD/CAM & Vídeo 3D (Dr. Ricardo -> Dentista) */}
       <DeliverPlanningModal
         isOpen={isDeliverPlanningOpen}
         onClose={() => setIsDeliverPlanningOpen(false)}

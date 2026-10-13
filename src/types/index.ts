@@ -47,7 +47,7 @@ export interface ImplantSite {
 export interface CaseFile {
   id: string;
   name: string;
-  type: 'SCAN_PRE' | 'SCAN_OPP' | 'BITE' | 'TOMOGRAPHY' | 'GUIDE_STL' | 'REPORT_PDF' | 'OTHER';
+  type: 'SCAN_PRE' | 'SCAN_OPP' | 'BITE' | 'TOMOGRAPHY' | 'GUIDE_STL' | 'REPORT_PDF' | 'PLANNING_VIDEO' | 'OTHER';
   size: string;
   uploadedAt: string;
   downloadUrl: string;
@@ -81,6 +81,7 @@ export interface DentalCase {
   surgicalGuideType: 'DENTO_SUPORTADA' | 'MUCO_SUPORTADA' | 'OSSEO_SUPORTADA';
   notes?: string;
   clinicalPreviewVideoUrl?: string;
+  clinicalPreviewVideoName?: string;
   files: CaseFile[];
   payment: PaymentDetails;
 }

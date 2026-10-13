@@ -563,22 +563,31 @@ export function App() {
     }
   };
 
-  // Dr. Ricardo entrega e envia os arquivos do planejamento (Guia STL e Relatório PDF) ao dentista
+  // Dr. Ricardo entrega e envia o vídeo da avaliação 3D e os arquivos do planejamento (Guia STL e Relatório PDF) ao dentista
   const handleDeliverPlanning = async (
     caseId: string, 
     newFiles: CaseFile[], 
     notes?: string, 
     amount?: number,
-    notifyWhatsApp: boolean = true
+    notifyWhatsApp: boolean = true,
+    videoUrl?: string,
+    videoName?: string
   ) => {
     const targetCase = cases.find(c => c.id === caseId);
     if (!targetCase) return;
 
     const updatedAmount = amount !== undefined && amount > 0 ? amount : targetCase.payment.amount;
+    const resolvedVideoUrl = videoUrl !== undefined ? videoUrl : targetCase.clinicalPreviewVideoUrl;
+    const resolvedVideoName = videoName !== undefined ? videoName : targetCase.clinicalPreviewVideoName;
+
     const updatedCase: DentalCase = {
       ...targetCase,
-      status: 'PENDING_APPROVAL',
+      status: targetCase.status === 'APPROVED_PAID' || targetCase.status === 'IN_PRODUCTION' || targetCase.status === 'COMPLETED'
+        ? targetCase.status
+        : 'PENDING_APPROVAL',
       notes: notes || targetCase.notes,
+      clinicalPreviewVideoUrl: resolvedVideoUrl,
+      clinicalPreviewVideoName: resolvedVideoName,
       payment: {
         ...targetCase.payment,
         amount: updatedAmount
@@ -599,8 +608,10 @@ export function App() {
       targetUserEmail: dentistObj?.email || undefined,
       caseId: targetCase.id,
       caseCode: targetCase.caseCode,
-      title: 'Planejamento 3D Concluído!',
-      message: `O Dr. Ricardo concluiu o projeto da guia cirúrgica do paciente ${targetCase.patientName} (${newFiles.length} novo(s) arquivo(s)). Acesse para inspecionar e liberar o download!`,
+      title: resolvedVideoUrl ? '🎥 Vídeo do Planejamento 3D Disponível!' : 'Planejamento 3D Concluído!',
+      message: resolvedVideoUrl
+        ? `O Dr. Ricardo enviou o vídeo da avaliação 3D do paciente ${targetCase.patientName}. Acesse o painel para assistir ao vídeo e aprovar a guia cirúrgica!`
+        : `O Dr. Ricardo concluiu o projeto da guia cirúrgica do paciente ${targetCase.patientName} (${newFiles.length} novo(s) arquivo(s)). Acesse para inspecionar e liberar o download!`,
       type: 'PLANNING_READY'
     });
 
@@ -608,13 +619,16 @@ export function App() {
     const waConfig = getStoredWhatsAppConfig();
     const targetPhone = (targetCase.dentistPhone || dentistObj?.phone || waConfig.adminPhone || '').trim();
     if (notifyWhatsApp && waConfig.autoNotifyDentistOnPlanningReady && targetPhone) {
-      const msg = buildPlanningReadyDentistMessage(
+      let msg = buildPlanningReadyDentistMessage(
         targetCase.patientName,
         targetCase.dentistName,
         targetCase.caseCode,
         updatedAmount,
         waConfig
       );
+      if (resolvedVideoUrl) {
+        msg += `\n\n🎥 *Vídeo da Avaliação 3D disponível:* Acesse seu painel na plataforma para assistir ao vídeo gravado pelo Dr. Ricardo!`;
+      }
       sendWhatsAppMessage(targetPhone, msg, waConfig)
         .then(res => console.log('WhatsApp de planejamento pronto enviado com sucesso:', res))
         .catch(err => console.error('Erro ao enviar WhatsApp de planejamento pronto:', err));

@@ -7,7 +7,8 @@ import {
   ChevronRight, 
   Clock, 
   Layers,
-  Trash2
+  Trash2,
+  Video
 } from 'lucide-react';
 
 interface CaseListProps {
@@ -211,13 +212,19 @@ export const CaseList: React.FC<CaseListProps> = ({
                   </div>
 
                   <div className="min-w-0">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 flex-wrap gap-y-1">
                       <h4 className="text-sm font-bold text-slate-900 group-hover:text-cyan-700 transition-colors truncate font-sans">
                         {caseItem.patientName}
                       </h4>
                       <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-600 font-medium">
                         {caseItem.caseCode}
                       </span>
+                      {caseItem.clinicalPreviewVideoUrl && (
+                        <span className="inline-flex items-center space-x-1 text-[10px] font-sans px-2 py-0.5 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-800 font-bold">
+                          <Video className="w-3 h-3 text-cyan-600" />
+                          <span>Vídeo 3D</span>
+                        </span>
+                      )}
                     </div>
 
                     <div className="flex items-center space-x-3 text-xs text-slate-500 font-sans mt-0.5">
