@@ -366,14 +366,26 @@ export const subscribeToWhatsAppConfig = (callback: (config: WhatsAppConfig) => 
 /**
  * Salva o conteúdo dinâmico do site no Firestore para sincronização global
  */
-export const saveSiteContentToFirestore = async (content: SiteContentConfig) => {
-  if (!isFirebaseConfigured || !db) return;
+export const saveSiteContentToFirestore = async (
+  content: SiteContentConfig
+): Promise<{ success: boolean; error?: string }> => {
+  if (!isFirebaseConfigured || !db) {
+    return { success: false, error: 'Firebase não inicializado ou sem credenciais.' };
+  }
   try {
     // Sanitização profunda: remove campos com 'undefined' que o Firestore rejeita
     const sanitizedContent = JSON.parse(JSON.stringify(content));
     await setDoc(doc(db, SETTINGS_COLLECTION, SITE_CONTENT_DOC), sanitizedContent);
-  } catch (error) {
-    console.error('Erro ao salvar conteúdo do site no Firestore:', error);
+    console.log('✅ [Firestore] Conteúdo do site publicado com sucesso na nuvem!');
+    return { success: true };
+  } catch (error: any) {
+    console.error('❌ [Firestore] Erro ao salvar conteúdo do site no Firestore:', error);
+    return { 
+      success: false, 
+      error: error?.code === 'permission-denied'
+        ? 'Permissão negada. Verifique se o perfil de administrador está autenticado.'
+        : error?.message || 'Falha ao sincronizar com o Firestore.' 
+    };
   }
 };
 

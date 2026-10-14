@@ -12,8 +12,10 @@ import {
 import { 
   getStoredSiteContent, 
   saveStoredSiteContent, 
+  syncStoredSiteContentToFirestore,
   fileToBase64 
 } from '../../services/site/siteContentService';
+import { uploadSiteImageToStorage } from '../../services/firebase/storage';
 import { 
   Globe, 
   Save, 
@@ -33,7 +35,10 @@ import {
   Stethoscope, 
   Check, 
   X, 
-  Image as ImageIcon 
+  Image as ImageIcon,
+  CloudUpload,
+  Loader2,
+  AlertTriangle
 } from 'lucide-react';
 
 interface SiteContentManagerProps {
@@ -56,7 +61,11 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
   const [content, setContent] = useState<SiteContentConfig>(() => siteContent || getStoredSiteContent());
   const [activeSubTab, setActiveSubTab] = useState<'CASES' | 'SERVICES' | 'COURSES' | 'TESTIMONIALS' | 'ABOUT'>('CASES');
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingCase, setIsSavingCase] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [syncErrorMessage, setSyncErrorMessage] = useState('');
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isUploadingGallery, setIsUploadingGallery] = useState(false);
 
   // Sincronizar se prop externo for fornecido pelo App
   useEffect(() => {
@@ -162,18 +171,26 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
   const [editingTestimonial, setEditingTestimonial] = useState<TestimonialItem | null>(null);
   const [isNewTestimonialModalOpen, setIsNewTestimonialModalOpen] = useState(false);
 
-  // Salvar no storage e no Firestore com feedback visual
-  const handleSaveAll = () => {
+  // Salvar no storage e no Firestore com feedback visual e status real da nuvem
+  const handleSaveAll = async () => {
     setIsSaving(true);
+    setSyncErrorMessage('');
     applyContentChange(content);
-    setTimeout(() => {
-      setIsSaving(false);
+
+    const result = await syncStoredSiteContentToFirestore(content);
+    setIsSaving(false);
+    if (result.success) {
       setSaveSuccess(true);
       if (onNotifyFeedback) {
-        onNotifyFeedback('Site Atualizado!', 'As alterações foram salvas e publicadas na página inicial.');
+        onNotifyFeedback('Site Atualizado na Nuvem!', 'As alterações foram salvas e sincronizadas globalmente para todos os computadores.');
       }
-      setTimeout(() => setSaveSuccess(false), 3000);
-    }, 400);
+      setTimeout(() => setSaveSuccess(false), 4000);
+    } else {
+      setSyncErrorMessage(result.error || 'Falha ao sincronizar com o Firestore.');
+      if (onNotifyFeedback) {
+        onNotifyFeedback('Salvo no Navegador (Aviso)', `Alterações salvas neste computador, mas a nuvem respondeu: ${result.error}`);
+      }
+    }
   };
 
   const handleResetToDefault = () => {
@@ -195,24 +212,27 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
     applyContentChange(updated);
   };
 
-  // Upload genérico de imagem (com compressão automática em fileToBase64)
+  // Upload genérico de imagem (envia ao Firebase Storage com fallback adaptativo)
   const handleImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>, 
-    onSuccess: (dataUrl: string) => void
+    onSuccess: (url: string) => void
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 20 * 1024 * 1024) {
-      alert('Por favor, selecione uma imagem de até 20MB.');
+    if (file.size > 25 * 1024 * 1024) {
+      alert('Por favor, selecione uma imagem de até 25MB.');
       return;
     }
 
     try {
-      const base64 = await fileToBase64(file);
-      onSuccess(base64);
+      setIsUploadingImage(true);
+      const url = await uploadSiteImageToStorage(file, 'site/cases');
+      onSuccess(url);
     } catch {
       alert('Erro ao processar imagem.');
+    } finally {
+      setIsUploadingImage(false);
     }
   };
 
@@ -222,13 +242,17 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
       {/* Top Header Card */}
       <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2.5 flex-wrap gap-y-1">
             <span className="p-2 rounded-xl bg-cyan-50 border border-cyan-100 text-cyan-700">
               <Globe className="w-5 h-5" />
             </span>
             <h1 className="text-lg font-bold text-slate-900">
               Gestão de Conteúdo da Página Inicial (Landing Page)
             </h1>
+            <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Nuvem Ativa</span>
+            </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
             Alimente o site com fotos, textos, casos clínicos, cursos e depoimentos. Todas as alterações refletem instantaneamente no site público.
@@ -251,7 +275,7 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
           <button
             onClick={handleResetToDefault}
             className="px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 flex items-center space-x-1.5 transition-colors cursor-pointer whitespace-nowrap flex-shrink-0"
-            title="Restaurar textos padrão"
+            title="Restaurar textos padrão originais"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Restaurar Padrões</span>
@@ -260,19 +284,45 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
           <button
             onClick={handleSaveAll}
             disabled={isSaving}
-            className="px-4 py-2 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-bold flex items-center space-x-1.5 shadow-sm transition-all active:scale-[0.98] cursor-pointer whitespace-nowrap flex-shrink-0"
+            className="px-4 py-2 rounded-xl bg-cyan-700 hover:bg-cyan-800 disabled:opacity-75 text-white text-xs font-bold flex items-center space-x-1.5 shadow-sm transition-all active:scale-[0.98] cursor-pointer whitespace-nowrap flex-shrink-0"
+            title="Salvar alterações e publicar instantaneamente em todos os computadores"
           >
-            <Save className="w-3.5 h-3.5" />
-            <span>{isSaving ? 'Publicando...' : 'Salvar e Publicar'}</span>
+            {isSaving ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Publicando na Nuvem...</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-3.5 h-3.5" />
+                <span>Salvar e Publicar</span>
+              </>
+            )}
           </button>
         </div>
       </div>
+
+      {/* Banner de Erro na Nuvem */}
+      {syncErrorMessage && (
+        <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between text-amber-900 text-xs font-medium animate-fade-in">
+          <div className="flex items-center space-x-2">
+            <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+            <span><strong>Aviso de Sincronização:</strong> {syncErrorMessage}</span>
+          </div>
+          <button
+            onClick={() => handleSaveAll()}
+            className="ml-3 px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-semibold cursor-pointer"
+          >
+            Tentar Novamente
+          </button>
+        </div>
+      )}
 
       {/* Banner de Sucesso */}
       {saveSuccess && (
         <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center space-x-2 text-emerald-800 text-xs font-semibold animate-fade-in">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-          <span>Alterações salvas e publicadas no site com sucesso!</span>
+          <span>Alterações salvas e sincronizadas na nuvem com sucesso! Disponível em todos os computadores.</span>
         </div>
       )}
 
@@ -1400,25 +1450,41 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                     </div>
 
                     <label className="px-3 py-1.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-semibold flex items-center space-x-1.5 cursor-pointer transition-colors shadow-xs">
-                      <UploadCloud className="w-3.5 h-3.5" />
-                      <span>+ Adicionar Fotos (Múltiplas)</span>
+                      {isUploadingGallery ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Enviando fotos...</span>
+                        </>
+                      ) : (
+                        <>
+                          <UploadCloud className="w-3.5 h-3.5" />
+                          <span>+ Adicionar Fotos (Múltiplas)</span>
+                        </>
+                      )}
                       <input
                         type="file"
                         accept="image/*"
                         multiple
+                        disabled={isUploadingGallery}
                         className="hidden"
                         onChange={async (e) => {
                           const files = Array.from(e.target.files || []);
                           if (!files.length) return;
                           try {
-                            const base64List = await Promise.all(files.map(f => fileToBase64(f)));
+                            setIsUploadingGallery(true);
+                            const urls = await Promise.all(
+                              files.map(f => uploadSiteImageToStorage(f, 'site/cases/gallery'))
+                            );
                             const current = editingCase.galleryImages || [];
                             setEditingCase({
                               ...editingCase,
-                              galleryImages: [...current, ...base64List]
+                              galleryImages: [...current, ...urls.filter(Boolean)]
                             });
                           } catch (err) {
+                            console.error('Erro ao subir fotos:', err);
                             alert('Erro ao carregar fotos da galeria.');
+                          } finally {
+                            setIsUploadingGallery(false);
                           }
                         }}
                       />
@@ -1520,41 +1586,70 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
               </button>
               <button
                 type="button"
-                onClick={() => {
+                disabled={isSavingCase || isUploadingImage || isUploadingGallery}
+                onClick={async () => {
                   if (!editingCase.title.trim()) {
                     alert('Por favor, informe o título do caso clínico.');
                     return;
                   }
-                  const finalGallery = newGalleryUrl.trim()
-                    ? [...(editingCase.galleryImages || []), newGalleryUrl.trim()]
-                    : (editingCase.galleryImages || []);
-                  const caseToSave: ClinicalCaseItem = {
-                    ...editingCase,
-                    galleryImages: finalGallery
-                  };
-                  const exists = content.cases.some(item => item.id === caseToSave.id);
-                  const updatedCases = exists
-                    ? content.cases.map(item => item.id === caseToSave.id ? caseToSave : item)
-                    : [caseToSave, ...content.cases];
-                  applyContentChange({
-                    ...content,
-                    cases: updatedCases
-                  });
-                  setNewGalleryUrl('');
-                  setIsNewCaseModalOpen(false);
-                  setSaveSuccess(true);
-                  if (onNotifyFeedback) {
-                    onNotifyFeedback(
-                      exists ? 'Caso Clínico Atualizado!' : 'Novo Caso Clínico Publicado!',
-                      `O caso "${caseToSave.title}" foi salvo e publicado no site principal.`
-                    );
+                  setIsSavingCase(true);
+                  try {
+                    const finalGallery = newGalleryUrl.trim()
+                      ? [...(editingCase.galleryImages || []), newGalleryUrl.trim()]
+                      : (editingCase.galleryImages || []);
+                    const caseToSave: ClinicalCaseItem = {
+                      ...editingCase,
+                      galleryImages: finalGallery
+                    };
+                    const exists = content.cases.some(item => item.id === caseToSave.id);
+                    const updatedCases = exists
+                      ? content.cases.map(item => item.id === caseToSave.id ? caseToSave : item)
+                      : [caseToSave, ...content.cases];
+                    
+                    const nextContent: SiteContentConfig = {
+                      ...content,
+                      cases: updatedCases
+                    };
+                    applyContentChange(nextContent);
+                    const syncResult = await syncStoredSiteContentToFirestore(nextContent);
+                    setNewGalleryUrl('');
+                    setIsNewCaseModalOpen(false);
+
+                    if (syncResult.success) {
+                      setSaveSuccess(true);
+                      if (onNotifyFeedback) {
+                        onNotifyFeedback(
+                          exists ? 'Caso Clínico Atualizado na Nuvem!' : 'Novo Caso Clínico Publicado na Nuvem!',
+                          `O caso "${caseToSave.title}" foi salvo e sincronizado na nuvem com sucesso para todos os computadores.`
+                        );
+                      }
+                    } else {
+                      setSyncErrorMessage(syncResult.error || 'Erro na nuvem');
+                      if (onNotifyFeedback) {
+                        onNotifyFeedback(
+                          'Salvo no Computador (Aviso)',
+                          `O caso foi salvo neste computador, mas falhou ao sincronizar com a nuvem: ${syncResult.error}. Use "Sincronizar com a Nuvem" para tentar novamente.`
+                        );
+                      }
+                    }
+                    setTimeout(() => setSaveSuccess(false), 3500);
+                  } finally {
+                    setIsSavingCase(false);
                   }
-                  setTimeout(() => setSaveSuccess(false), 3500);
                 }}
-                className="px-5 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-bold shadow-xs cursor-pointer flex items-center space-x-1.5"
+                className="px-5 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 disabled:opacity-60 text-white text-xs font-bold shadow-xs cursor-pointer flex items-center space-x-1.5"
               >
-                <Save className="w-3.5 h-3.5" />
-                <span>Salvar Caso & Publicar</span>
+                {isSavingCase ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Salvando na Nuvem...</span>
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Salvar Caso Clínico</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

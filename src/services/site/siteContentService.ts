@@ -63,6 +63,16 @@ export const saveStoredSiteContent = (content: SiteContentConfig): SiteContentCo
 };
 
 /**
+ * Força a sincronização do conteúdo com o Firestore (nuvem) e retorna o resultado da operação
+ */
+export const syncStoredSiteContentToFirestore = async (
+  content?: SiteContentConfig
+): Promise<{ success: boolean; error?: string }> => {
+  const target = content || getStoredSiteContent();
+  return await saveSiteContentToFirestore(target);
+};
+
+/**
  * Converte um arquivo de imagem em Base64 Data URL com compressão adaptativa
  * (garante que múltiplas fotos na galeria nunca ultrapassem o limite de 1MB do Firestore)
  */

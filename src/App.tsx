@@ -153,17 +153,30 @@ export function App() {
     };
     window.addEventListener('implantprecision_site_updated', handleImmediateSiteUpdate);
 
-    // Listener do Firestore com resolução de conflitos por timestamp monotônico
+    // Listener do Firestore com reconciliação inteligente para todos os computadores
     const unsubFirestoreSite = subscribeToSiteContent((remoteContent) => {
       if (!remoteContent || (!remoteContent.cases && !remoteContent.services)) return;
 
-      const hasLocalSaved = Boolean(localStorage.getItem('implantprecision_site_content'));
       const local = getStoredSiteContent();
-      const localTime = Number(local.updatedAt) || 0;
-      const remoteTime = Number(remoteContent.updatedAt) || 0;
+      
+      // Verifica se o navegador local possui casos exclusivos criados pelo administrador que ainda não foram para a nuvem
+      const localUnsyncedCases = (local.cases || []).filter(
+        lc => !(remoteContent.cases || []).some(rc => rc.id === lc.id)
+      );
 
-      // Atualiza se não houver cache local ou se a versão remota for igual/mais recente
-      if (!hasLocalSaved || remoteTime >= localTime) {
+      if (localUnsyncedCases.length > 0) {
+        // Preserva os casos locais pendentes e mescla com os dados remotos
+        const mergedContent: SiteContentConfig = {
+          ...remoteContent,
+          cases: [
+            ...localUnsyncedCases,
+            ...(remoteContent.cases || [])
+          ],
+          updatedAt: Math.max(Date.now(), Number(remoteContent.updatedAt) || 0, Number(local.updatedAt) || 0)
+        };
+        setSiteContent(mergedContent);
+      } else {
+        // Nuvem é a autoridade central para todos os computadores e visitantes
         setSiteContent(remoteContent);
         try {
           localStorage.setItem('implantprecision_site_content', JSON.stringify(remoteContent));
@@ -222,6 +235,44 @@ export function App() {
       }
     }
   }, [firebaseUser, admins, dentists]);
+
+  // Auto-sincronização de casos pendentes criados localmente por administrador para o Cloud Firestore
+  useEffect(() => {
+    if (!firebaseUser || userType !== 'ADMIN') return;
+
+    const local = getStoredSiteContent();
+    if (!siteContent || !siteContent.cases) return;
+
+    const unsyncedCases = (local.cases || []).filter(
+      lc => !(siteContent.cases || []).some(rc => rc.id === lc.id)
+    );
+
+    if (unsyncedCases.length > 0) {
+      console.log(`🚀 [AutoSync] Sincronizando ${unsyncedCases.length} caso(s) clínico(s) pendente(s) com o Cloud Firestore...`);
+      const mergedCases = [
+        ...unsyncedCases,
+        ...(siteContent.cases || []).filter(sc => !unsyncedCases.some(uc => uc.id === sc.id))
+      ];
+      const mergedContent: SiteContentConfig = {
+        ...siteContent,
+        ...local,
+        cases: mergedCases,
+        updatedAt: Math.max(Date.now(), Number(siteContent.updatedAt) || 0, Number(local.updatedAt) || 0) + 1
+      };
+
+      saveSiteContentToFirestore(mergedContent).then(res => {
+        if (res.success) {
+          console.log('✅ [AutoSync] Casos sincronizados com sucesso no Cloud Firestore!');
+          setSiteContent(mergedContent);
+          try {
+            localStorage.setItem('implantprecision_site_content', JSON.stringify(mergedContent));
+          } catch (e) {
+            console.warn('Erro ao atualizar cache local após sincronização:', e);
+          }
+        }
+      });
+    }
+  }, [firebaseUser, userType, siteContent]);
 
   // Verificação exclusiva de Super Administrador Raiz
   const isRootSuperAdmin = firebaseUser?.email?.toLowerCase().trim() === ROOT_SUPERADMIN_EMAIL;
