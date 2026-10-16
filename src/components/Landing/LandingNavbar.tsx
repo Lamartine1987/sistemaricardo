@@ -34,27 +34,31 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-40 bg-cyber-bg/75 backdrop-blur-xl border-b border-cyber-border/80 transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+    <nav className="fixed top-0 left-0 right-0 z-40 w-full max-w-full bg-cyber-bg/85 backdrop-blur-xl border-b border-cyber-border/80 transition-all">
+      <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-1.5 sm:gap-2">
         
         {/* Brand Logo */}
         <div 
-          className="flex items-center space-x-3 cursor-pointer group" 
+          className="flex items-center space-x-2 sm:space-x-3 cursor-pointer group flex-shrink-0" 
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyber-cyan via-blue-500 to-indigo-600 flex items-center justify-center text-black shadow-glow-cyan group-hover:scale-105 transition-transform">
-            <Box className="w-5 h-5 fill-black stroke-black" />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden border border-cyber-cyan/40 shadow-glow-cyan group-hover:scale-105 transition-transform bg-[#0c3960] flex items-center justify-center flex-shrink-0">
+            <img 
+              src="/logo-square.png" 
+              alt="Logo Implant Precision" 
+              className="w-full h-full object-cover" 
+            />
           </div>
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="text-base font-bold tracking-tight text-white flex items-center">
+            <div className="flex items-center space-x-1.5 sm:space-x-2">
+              <span className="text-sm sm:text-base font-bold tracking-tight text-white flex items-center">
                 Implant <span className="text-cyber-cyan ml-1">Precision</span>
               </span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/30 uppercase tracking-wider font-semibold">
+              <span className="hidden sm:inline-block text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/30 uppercase tracking-wider font-semibold">
                 3D OS
               </span>
             </div>
-            <p className="text-[10px] text-slate-400 font-mono hidden sm:block">
+            <p className="text-[10px] text-slate-400 font-mono hidden md:block">
               Por Dr. Ricardo Campos
             </p>
           </div>
@@ -76,9 +80,9 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
         </div>
 
         {/* Ações / Entrar na Plataforma */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-1.5 sm:space-x-3 flex-shrink-0">
           {firebaseUser ? (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1.5 sm:space-x-2">
               <div className="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-cyber-surface border border-cyber-cyan/30 text-xs font-mono">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400" />
                 <span className="text-slate-200 truncate max-w-[130px]" title={firebaseUser.email || ''}>
@@ -100,18 +104,20 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
 
               <button
                 onClick={onEnterApp}
-                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyber-cyan to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-black font-semibold text-xs font-mono transition-all shadow-glow-cyan flex items-center space-x-2 active:scale-[0.98]"
+                className="px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl bg-gradient-to-r from-cyber-cyan to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-black font-semibold text-xs font-mono transition-all shadow-glow-cyan flex items-center space-x-1 sm:space-x-1.5 active:scale-[0.98] flex-shrink-0"
               >
-                <span>Painel / Sistema</span>
+                <span className="hidden sm:inline">Painel / Sistema</span>
+                <span className="sm:hidden">Painel</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
           ) : (
             <button
               onClick={onOpenAuthModal}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyber-cyan to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-black font-semibold text-xs font-mono transition-all shadow-glow-cyan flex items-center space-x-2 active:scale-[0.98]"
+              className="px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl bg-gradient-to-r from-cyber-cyan to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-black font-semibold text-xs font-mono transition-all shadow-glow-cyan flex items-center space-x-1 sm:space-x-1.5 active:scale-[0.98] flex-shrink-0"
             >
-              <span>Acessar Plataforma</span>
+              <span className="hidden sm:inline">Acessar Plataforma</span>
+              <span className="sm:hidden">Entrar</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           )}
@@ -119,7 +125,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
           {/* Botão Mobile Menu Toggle */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-xl glass-panel border border-cyber-border text-slate-300 hover:text-white transition-colors"
+            className="lg:hidden p-2 rounded-xl glass-panel border border-cyber-border text-slate-300 hover:text-white transition-colors flex-shrink-0"
             aria-label="Abrir Menu de Navegação"
           >
             {mobileMenuOpen ? <X className="w-5 h-5 text-cyber-cyan" /> : <Menu className="w-5 h-5" />}

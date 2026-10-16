@@ -513,8 +513,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         ) : (
           <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/80">
             <div className="flex items-center space-x-2.5">
-              <div className="p-2 rounded-xl bg-cyan-50 border border-cyan-200 text-cyan-600">
-                <ShieldCheck className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl overflow-hidden border border-cyan-200/90 shadow-2xs bg-[#0c3960] flex items-center justify-center flex-shrink-0">
+                <img 
+                  src="/logo-square.png" 
+                  alt="Logo Implant Precision" 
+                  className="w-full h-full object-cover" 
+                />
               </div>
               <div>
                 <h3 className="text-sm font-bold text-slate-900 tracking-tight font-sans">

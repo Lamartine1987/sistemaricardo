@@ -181,7 +181,10 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
       </head>
       <body>
         <div class="header">
-          <div class="logo">IMPLANT PRECISION 3D • DR. RICARDO CEZAR</div>
+          <div class="logo">
+            <img src="${window.location.origin}/logo-square.png" style="width: 26px; height: 26px; vertical-align: middle; border-radius: 6px; margin-right: 8px;" />
+            IMPLANT PRECISION 3D • DR. RICARDO CEZAR
+          </div>
           ${badgeParts ? `<span class="badge">${badgeParts}</span>` : ''}
           <h1>${caseItem.title}</h1>
         </div>
@@ -241,8 +244,10 @@ export const ClinicalCasesArchive: React.FC<ClinicalCasesArchiveProps> = ({
           </button>
 
           <div className="hidden md:flex items-center space-x-3">
-            <div className="w-2.5 h-2.5 rounded-full bg-cyan-600 animate-pulse" />
-            <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-medium">
+            <div className="w-8 h-8 rounded-lg overflow-hidden border border-cyan-200/90 shadow-2xs bg-[#0c3960] flex items-center justify-center flex-shrink-0">
+              <img src="/logo-square.png" alt="Logo" className="w-full h-full object-cover" />
+            </div>
+            <span className="text-xs font-mono uppercase tracking-wider text-slate-700 font-semibold">
               Acervo de Cirurgias Guiadas & Planejamentos 3D
             </span>
           </div>

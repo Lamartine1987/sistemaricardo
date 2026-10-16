@@ -297,6 +297,15 @@ export function App() {
     return saved ? JSON.parse(saved) : [];
   });
 
+  // Ajuste dinâmico do background do body para garantir consistência visual em dispositivos móveis
+  useEffect(() => {
+    if (viewMode === 'LANDING') {
+      document.body.style.backgroundColor = '#06080D';
+    } else {
+      document.body.style.backgroundColor = '#f8fafc';
+    }
+  }, [viewMode]);
+
   useEffect(() => {
     localStorage.setItem('implantprecision_notifications', JSON.stringify(notifications));
   }, [notifications]);
@@ -976,7 +985,7 @@ export function App() {
 
   // Modo Plataforma / Sistema Operacional Odontológico (Dashboard)
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans w-full max-w-full overflow-x-hidden">
       
       {/* Top Navigation */}
       <Header
@@ -1012,10 +1021,10 @@ export function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
         
-        {/* Abas Principais de Navegação */}
-        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 border-b border-slate-200 pb-3">
+        {/* Abas Principais de Navegação - Scroll horizontal fluido em telas pequenas */}
+        <div className="flex items-center gap-1.5 sm:gap-2 border-b border-slate-200 pb-2.5 sm:pb-3 overflow-x-auto no-scrollbar scroll-smooth flex-nowrap w-full max-w-full py-0.5">
           {/* Aba de Casos */}
           <button
             onClick={() => setActiveTab('CASES')}
@@ -1112,15 +1121,15 @@ export function App() {
         {activeTab === 'CASES' && (
           <div className="space-y-6">
             {/* Banner de Contexto da Sessão */}
-            <div className="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="space-y-1.5">
-                <div className="flex items-center space-x-2.5 flex-wrap gap-y-1">
+            <div className="p-4 sm:p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+              <div className="space-y-1 sm:space-y-1.5 w-full sm:w-auto">
+                <div className="flex items-center space-x-2 sm:space-x-2.5 flex-wrap gap-y-1">
                   {userType === 'ADMIN' ? (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                    <span className="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-sans font-semibold bg-amber-50 text-amber-800 border border-amber-200">
                       Painel Administrativo • {currentAdmin.name}
                     </span>
                   ) : (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans font-semibold bg-cyan-50 text-cyan-800 border border-cyan-200">
+                    <span className="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-sans font-semibold bg-cyan-50 text-cyan-800 border border-cyan-200">
                       Portal do Dentista • {currentDentist.name}
                     </span>
                   )}
@@ -1132,7 +1141,7 @@ export function App() {
                   </span>
                 </div>
 
-                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+                <h1 className="text-lg sm:text-2xl font-bold tracking-tight text-slate-900 leading-snug">
                   {userType === 'ADMIN'
                     ? 'Painel de Controle Clínico & Gestão Financeira'
                     : 'Seus Casos Cirúrgicos & Liberação de Guias'}

@@ -159,13 +159,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <div className="max-w-2xl space-y-6">
             
             {/* Badge */}
-            <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full glass-panel border border-cyber-cyan/30 text-cyber-cyan text-xs font-mono">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>PLANEJAMENTO CIRÚRGICO ODONTOLÓGICO 3D</span>
+            <div className="inline-flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full glass-panel border border-cyber-cyan/30 text-cyber-cyan text-[10px] sm:text-xs font-mono max-w-full">
+              <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="truncate">PLANEJAMENTO CIRÚRGICO ODONTOLÓGICO 3D</span>
             </div>
 
             {/* Headline */}
-            <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight break-words">
               A Nova Dimensão da <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyber-cyan via-blue-400 to-indigo-400">
                 Implantodontia Digital.
@@ -344,13 +344,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </div>
 
           {/* Botão de Destaque para Abrir o Acervo Completo */}
-          <div className="pt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="pt-12 flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
             <button
               onClick={() => onOpenCasesArchive?.()}
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-cyber-cyan via-blue-500 to-indigo-600 hover:from-cyan-400 hover:to-blue-400 text-black font-extrabold text-sm font-mono transition-all shadow-glow-cyan flex items-center justify-center space-x-3 cursor-pointer group active:scale-[0.98]"
+              className="w-full sm:w-auto px-4 sm:px-8 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-cyber-cyan via-blue-500 to-indigo-600 hover:from-cyan-400 hover:to-blue-400 text-black font-extrabold text-xs sm:text-sm font-mono transition-all shadow-glow-cyan flex items-center justify-center space-x-2 sm:space-x-3 cursor-pointer group active:scale-[0.98] text-center"
             >
-              <span>Explorar Acervo Completo de Casos ({content.cases.filter(c => c.active).length} Estudos)</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
+              <span>Explorar Acervo de Casos ({content.cases.filter(c => c.active).length} Estudos)</span>
+              <ArrowRight className="w-4 h-4 flex-shrink-0 group-hover:translate-x-1.5 transition-transform" />
             </button>
           </div>
         </section>
@@ -513,9 +513,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         {/* 🏆 SEÇÃO 6: SOBRE DR. RICARDO (Alimentado dinamicamente) */}
         <section id="sobre" className="min-h-screen flex flex-col justify-center items-center px-4 sm:px-8 max-w-5xl mx-auto py-24 scroll-mt-20">
           
-          <div className="w-full p-8 sm:p-12 rounded-3xl glass-panel-glow border border-cyber-cyan/40 bg-cyber-card/90 backdrop-blur-2xl space-y-8 shadow-glow-cyan">
+          <div className="w-full p-5 sm:p-12 rounded-3xl glass-panel-glow border border-cyber-cyan/40 bg-cyber-card/90 backdrop-blur-2xl space-y-6 sm:space-y-8 shadow-glow-cyan">
             
-            <div className="flex flex-col md:flex-row items-center gap-8 text-left">
+            <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8 text-left">
               {/* Avatar / Destaque Dr. Ricardo */}
               <div className="flex-shrink-0">
                 <div className="relative">
@@ -580,23 +580,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             {/* Box de Ação */}
-            <div className="pt-6 border-t border-cyber-border/70 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="pt-6 border-t border-cyber-border/70 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full">
               <button
                 onClick={firebaseUser ? onEnterApp : onOpenAuthModal}
-                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-cyber-cyan to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-black font-bold text-sm font-mono transition-all shadow-glow-cyan flex items-center justify-center space-x-2 active:scale-[0.98]"
+                className="w-full sm:w-auto px-4 sm:px-8 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-cyber-cyan to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-black font-bold text-xs sm:text-sm font-mono transition-all shadow-glow-cyan flex items-center justify-center space-x-2 active:scale-[0.98] text-center"
               >
                 <span>{firebaseUser ? 'Acessar Painel do Sistema' : 'Acessar Plataforma & Enviar Caso'}</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 flex-shrink-0" />
               </button>
 
               <a
                 href={`https://wa.me/55${cleanWhatsAppNumber}?text=${encodeURIComponent(content.about.whatsappMessage || 'Olá Dr. Ricardo! Acessei o site e gostaria de falar com você.')}`}
                 target="_blank"
                 rel="noreferrer"
-                className="w-full sm:w-auto px-6 py-4 rounded-2xl glass-panel border border-cyber-border text-slate-200 hover:text-white hover:border-cyber-cyan/40 text-xs font-mono transition-colors flex items-center justify-center space-x-2"
+                className="w-full sm:w-auto px-4 sm:px-6 py-3.5 sm:py-4 rounded-2xl glass-panel border border-cyber-border text-slate-200 hover:text-white hover:border-cyber-cyan/40 text-xs font-mono transition-colors flex items-center justify-center space-x-2 text-center"
               >
-                <Phone className="w-4 h-4 text-emerald-400" />
-                <span>Falar no WhatsApp com {content.about.name}</span>
+                <Phone className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <span>WhatsApp com Dr. Ricardo</span>
               </a>
             </div>
 
@@ -613,10 +613,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         {/* 🦶 Footer Institucional */}
         <footer className="border-t border-cyber-border py-8 bg-cyber-surface/60 backdrop-blur-xl">
           <div className="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-400">
-            <div className="flex items-center space-x-2">
-              <span className="font-bold text-white">Implant Precision 3D</span>
-              <span>•</span>
-              <span>Planejamento & Cirurgia Guiada de Alta Precisão</span>
+            <div className="flex items-center space-x-3">
+              <div className="w-7 h-7 rounded-lg overflow-hidden border border-cyber-cyan/40 bg-[#0c3960] flex items-center justify-center flex-shrink-0">
+                <img src="/logo-square.png" alt="Logo" className="w-full h-full object-cover" />
+              </div>
+              <div>
+                <span className="font-bold text-white">Implant Precision 3D</span>
+                <span className="hidden sm:inline mx-2">•</span>
+                <span className="hidden sm:inline">Planejamento & Cirurgia Guiada de Alta Precisão</span>
+              </div>
             </div>
             <div>
               <span>Por {content.about.name} • Todos os direitos reservados</span>
