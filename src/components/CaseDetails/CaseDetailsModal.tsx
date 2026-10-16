@@ -152,21 +152,21 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
         <div className="relative w-full max-w-6xl my-auto rounded-2xl bg-white border border-slate-200 overflow-hidden shadow-2xl flex flex-col max-h-[92vh] text-slate-800">
           
           {/* Header Modal */}
-          <div className="p-6 border-b border-slate-200 flex items-center justify-between flex-wrap gap-4 bg-slate-50/90">
-            <div className="flex items-center space-x-3">
-              <div className="p-2.5 rounded-xl bg-cyan-50 border border-cyan-200 text-cyan-600">
+          <div className="p-4 sm:p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-slate-50/90 relative">
+            <div className="flex items-start sm:items-center space-x-3 pr-10 sm:pr-0">
+              <div className="p-2 sm:p-2.5 rounded-xl bg-cyan-50 border border-cyan-200 text-cyan-600 shrink-0 mt-0.5 sm:mt-0">
                 <Activity className="w-5 h-5" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                  <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight font-sans">
+                  <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight font-sans truncate">
                     {caseItem.patientName}
                   </h2>
                   <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 font-medium">
                     {caseItem.caseCode}
                   </span>
                   {caseItem.clinicalPreviewVideoUrl && (
-                    <span className="text-[11px] font-sans px-2.5 py-0.5 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-800 font-bold flex items-center space-x-1">
+                    <span className="text-[10px] sm:text-[11px] font-sans px-2 sm:px-2.5 py-0.5 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-800 font-bold flex items-center space-x-1">
                       <Video className="w-3 h-3 text-cyan-600" />
                       <span>Vídeo 3D Disponível</span>
                     </span>
@@ -177,38 +177,39 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-slate-500 font-sans mt-0.5">
+                <p className="text-xs text-slate-500 font-sans mt-0.5 truncate">
                   Solicitante: <span className="text-slate-700 font-medium">{caseItem.dentistName}</span> ({caseItem.dentistCro})
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center flex-wrap gap-2 w-full sm:w-auto">
               {/* Botões de Ação por Status */}
               {!hasDeliveredPlanningFiles && !isPaid ? (
                 userType === 'ADMIN' ? (
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center flex-wrap gap-2 w-full sm:w-auto">
                     {caseItem.status === 'ANALYSIS' && onAcceptCase && (
                       <button
                         onClick={() => onAcceptCase(caseItem.id)}
-                        className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-all shadow-xs flex items-center space-x-1.5 active:scale-95 cursor-pointer"
+                        className="px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-all shadow-xs flex items-center space-x-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
                       >
-                        <CheckCircle2 className="w-4 h-4" />
+                        <CheckCircle2 className="w-4 h-4 shrink-0" />
                         <span>Receber & Iniciar</span>
                       </button>
                     )}
                     <button
                       onClick={() => setIsDeliverPlanningOpen(true)}
-                      className="px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs transition-all shadow-xs flex items-center space-x-1.5 active:scale-95 cursor-pointer"
+                      className="px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs transition-all shadow-xs flex items-center space-x-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
                       title="Enviar vídeo de avaliação 3D, Guia STL e Relatório para o dentista"
                     >
-                      <Video className="w-3.5 h-3.5" />
-                      <span>Enviar Vídeo 3D & Planejamento</span>
+                      <Video className="w-3.5 h-3.5 shrink-0" />
+                      <span className="hidden sm:inline">Enviar Vídeo 3D & Planejamento</span>
+                      <span className="sm:hidden">Enviar Vídeo & STL</span>
                     </button>
                     {onDeleteCase && (
                       <button
                         onClick={() => onDeleteCase(caseItem.id)}
-                        className="p-2 rounded-xl bg-slate-100 hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
+                        className="p-1.5 sm:p-2 rounded-xl bg-slate-100 hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
                         title="Excluir este caso"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -216,56 +217,63 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
                     )}
                   </div>
                 ) : (
-                  <div className="flex items-center space-x-2">
-                    <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-xs font-sans font-medium">
-                      <Clock className="w-3.5 h-3.5 text-blue-600" />
-                      <span>
+                  <div className="flex items-center flex-wrap gap-2">
+                    <div className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl sm:rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-[11px] sm:text-xs font-sans font-medium whitespace-nowrap">
+                      <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                      <span className="hidden sm:inline">
                         {caseItem.status === 'PLANNING'
                           ? 'Planejamento 3D em Andamento'
                           : 'Aguardando Avaliação do Dr. Ricardo'}
+                      </span>
+                      <span className="sm:hidden">
+                        {caseItem.status === 'PLANNING'
+                          ? 'Em Planejamento 3D'
+                          : 'Aguardando Avaliação'}
                       </span>
                     </div>
                     {onDeleteCase && (
                       <button
                         onClick={() => onDeleteCase(caseItem.id)}
-                        className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-500 hover:text-red-500 text-xs font-sans transition-all flex items-center space-x-1.5 active:scale-95 shadow-xs cursor-pointer"
+                        className="px-2.5 py-1 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-500 hover:text-red-500 text-xs font-sans transition-all flex items-center space-x-1.5 active:scale-95 shadow-xs cursor-pointer whitespace-nowrap"
                         title="Excluir caso"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
-                        <span>Excluir Caso</span>
+                        <span>Excluir</span>
                       </button>
                     )}
                   </div>
                 )
               ) : !isPaid ? (
                 userType === 'CLIENT' ? (
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center flex-wrap gap-2 w-full sm:w-auto">
                     <button
                       onClick={() => setIsPaymentOpen(true)}
-                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold text-xs transition-all shadow-xs flex items-center space-x-2 cursor-pointer"
+                      className="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold text-xs transition-all shadow-xs flex items-center justify-center space-x-2 cursor-pointer whitespace-nowrap"
                     >
-                      <Lock className="w-3.5 h-3.5" />
+                      <Lock className="w-3.5 h-3.5 shrink-0" />
                       <span>Aprovar & Pagar PIX (R$ {caseItem.payment.amount.toFixed(2)})</span>
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center flex-wrap gap-2 w-full sm:w-auto">
                     <button
                       onClick={() => setIsDeliverPlanningOpen(true)}
-                      className="px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs transition-all shadow-xs flex items-center space-x-1.5 active:scale-95 cursor-pointer"
+                      className="px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs transition-all shadow-xs flex items-center space-x-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
                       title="Enviar ou atualizar vídeo 3D e arquivos do planejamento CAD para o dentista"
                     >
-                      <Video className="w-3.5 h-3.5" />
-                      <span>Atualizar Vídeo 3D / Guia STL</span>
+                      <Video className="w-3.5 h-3.5 shrink-0" />
+                      <span className="hidden sm:inline">Atualizar Vídeo 3D / Guia STL</span>
+                      <span className="sm:hidden">Atualizar Vídeo/STL</span>
                     </button>
-                    <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-sans font-medium">
-                      <Clock className="w-3.5 h-3.5 text-amber-600" />
-                      <span>Aguardando Aprovação e Pagamento</span>
+                    <div className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl sm:rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-sans font-medium whitespace-nowrap shrink-0">
+                      <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                      <span className="hidden sm:inline">Aguardando Aprovação e Pagamento</span>
+                      <span className="sm:hidden">Aguardando Pagamento</span>
                     </div>
                     {onDeleteCase && (
                       <button
                         onClick={() => onDeleteCase(caseItem.id)}
-                        className="p-2 rounded-xl bg-slate-100 hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
+                        className="p-1.5 sm:p-2 rounded-xl bg-slate-100 hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
                         title="Excluir este caso"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -274,25 +282,25 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
                   </div>
                 )
               ) : (
-                <div className="flex items-center space-x-2">
-                  <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-sans font-medium">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <div className="flex items-center flex-wrap gap-2 w-full sm:w-auto">
+                  <div className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-sans font-medium whitespace-nowrap shrink-0">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>Projeto Pago & Liberado</span>
                   </div>
                   {userType === 'ADMIN' && (
                     <button
                       onClick={() => setIsDeliverPlanningOpen(true)}
-                      className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-cyan-50 border border-slate-200 hover:border-cyan-200 text-cyan-700 text-xs font-sans font-medium transition-all flex items-center space-x-1.5 active:scale-95 cursor-pointer"
+                      className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-cyan-50 border border-slate-200 hover:border-cyan-200 text-cyan-700 text-xs font-sans font-medium transition-all flex items-center space-x-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
                       title="Enviar vídeo ou arquivos adicionais"
                     >
-                      <UploadCloud className="w-3.5 h-3.5" />
+                      <UploadCloud className="w-3.5 h-3.5 shrink-0" />
                       <span>Vídeo / Arquivos</span>
                     </button>
                   )}
                   {userType === 'ADMIN' && onDeleteCase && (
                     <button
                       onClick={() => onDeleteCase(caseItem.id)}
-                      className="p-2 rounded-xl bg-slate-100 hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
+                      className="p-1.5 sm:p-2 rounded-xl bg-slate-100 hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
                       title="Excluir este caso (Admin)"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -301,9 +309,11 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
                 </div>
               )}
 
+              {/* Botão Fechar Modal - no topo direito no mobile para não brigar com os botões de ação */}
               <button
                 onClick={onClose}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="absolute top-3.5 right-3.5 sm:relative sm:top-auto sm:right-auto p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                title="Fechar janela"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -311,7 +321,7 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
           </div>
 
           {/* Body Modal com Scroll */}
-          <div className="p-6 overflow-y-auto space-y-6">
+          <div className="p-3.5 sm:p-6 overflow-y-auto space-y-4 sm:space-y-6">
 
             {/* ========================================================================= */}
             {/* 🎥 PLAYER DE VÍDEO DO PLANEJAMENTO 3D DO DR. RICARDO (DESTAQUE NO TOPO)    */}
@@ -676,10 +686,10 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
               </div>
 
               {/* Coluna 3: Arquivos & Gatekeeper Pay-to-Unlock */}
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div className="flex items-center space-x-2 text-sm font-bold text-slate-900 font-sans">
-                    <FileText className="w-4 h-4 text-cyan-600" />
+              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3 gap-2 flex-wrap sm:flex-nowrap">
+                  <div className="flex items-center space-x-2 text-xs sm:text-sm font-bold text-slate-900 font-sans shrink-0">
+                    <FileText className="w-4 h-4 text-cyan-600 shrink-0" />
                     <span>Repositório de Arquivos</span>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -846,10 +856,16 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
                       <span>Liberar Guia Cirúrgica (PIX)</span>
                     </button>
                   ) : (
-                    <div className="p-3.5 rounded-xl bg-slate-50 border border-amber-200 text-center space-y-2.5">
-                      <div className="flex items-center justify-center space-x-1.5 text-amber-800 text-xs font-sans font-semibold">
-                        <Clock className="w-3.5 h-3.5 text-amber-600" />
-                        <span>Planejamento Enviado • Aguardando Aprovação/PIX</span>
+                    <div className="p-3 sm:p-3.5 rounded-xl bg-slate-50 border border-amber-200 text-center space-y-2.5">
+                      <div className="flex items-center justify-center gap-1.5 text-amber-800 text-xs font-sans font-semibold text-center flex-wrap">
+                        <div className="flex items-center space-x-1.5 shrink-0">
+                          <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                          <span>Planejamento Enviado</span>
+                        </div>
+                        <span className="hidden sm:inline text-amber-400">•</span>
+                        <span className="text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-md text-[11px] font-medium shrink-0">
+                          Aguardando Aprovação/PIX
+                        </span>
                       </div>
                       <p className="text-[11px] text-slate-500 leading-relaxed font-sans">
                         O dentista foi notificado. Caso precise atualizar o vídeo 3D, arquivos STL ou PDF do planejamento, clique abaixo:

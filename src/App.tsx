@@ -123,7 +123,10 @@ export function App() {
   const [userType, setUserType] = useState<UserType>('ADMIN');
   const [currentAdmin, setCurrentAdmin] = useState<AdminUser>(admins[0] || INITIAL_ADMINS[0]);
   const [currentDentist, setCurrentDentist] = useState<Dentist>(dentists[0] || DEFAULT_DENTIST_FALLBACK);
-  const [firebaseUser, setFirebaseUser] = useState<{ email?: string | null; displayName?: string | null } | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<{ email?: string | null; displayName?: string | null } | null>(() => {
+    const saved = localStorage.getItem('implantprecision_auth_user');
+    return saved ? JSON.parse(saved) : null;
+  });
 
   // Modo de visualização: 'LANDING' (Site 3D Lusion), 'DASHBOARD' (Sistema) ou 'CASES_ARCHIVE' (Biblioteca de Casos)
   const [viewMode, setViewMode] = useState<'LANDING' | 'DASHBOARD' | 'CASES_ARCHIVE'>(() => {
@@ -282,7 +285,10 @@ export function App() {
   const [selectedDentistFilter, setSelectedDentistFilter] = useState<string>('ALL');
   
   // Modais
-  const [selectedCase, setSelectedCase] = useState<DentalCase | null>(null);
+  const [selectedCase, setSelectedCase] = useState<DentalCase | null>(() => {
+    const saved = localStorage.getItem('implantprecision_selected_case');
+    return saved ? JSON.parse(saved) : null;
+  });
   const [isNewCaseOpen, setIsNewCaseOpen] = useState(false);
   const [isNewAdminModalOpen, setIsNewAdminModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(() => {
@@ -346,7 +352,8 @@ export function App() {
           displayName: user.displayName
         });
       } else {
-        setFirebaseUser(null);
+        const savedDemo = localStorage.getItem('implantprecision_auth_user');
+        setFirebaseUser(savedDemo ? JSON.parse(savedDemo) : null);
       }
     });
 

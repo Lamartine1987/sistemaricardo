@@ -88,9 +88,17 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
         )}
       </button>
 
+      {/* Backdrop transparente no mobile para fechar facilmente ao tocar fora */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-[1px] sm:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
       {/* Dropdown de Notificações */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white border border-slate-200 shadow-xl z-50 overflow-hidden animate-fade-in">
+        <div className="fixed sm:absolute top-16 sm:top-full left-3 right-3 sm:left-auto sm:right-0 sm:mt-2 w-auto sm:w-96 max-w-[calc(100vw-1.5rem)] rounded-2xl bg-white border border-slate-200 shadow-2xl z-50 overflow-hidden animate-fade-in">
           
           {/* Header do Dropdown */}
           <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50/80">
