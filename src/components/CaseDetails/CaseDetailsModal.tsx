@@ -6,6 +6,7 @@ import { getFileFromCache } from '../../services/fileCache';
 import { getStoredWhatsAppConfig, formatPhoneToInternational } from '../../services/whatsapp/whatsappService';
 import { 
   X, 
+  ArrowLeft,
   Lock, 
   Unlock, 
   Download, 
@@ -122,6 +123,18 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
     };
   }, [caseItem?.clinicalPreviewVideoUrl, caseItem?.clinicalPreviewVideoName, caseItem?.caseCode]);
 
+  // Fechar com tecla ESC
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen || !caseItem) return null;
 
   const isPaid =
@@ -148,7 +161,14 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 z-40 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-md overflow-y-auto">
+      <div 
+        className="fixed inset-0 z-40 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-md overflow-y-auto"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            onClose();
+          }
+        }}
+      >
         <div className="relative w-full max-w-6xl my-auto rounded-2xl bg-white border border-slate-200 overflow-hidden shadow-2xl flex flex-col max-h-[92vh] text-slate-800">
           
           {/* Header Modal */}
@@ -309,13 +329,14 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
                 </div>
               )}
 
-              {/* Botão Fechar Modal - no topo direito no mobile para não brigar com os botões de ação */}
+              {/* Botão Voltar / Fechar Modal de Alta Visibilidade */}
               <button
                 onClick={onClose}
-                className="absolute top-3.5 right-3.5 sm:relative sm:top-auto sm:right-auto p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-                title="Fechar janela"
+                className="absolute top-3.5 right-3.5 sm:relative sm:top-auto sm:right-auto px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 hover:text-slate-900 font-bold text-xs transition-all shadow-xs active:scale-95 cursor-pointer flex items-center space-x-1.5 z-10"
+                title="Voltar para a tela anterior"
               >
-                <X className="w-5 h-5" />
+                <ArrowLeft className="w-4 h-4 text-cyan-700" />
+                <span>Voltar</span>
               </button>
             </div>
           </div>
@@ -898,6 +919,21 @@ export const CaseDetailsModal: React.FC<CaseDetailsModalProps> = ({
                 )}
               </div>
             </div>
+          </div>
+
+          {/* Rodapé Fixo de Navegação com Botão Voltar */}
+          <div className="p-3 sm:p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-3 shrink-0">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 hover:text-slate-900 font-bold text-xs transition-all shadow-xs flex items-center space-x-2 active:scale-95 cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4 text-cyan-700" />
+              <span>Voltar para Lista de Casos</span>
+            </button>
+
+            <span className="text-[11px] text-slate-400 font-mono hidden sm:inline">
+              Pressione ESC ou clique fora para fechar
+            </span>
           </div>
         </div>
       </div>
