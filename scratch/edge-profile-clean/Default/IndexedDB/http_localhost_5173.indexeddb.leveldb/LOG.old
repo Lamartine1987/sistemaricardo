@@ -1,0 +1,6 @@
+2026/10/16-21:40:06.310 3d30 Creating DB C:\Users\Lamartine\.gemini\antigravity\scratch\sistemaricardo\scratch\edge-profile-clean\Default\IndexedDB\http_localhost_5173.indexeddb.leveldb since it was missing.
+2026/10/16-21:40:06.319 3d30 Reusing MANIFEST C:\Users\Lamartine\.gemini\antigravity\scratch\sistemaricardo\scratch\edge-profile-clean\Default\IndexedDB\http_localhost_5173.indexeddb.leveldb/MANIFEST-000001
+2026/10/16-21:40:06.606 59ec Level-0 table #5: started
+2026/10/16-21:40:06.611 59ec Level-0 table #5: 1284 bytes OK
+2026/10/16-21:40:06.614 59ec Delete type=0 #3
+2026/10/16-21:40:06.615 5d84 Manual compaction at level-0 from '\x00\x01\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x02\x00\x00\x00' @ 0 : 0; will stop at (end)
