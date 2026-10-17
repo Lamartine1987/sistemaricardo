@@ -92,26 +92,26 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   const renderServiceIcon = (iconType: string) => {
     switch (iconType) {
       case 'cpu':
-        return <Cpu className="w-6 h-6 text-cyber-cyan" />;
+        return <Cpu className="w-6 h-6 text-cyan-700" />;
       case 'shield':
-        return <ShieldCheck className="w-6 h-6 text-emerald-400" />;
+        return <ShieldCheck className="w-6 h-6 text-emerald-600" />;
       case 'lock':
-        return <Lock className="w-6 h-6 text-amber-400" />;
+        return <Lock className="w-6 h-6 text-amber-600" />;
       case 'user':
-        return <UserCheck className="w-6 h-6 text-indigo-400" />;
+        return <UserCheck className="w-6 h-6 text-indigo-600" />;
       case 'layers':
-        return <Layers className="w-6 h-6 text-cyan-400" />;
+        return <Layers className="w-6 h-6 text-cyan-600" />;
       case 'sparkles':
-        return <Sparkles className="w-6 h-6 text-fuchsia-400" />;
+        return <Sparkles className="w-6 h-6 text-purple-600" />;
       default:
-        return <Cpu className="w-6 h-6 text-cyber-cyan" />;
+        return <Cpu className="w-6 h-6 text-cyan-700" />;
     }
   };
 
   const cleanWhatsAppNumber = content.about.whatsappNumber.replace(/\D/g, '') || '81999694866';
 
   return (
-    <div className="relative min-h-screen bg-cyber-bg text-slate-100 font-sans selection:bg-cyber-cyan selection:text-black overflow-x-hidden">
+    <div className="relative min-h-screen bg-[#F8FAFC] text-slate-800 font-sans selection:bg-cyan-100 selection:text-cyan-900 overflow-x-hidden">
       
       {/* 🌟 WebGL 3D Canvas Fixo no Fundo (O Parafuso Gigante & Leito Ósseo) */}
       <ImplantScrollCanvas scrollProgress={scrollProgress} />
@@ -126,25 +126,25 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
       {/* 📊 HUD Lateral Indicador de Telemetria Cirúrgica */}
       <div className="fixed right-6 bottom-8 z-30 hidden lg:flex flex-col items-end space-y-2 pointer-events-none">
-        <div className="p-3 rounded-2xl glass-panel-glow border border-cyber-border text-right backdrop-blur-md">
+        <div className="p-3.5 rounded-2xl bg-white/90 border border-slate-200/90 text-right backdrop-blur-md shadow-lg shadow-slate-200/60">
           <div className="flex items-center space-x-2 justify-end mb-1">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-cyan opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyber-cyan"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-600"></span>
             </span>
-            <span className="text-[10px] font-mono text-cyber-cyan font-bold tracking-wider">
+            <span className="text-[10px] font-mono text-cyan-700 font-bold tracking-wider">
               TELEMETRIA 3D ATIVA
             </span>
           </div>
-          <div className="text-xs font-mono text-white">
-            Profundidade: <span className="text-cyber-cyan font-bold">{(scrollProgress * 11.5).toFixed(1)} mm</span>
+          <div className="text-xs font-mono text-slate-800 font-semibold">
+            Profundidade: <span className="text-cyan-700 font-bold">{(scrollProgress * 11.5).toFixed(1)} mm</span>
           </div>
-          <div className="text-[10px] font-mono text-slate-400">
-            Torque: <span className="text-emerald-400 font-bold">{Math.round(scrollProgress * 45)} N.cm</span>
+          <div className="text-[10px] font-mono text-slate-500">
+            Torque: <span className="text-emerald-600 font-bold">{Math.round(scrollProgress * 45)} N.cm</span>
           </div>
-          <div className="w-28 h-1 bg-slate-800 rounded-full mt-2 overflow-hidden">
+          <div className="w-28 h-1.5 bg-slate-100 rounded-full mt-2 overflow-hidden border border-slate-200/60">
             <div 
-              className="h-full bg-gradient-to-r from-cyber-cyan to-emerald-400 transition-all duration-75"
+              className="h-full bg-gradient-to-r from-cyan-600 to-emerald-500 transition-all duration-75"
               style={{ width: `${Math.round(scrollProgress * 100)}%` }}
             />
           </div>
@@ -156,32 +156,32 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
         {/* 🚀 SEÇÃO 1: HERO */}
         <section className="min-h-screen flex flex-col justify-center px-4 sm:px-8 max-w-7xl mx-auto pt-24 pb-16">
-          <div className="max-w-2xl space-y-6">
+          <div className="max-w-2xl space-y-6 backdrop-blur-md sm:backdrop-blur-none bg-white/80 sm:bg-transparent p-5 sm:p-0 rounded-3xl border border-white/90 sm:border-transparent shadow-xs sm:shadow-none">
             
             {/* Badge */}
-            <div className="inline-flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full glass-panel border border-cyber-cyan/30 text-cyber-cyan text-[10px] sm:text-xs font-mono max-w-full">
-              <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
+            <div className="inline-flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-cyan-50/90 border border-cyan-200 text-cyan-800 text-[10px] sm:text-xs font-semibold shadow-xs max-w-full backdrop-blur-xs">
+              <Sparkles className="w-3.5 h-3.5 flex-shrink-0 text-cyan-600" />
               <span className="truncate">PLANEJAMENTO CIRÚRGICO ODONTOLÓGICO 3D</span>
             </div>
 
             {/* Headline */}
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight break-words">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-tight break-words">
               A Nova Dimensão da <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyber-cyan via-blue-400 to-indigo-400">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-700 via-blue-600 to-indigo-800">
                 Implantodontia Digital.
               </span>
             </h1>
 
             {/* Subtítulo */}
-            <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-              Desenvolvido pelo <strong className="text-white">{content.about.name}</strong> para cirurgiões-dentistas de alta performance. Envie o escaneamento oral do paciente, receba o projeto 3D milimétrico, inspecione no navegador e libere as guias cirúrgicas instantaneamente.
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+              Desenvolvido pelo <strong className="text-slate-900 font-semibold">{content.about.name}</strong> para cirurgiões-dentistas de alta performance. Envie o escaneamento oral do paciente, receba o projeto 3D milimétrico, inspecione no navegador e libere as guias cirúrgicas instantaneamente.
             </p>
 
             {/* Botões CTA */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
               <button
                 onClick={firebaseUser ? onEnterApp : onOpenAuthModal}
-                className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-cyber-cyan to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-black font-bold text-sm font-mono transition-all shadow-glow-cyan flex items-center justify-center space-x-2 active:scale-[0.98]"
+                className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-sm transition-all shadow-sm hover:shadow-md flex items-center justify-center space-x-2 active:scale-[0.98] cursor-pointer"
               >
                 <span>{firebaseUser ? 'Painel / Sistema' : 'Acessar Plataforma'}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -189,16 +189,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
               <a
                 href="#casos-clinicos"
-                className="px-5 py-3.5 rounded-2xl glass-panel border border-cyber-border text-slate-300 hover:text-white hover:border-cyber-cyan/40 text-xs font-mono transition-colors flex items-center justify-center space-x-2"
+                className="px-5 py-3.5 rounded-2xl bg-white/90 hover:bg-white border border-slate-200 hover:border-cyan-300 text-slate-700 hover:text-cyan-700 text-xs font-semibold shadow-xs transition-colors flex items-center justify-center space-x-2 backdrop-blur-xs cursor-pointer"
               >
-                <Eye className="w-4 h-4 text-cyber-cyan" />
+                <Eye className="w-4 h-4 text-cyan-600" />
                 <span>Ver Casos Clínicos</span>
               </a>
             </div>
 
             {/* Dica de Scroll */}
-            <div className="pt-8 flex items-center space-x-3 text-xs font-mono text-slate-500 animate-bounce">
-              <ChevronDown className="w-4 h-4 text-cyber-cyan" />
+            <div className="pt-8 flex items-center space-x-3 text-xs font-medium text-slate-500 animate-bounce">
+              <ChevronDown className="w-4 h-4 text-cyan-600" />
               <span>Role a página para explorar casos, serviços e a telemetria 3D</span>
             </div>
 
@@ -208,14 +208,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         {/* 🔬 SEÇÃO 2: CASOS CLÍNICOS (Alimentado dinamicamente) */}
         <section id="casos-clinicos" className="min-h-screen flex flex-col justify-center px-4 sm:px-8 max-w-7xl mx-auto py-24 scroll-mt-20">
           <div className="space-y-4 mb-10 max-w-2xl">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full glass-panel border border-cyber-cyan/30 text-cyber-cyan text-xs font-mono">
-              <Stethoscope className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyan-50/90 border border-cyan-200 text-cyan-800 text-xs font-semibold shadow-xs">
+              <Stethoscope className="w-3.5 h-3.5 text-cyan-600" />
               <span>EXPERIÊNCIA & CASOS REAIS</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
               Casos Clínicos de Alta Complexidade
             </h2>
-            <p className="text-sm text-slate-300">
+            <p className="text-sm text-slate-500">
               Da tomografia Cone Beam tridimensional à execução cirúrgica guiada com precisão sub-milimétrica.
             </p>
           </div>
@@ -245,93 +245,93 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   <div 
                     key={c.id}
                     onClick={() => onOpenCasesArchive?.(c.id)}
-                    className="p-6 rounded-3xl glass-panel-glow border border-cyber-border bg-cyber-card/85 backdrop-blur-2xl space-y-4 shadow-xl hover:border-cyber-cyan/60 transition-all group flex flex-col justify-between cursor-pointer"
+                    className="p-6 rounded-3xl bg-white border border-slate-200/90 hover:border-cyan-400 space-y-4 shadow-sm hover:shadow-xl transition-all group flex flex-col justify-between cursor-pointer hover:-translate-y-1"
                   >
                     <div className="space-y-3">
                       {/* Imagem do Caso se cadastrada e visível */}
                       {coverImg && (
-                        <div className="w-full h-44 rounded-2xl overflow-hidden bg-slate-900 border border-cyber-border/80 mb-3 relative group">
+                        <div className="w-full h-44 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 mb-3 relative group">
                           <img 
                             src={coverImg} 
                             alt={c.title} 
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent pointer-events-none" />
                         </div>
                       )}
 
                       {(showBadge || showTag) && (
                         <div className="flex items-center justify-between gap-2 flex-wrap">
                           {showBadge ? (
-                            <span className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/30 font-semibold">
+                            <span className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-cyan-50 text-cyan-800 border border-cyan-200">
                               {c.badge}
                             </span>
                           ) : <span />}
                           {showTag && (
-                            <span className="text-[11px] font-mono text-emerald-400">
+                            <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
                               {c.tag}
                             </span>
                           )}
                         </div>
                       )}
 
-                      <h3 className="text-lg font-bold text-white group-hover:text-cyber-cyan transition-colors line-clamp-2">
+                      <h3 className="text-lg font-bold text-slate-900 group-hover:text-cyan-700 transition-colors line-clamp-2">
                         {c.title}
                       </h3>
 
                       {showDesc ? (
-                        <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
+                        <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
                           {c.description}
                         </p>
                       ) : showFull ? (
-                        <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
+                        <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
                           {c.fullContent}
                         </p>
                       ) : null}
 
                       {(showBrand || showTime) && (
-                        <div className="flex items-center gap-2 pt-1 text-[10px] font-mono text-slate-300 flex-wrap">
+                        <div className="flex items-center gap-2 pt-1 text-[10px] text-slate-600 flex-wrap">
                           {showBrand && (
-                            <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-slate-900/80 border border-slate-700/80 text-slate-200">
+                            <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200 text-slate-700">
                               <span>🔩</span>
-                              <span className="truncate max-w-[150px]">{c.implantBrand}</span>
+                              <span className="truncate max-w-[150px] font-medium">{c.implantBrand}</span>
                             </span>
                           )}
                           {showTime && (
-                            <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-slate-900/80 border border-slate-700/80 text-slate-200">
-                              <Clock className="w-3 h-3 text-cyber-cyan" />
-                              <span>{c.surgicalTime}</span>
+                            <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200 text-slate-700">
+                              <Clock className="w-3 h-3 text-cyan-600" />
+                              <span className="font-medium">{c.surgicalTime}</span>
                             </span>
                           )}
                         </div>
                       )}
                     </div>
 
-                    <div className="space-y-3 pt-3 border-t border-cyber-border/70">
+                    <div className="space-y-3 pt-3 border-t border-slate-100">
                       {(showM1 || showM2) && (
-                        <div className={`grid gap-2 text-xs font-mono ${showM1 && showM2 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                        <div className={`grid gap-2 text-xs ${showM1 && showM2 ? 'grid-cols-2' : 'grid-cols-1'}`}>
                           {showM1 && (
                             <div>
-                              {c.metric1Label && <span className="text-slate-400 block text-[10px]">{c.metric1Label}</span>}
-                              {c.metric1Value && <span className="text-cyber-cyan font-bold">{c.metric1Value}</span>}
+                              {c.metric1Label && <span className="text-slate-400 block text-[10px] font-medium uppercase tracking-wider">{c.metric1Label}</span>}
+                              {c.metric1Value && <span className="text-cyan-700 font-bold">{c.metric1Value}</span>}
                             </div>
                           )}
                           {showM2 && (
                             <div>
-                              {c.metric2Label && <span className="text-slate-400 block text-[10px]">{c.metric2Label}</span>}
-                              {c.metric2Value && <span className="text-emerald-400 font-bold">{c.metric2Value}</span>}
+                              {c.metric2Label && <span className="text-slate-400 block text-[10px] font-medium uppercase tracking-wider">{c.metric2Label}</span>}
+                              {c.metric2Value && <span className="text-emerald-600 font-bold">{c.metric2Value}</span>}
                             </div>
                           )}
                         </div>
                       )}
 
-                      <div className="pt-2 flex items-center justify-between text-xs font-mono text-cyber-cyan">
+                      <div className="pt-2 flex items-center justify-between text-xs text-cyan-700">
                         <span className="font-bold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
                           <span>Ver estudo completo</span>
                           <ArrowRight className="w-3.5 h-3.5" />
                         </span>
                         {showPdf && (
-                          <span className="text-[10px] text-slate-400 bg-slate-900/90 border border-slate-800 px-2 py-0.5 rounded">
+                          <span className="text-[10px] text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded font-medium">
                             Laudo PDF
                           </span>
                         )}
@@ -347,7 +347,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <div className="pt-12 flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
             <button
               onClick={() => onOpenCasesArchive?.()}
-              className="w-full sm:w-auto px-4 sm:px-8 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-cyber-cyan via-blue-500 to-indigo-600 hover:from-cyan-400 hover:to-blue-400 text-black font-extrabold text-xs sm:text-sm font-mono transition-all shadow-glow-cyan flex items-center justify-center space-x-2 sm:space-x-3 cursor-pointer group active:scale-[0.98] text-center"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-extrabold text-xs sm:text-sm transition-all shadow-sm hover:shadow-md flex items-center justify-center space-x-2 sm:space-x-3 cursor-pointer group active:scale-[0.98] text-center"
             >
               <span>Explorar Acervo de Casos ({content.cases.filter(c => c.active).length} Estudos)</span>
               <ArrowRight className="w-4 h-4 flex-shrink-0 group-hover:translate-x-1.5 transition-transform" />
@@ -358,14 +358,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         {/* 🛠️ SEÇÃO 3: SERVIÇOS (Alimentado dinamicamente) */}
         <section id="servicos" className="min-h-screen flex flex-col justify-center px-4 sm:px-8 max-w-7xl mx-auto py-24 scroll-mt-20">
           <div className="space-y-4 mb-10 max-w-2xl">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full glass-panel border border-cyber-cyan/30 text-cyber-cyan text-xs font-mono">
-              <Layers className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyan-50/90 border border-cyan-200 text-cyan-800 text-xs font-semibold shadow-xs">
+              <Layers className="w-3.5 h-3.5 text-cyan-600" />
               <span>SOLUÇÕES COMPLETAS CAD/CAM</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
               Serviços Odontológicos Digitais
             </h2>
-            <p className="text-sm text-slate-300">
+            <p className="text-sm text-slate-500">
               Fluxo cirúrgico digital integrado: você envia os exames do paciente e o Dr. Ricardo entrega o projeto validado pronto para fresagem.
             </p>
           </div>
@@ -374,21 +374,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             {content.services.filter(s => s.active).map((s) => (
               <div 
                 key={s.id}
-                className="p-7 rounded-3xl glass-panel-glow border border-cyber-border bg-cyber-card/85 backdrop-blur-2xl space-y-4 shadow-xl flex flex-col justify-between hover:border-cyber-cyan/40 transition-all"
+                className="p-7 rounded-3xl bg-white border border-slate-200/90 hover:border-cyan-400 space-y-4 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between hover:-translate-y-1"
               >
                 <div className="space-y-4">
-                  <div className="w-12 h-12 rounded-2xl bg-cyber-surface border border-cyber-border flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-2xl bg-cyan-50 border border-cyan-100 flex items-center justify-center shadow-2xs">
                     {renderServiceIcon(s.iconType)}
                   </div>
-                  <h3 className="text-xl font-bold text-white">{s.title}</h3>
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  <h3 className="text-xl font-bold text-slate-900">{s.title}</h3>
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                     {s.description}
                   </p>
                 </div>
 
-                <div className="flex flex-wrap gap-2 pt-2 border-t border-cyber-border/70">
+                <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100">
                   {s.highlights.map((h, i) => (
-                    <span key={i} className="text-[10px] font-mono px-2 py-1 rounded bg-cyber-surface border border-cyber-border text-slate-300">
+                    <span key={i} className="text-[10px] font-semibold px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-slate-700">
                       {h}
                     </span>
                   ))}
@@ -401,14 +401,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         {/* 🎓 SEÇÃO 4: CURSOS (Alimentado dinamicamente) */}
         <section id="cursos" className="min-h-screen flex flex-col justify-center px-4 sm:px-8 max-w-7xl mx-auto py-24 scroll-mt-20">
           <div className="space-y-4 mb-10 max-w-2xl">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full glass-panel border border-cyber-cyan/30 text-cyber-cyan text-xs font-mono">
-              <GraduationCap className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyan-50/90 border border-cyan-200 text-cyan-800 text-xs font-semibold shadow-xs">
+              <GraduationCap className="w-3.5 h-3.5 text-cyan-600" />
               <span>FORMAÇÃO & MENTORIA</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
               Cursos e Capacitações com {content.about.name}
             </h2>
-            <p className="text-sm text-slate-300">
+            <p className="text-sm text-slate-500">
               Aprenda a metodologia clínica comprovada para dominar a cirurgia guiada e transformar a previsibilidade dos seus procedimentos.
             </p>
           </div>
@@ -417,25 +417,25 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             {content.courses.filter(c => c.active).map((c) => (
               <div 
                 key={c.id}
-                className="p-7 rounded-3xl glass-panel-glow border border-cyber-border bg-cyber-card/85 backdrop-blur-2xl space-y-5 shadow-xl flex flex-col justify-between hover:border-cyber-cyan/40 transition-all"
+                className="p-7 rounded-3xl bg-white border border-slate-200/90 hover:border-cyan-400 space-y-5 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between hover:-translate-y-1"
               >
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between text-[11px] font-mono">
-                    <span className="px-2.5 py-1 rounded-lg bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/30 font-semibold">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="px-2.5 py-1 rounded-lg bg-cyan-50 text-cyan-800 border border-cyan-200 font-bold">
                       {c.format}
                     </span>
-                    <span className="text-slate-400">{c.badge}</span>
+                    <span className="text-slate-500 font-medium">{c.badge}</span>
                   </div>
 
-                  <h3 className="text-xl font-bold text-white">{c.title}</h3>
-                  <p className="text-xs text-slate-300 leading-relaxed">
+                  <h3 className="text-xl font-bold text-slate-900">{c.title}</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
                     {c.description}
                   </p>
 
-                  <ul className="space-y-2 pt-2 text-xs text-slate-300">
+                  <ul className="space-y-2 pt-2 text-xs text-slate-700">
                     {c.topics.map((t, idx) => (
                       <li key={idx} className="flex items-start space-x-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
                         <span>{t}</span>
                       </li>
                     ))}
@@ -446,7 +446,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   href={`https://wa.me/55${cleanWhatsAppNumber}?text=${encodeURIComponent(c.whatsappMessage || 'Olá Dr. Ricardo! Quero saber sobre o curso.')}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-full py-3 rounded-xl bg-cyber-surface border border-cyber-cyan/30 hover:bg-cyber-cyan/15 text-cyber-cyan text-xs font-mono font-semibold text-center transition-all block mt-4"
+                  className="w-full py-3 rounded-xl bg-cyan-50 hover:bg-cyan-100 border border-cyan-200 text-cyan-800 text-xs font-bold text-center transition-all block mt-4"
                 >
                   {c.ctaText || 'Consultar Vagas no WhatsApp'}
                 </a>
@@ -458,14 +458,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         {/* 💬 SEÇÃO 5: DEPOIMENTOS (Alimentado dinamicamente) */}
         <section id="depoimentos" className="min-h-screen flex flex-col justify-center px-4 sm:px-8 max-w-7xl mx-auto py-24 scroll-mt-20">
           <div className="space-y-4 mb-10 max-w-2xl">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full glass-panel border border-cyber-cyan/30 text-cyber-cyan text-xs font-mono">
-              <Quote className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyan-50/90 border border-cyan-200 text-cyan-800 text-xs font-semibold shadow-xs">
+              <Quote className="w-3.5 h-3.5 text-cyan-600" />
               <span>AVALIAÇÕES & PARCEIROS</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
               O Que Dizem os Cirurgiões-Dentistas
             </h2>
-            <p className="text-sm text-slate-300">
+            <p className="text-sm text-slate-500">
               Profissionais que elevaram o padrão cirúrgico de seus consultórios com o suporte do {content.about.name}.
             </p>
           </div>
@@ -474,7 +474,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             {content.testimonials.filter(t => t.active).map((t) => (
               <div 
                 key={t.id}
-                className="p-7 rounded-3xl glass-panel-glow border border-cyber-border bg-cyber-card/85 backdrop-blur-2xl space-y-4 shadow-xl flex flex-col justify-between"
+                className="p-7 rounded-3xl bg-white border border-slate-200/90 hover:border-cyan-400 space-y-4 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between hover:-translate-y-1"
               >
                 <div className="space-y-3">
                   <div className="flex items-center space-x-1 text-amber-400">
@@ -483,26 +483,26 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     ))}
                   </div>
 
-                  <p className="text-xs sm:text-sm text-slate-300 italic leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-700 italic leading-relaxed">
                     &ldquo;{t.quote}&rdquo;
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-cyber-border/70 flex items-center space-x-3">
+                <div className="pt-4 border-t border-slate-100 flex items-center space-x-3">
                   {t.avatarUrl ? (
                     <img 
                       src={t.avatarUrl} 
                       alt={t.dentistName} 
-                      className="w-10 h-10 rounded-full object-cover border border-cyber-cyan/40" 
+                      className="w-10 h-10 rounded-full object-cover border border-cyan-200" 
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-white text-xs">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center font-bold text-white text-xs">
                       {t.initials || 'DR'}
                     </div>
                   )}
                   <div>
-                    <h4 className="text-xs font-bold text-white">{t.dentistName}</h4>
-                    <p className="text-[10px] text-slate-400 font-mono">{t.role} • {t.cityState}</p>
+                    <h4 className="text-xs font-bold text-slate-900">{t.dentistName}</h4>
+                    <p className="text-[10px] text-slate-500 font-medium">{t.role} • {t.cityState}</p>
                   </div>
                 </div>
               </div>
@@ -513,14 +513,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         {/* 🏆 SEÇÃO 6: SOBRE DR. RICARDO (Alimentado dinamicamente) */}
         <section id="sobre" className="min-h-screen flex flex-col justify-center items-center px-4 sm:px-8 max-w-5xl mx-auto py-24 scroll-mt-20">
           
-          <div className="w-full p-5 sm:p-12 rounded-3xl glass-panel-glow border border-cyber-cyan/40 bg-cyber-card/90 backdrop-blur-2xl space-y-6 sm:space-y-8 shadow-glow-cyan">
+          <div className="w-full p-6 sm:p-12 rounded-3xl bg-white/95 border border-slate-200/90 backdrop-blur-2xl space-y-6 sm:space-y-8 shadow-xl shadow-slate-200/50">
             
             <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8 text-left">
               {/* Avatar / Destaque Dr. Ricardo */}
               <div className="flex-shrink-0">
                 <div className="relative">
-                  <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl bg-gradient-to-tr from-cyber-cyan via-blue-500 to-indigo-600 p-1 shadow-glow-cyan">
-                    <div className="w-full h-full rounded-[22px] bg-cyber-bg flex items-center justify-center overflow-hidden">
+                  <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-700 p-1 shadow-md">
+                    <div className="w-full h-full rounded-[22px] bg-slate-100 flex items-center justify-center overflow-hidden">
                       {content.about.photoUrl ? (
                         <img 
                           src={content.about.photoUrl} 
@@ -528,11 +528,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                           className="w-full h-full object-cover" 
                         />
                       ) : (
-                        <Stethoscope className="w-16 h-16 text-cyber-cyan stroke-[1.5]" />
+                        <Stethoscope className="w-16 h-16 text-cyan-600 stroke-[1.5]" />
                       )}
                     </div>
                   </div>
-                  <div className="absolute -bottom-2 -right-2 px-2.5 py-1 rounded-xl bg-emerald-500 text-black text-[10px] font-mono font-bold flex items-center space-x-1 shadow-md">
+                  <div className="absolute -bottom-2 -right-2 px-2.5 py-1 rounded-xl bg-emerald-600 text-white text-[10px] font-bold flex items-center space-x-1 shadow-sm">
                     <Award className="w-3 h-3" />
                     <span>{content.about.specialtyBadge || 'ESPECIALISTA'}</span>
                   </div>
@@ -541,37 +541,37 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
               {/* Texto Bio */}
               <div className="space-y-3 flex-1">
-                <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full glass-panel border border-cyber-cyan/30 text-cyber-cyan text-xs font-mono">
+                <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-800 text-xs font-bold">
                   <span>{content.about.badge || 'RESPONSÁVEL TÉCNICO'}</span>
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
                   {content.about.name}
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
                   {content.about.bio}
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
-                  <div className="p-2.5 rounded-xl bg-cyber-surface border border-cyber-border text-center">
-                    <span className="text-base font-bold text-cyber-cyan font-mono block">
+                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-center shadow-2xs">
+                    <span className="text-lg font-bold text-cyan-700 block">
                       {content.about.stat1Value}
                     </span>
-                    <span className="text-[10px] text-slate-400 font-mono">
+                    <span className="text-[10px] text-slate-500 font-medium">
                       {content.about.stat1Label}
                     </span>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-cyber-surface border border-cyber-border text-center">
-                    <span className="text-base font-bold text-emerald-400 font-mono block">
+                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-center shadow-2xs">
+                    <span className="text-lg font-bold text-emerald-600 block">
                       {content.about.stat2Value}
                     </span>
-                    <span className="text-[10px] text-slate-400 font-mono">
+                    <span className="text-[10px] text-slate-500 font-medium">
                       {content.about.stat2Label}
                     </span>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-cyber-surface border border-cyber-border text-center col-span-2 sm:col-span-1">
-                    <span className="text-base font-bold text-amber-400 font-mono block">
+                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-center shadow-2xs col-span-2 sm:col-span-1">
+                    <span className="text-lg font-bold text-amber-600 block">
                       {content.about.stat3Value}
                     </span>
-                    <span className="text-[10px] text-slate-400 font-mono">
+                    <span className="text-[10px] text-slate-500 font-medium">
                       {content.about.stat3Label}
                     </span>
                   </div>
@@ -580,10 +580,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             {/* Box de Ação */}
-            <div className="pt-6 border-t border-cyber-border/70 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full">
+            <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full">
               <button
                 onClick={firebaseUser ? onEnterApp : onOpenAuthModal}
-                className="w-full sm:w-auto px-4 sm:px-8 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-cyber-cyan to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-black font-bold text-xs sm:text-sm font-mono transition-all shadow-glow-cyan flex items-center justify-center space-x-2 active:scale-[0.98] text-center"
+                className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs sm:text-sm transition-all shadow-sm hover:shadow-md flex items-center justify-center space-x-2 active:scale-[0.98] cursor-pointer text-center"
               >
                 <span>{firebaseUser ? 'Acessar Painel do Sistema' : 'Acessar Plataforma & Enviar Caso'}</span>
                 <ArrowRight className="w-4 h-4 flex-shrink-0" />
@@ -593,17 +593,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 href={`https://wa.me/55${cleanWhatsAppNumber}?text=${encodeURIComponent(content.about.whatsappMessage || 'Olá Dr. Ricardo! Acessei o site e gostaria de falar com você.')}`}
                 target="_blank"
                 rel="noreferrer"
-                className="w-full sm:w-auto px-4 sm:px-6 py-3.5 sm:py-4 rounded-2xl glass-panel border border-cyber-border text-slate-200 hover:text-white hover:border-cyber-cyan/40 text-xs font-mono transition-colors flex items-center justify-center space-x-2 text-center"
+                className="w-full sm:w-auto px-5 sm:px-6 py-3.5 sm:py-4 rounded-2xl bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200 text-emerald-800 text-xs font-bold transition-colors flex items-center justify-center space-x-2 text-center cursor-pointer"
               >
-                <Phone className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <Phone className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                 <span>WhatsApp com Dr. Ricardo</span>
               </a>
             </div>
 
-            <div className="flex items-center justify-center space-x-4 text-[11px] font-mono text-slate-400 text-center">
+            <div className="flex items-center justify-center space-x-4 text-[11px] text-slate-500 text-center font-medium">
               <span>{content.about.name} • {content.about.cro}</span>
               <span>•</span>
-              <span className="text-cyber-cyan">Implant Precision 3D</span>
+              <span className="text-cyan-700 font-semibold">Implant Precision 3D</span>
             </div>
 
           </div>
@@ -611,14 +611,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </section>
 
         {/* 🦶 Footer Institucional */}
-        <footer className="border-t border-cyber-border py-8 bg-cyber-surface/60 backdrop-blur-xl">
-          <div className="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-400">
+        <footer className="border-t border-slate-200 py-8 bg-white/80 backdrop-blur-xl">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <div className="flex items-center space-x-3">
-              <div className="w-7 h-7 rounded-lg overflow-hidden border border-cyber-cyan/40 bg-[#0c3960] flex items-center justify-center flex-shrink-0">
+              <div className="w-7 h-7 rounded-lg overflow-hidden border border-cyan-200 bg-[#0c3960] flex items-center justify-center flex-shrink-0">
                 <img src="/logo-square.png" alt="Logo" className="w-full h-full object-cover" />
               </div>
               <div>
-                <span className="font-bold text-white">Implant Precision 3D</span>
+                <span className="font-bold text-slate-900">Implant Precision 3D</span>
                 <span className="hidden sm:inline mx-2">•</span>
                 <span className="hidden sm:inline">Planejamento & Cirurgia Guiada de Alta Precisão</span>
               </div>

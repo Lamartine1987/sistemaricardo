@@ -117,43 +117,42 @@ export const GiantImplant3D: React.FC<GiantImplant3DProps> = ({ scrollProgress }
           />
         </bufferGeometry>
         <pointsMaterial
-          size={0.05}
-          color="#00F0FF"
+          size={0.04}
+          color="#0284C7"
           transparent
-          opacity={0.35}
-          blending={THREE.AdditiveBlending}
+          opacity={0.18}
         />
       </points>
 
       {/* 🦴 ============================================================== */}
-      {/* 🦴 LEITO ÓSSEO RECEPTOR CIBERNÉTICO TRANSLÚCIDO (Estrutura Anterior) */}
+      {/* 🦴 LEITO ÓSSEO RECEPTOR CIRÚRGICO TRANSLÚCIDO                    */}
       {/* 🦴 ============================================================== */}
       <group ref={socketRef} position={[0, -2.2, 0]}>
         
-        {/* Base Óssea Mandibular Translúcida Futurista */}
+        {/* Base de Resina Cirúrgica Translúcida (Guia Prototipada) */}
         <mesh position={[0, -0.6, 0]}>
           <cylinderGeometry args={[2.4, 2.6, 1.8, 48]} />
           <meshPhysicalMaterial
-            color="#0E1626"
-            metalness={0.2}
-            roughness={0.25}
-            transmission={0.45}
+            color="#E2E8F0"
+            metalness={0.1}
+            roughness={0.2}
+            transmission={0.65}
             transparent
-            opacity={0.85}
+            opacity={0.65}
             depthWrite={false}
           />
         </mesh>
 
-        {/* Túnel de Fresagem Guiada (Canal Central de Acomodação em Wireframe Ciano) */}
+        {/* Túnel de Fresagem Guiada (Canal Central de Acomodação em Wireframe Azul Cirúrgico) */}
         <mesh position={[0, -0.15, 0]}>
           <cylinderGeometry args={[0.62, 0.42, 2.2, 32, 1, true]} />
-          <meshBasicMaterial color="#00F0FF" wireframe transparent opacity={0.35} />
+          <meshBasicMaterial color="#0284C7" wireframe transparent opacity={0.35} />
         </mesh>
 
-        {/* Anel Holográfico de Alinhamento de Furação */}
+        {/* Anel de Alinhamento de Furação */}
         <mesh position={[0, 0.35, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <ringGeometry args={[0.65, 0.95, 32]} />
-          <meshBasicMaterial color="#00F0FF" side={THREE.DoubleSide} transparent opacity={0.8} />
+          <meshBasicMaterial color="#0284C7" side={THREE.DoubleSide} transparent opacity={0.65} />
         </mesh>
 
         {/* Pulso Verde de Travamento de Torque Máximo */}
@@ -163,7 +162,7 @@ export const GiantImplant3D: React.FC<GiantImplant3DProps> = ({ scrollProgress }
         </mesh>
 
         {/* Grade de Coordenadas Médicas de Precisão */}
-        <gridHelper args={[8, 16, '#00F0FF', '#0F172A']} position={[0, -1.5, 0]} />
+        <gridHelper args={[8, 16, '#0284C7', '#E2E8F0']} position={[0, -1.5, 0]} />
       </group>
 
       {/* 🦷 ============================================================== */}
@@ -218,9 +217,9 @@ export const GiantImplant3D: React.FC<GiantImplant3DProps> = ({ scrollProgress }
           <mesh position={[0, -0.4, 0]} castShadow>
             <cylinderGeometry args={[0.52, 0.32, 1.8, 32]} />
             <meshStandardMaterial
-              color="#94A3B8"
-              metalness={0.94}
-              roughness={0.18}
+              color="#CBD5E1"
+              metalness={0.92}
+              roughness={0.14}
             />
           </mesh>
 
@@ -230,9 +229,9 @@ export const GiantImplant3D: React.FC<GiantImplant3DProps> = ({ scrollProgress }
               <mesh>
                 <torusGeometry args={[thread.radius + 0.06, 0.045, 12, 32]} />
                 <meshStandardMaterial
-                  color="#CBD5E1"
-                  metalness={0.96}
-                  roughness={0.14}
+                  color="#E2E8F0"
+                  metalness={0.95}
+                  roughness={0.1}
                 />
               </mesh>
             </group>
@@ -251,7 +250,7 @@ export const GiantImplant3D: React.FC<GiantImplant3DProps> = ({ scrollProgress }
           {/* Feixe Laser de Alinhamento de Eixo Cirúrgico */}
           <mesh position={[0, 1.4, 0]}>
             <cylinderGeometry args={[0.015, 0.015, 2.4, 8]} />
-            <meshBasicMaterial color="#00F0FF" transparent opacity={0.65} />
+            <meshBasicMaterial color="#0284C7" transparent opacity={0.5} />
           </mesh>
         </group>
 

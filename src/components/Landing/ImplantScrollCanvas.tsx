@@ -13,8 +13,8 @@ export const ImplantScrollCanvas: React.FC<ImplantScrollCanvasProps> = ({ scroll
       <Canvas shadows gl={{ antialias: true, alpha: true }}>
         <PerspectiveCamera makeDefault position={[0, 0.4, 6.8]} fov={45} />
 
-        {/* 💡 Iluminação Cinematográfica de Estúdio (Estilo Lusion) */}
-        <ambientLight intensity={1.1} />
+        {/* 💡 Iluminação Clínica de Estúdio Odontológico */}
+        <ambientLight intensity={1.4} />
         
         {/* Luz Principal / Key Light de Alto Contraste */}
         <directionalLight 
@@ -24,17 +24,17 @@ export const ImplantScrollCanvas: React.FC<ImplantScrollCanvasProps> = ({ scroll
           color="#FFFFFF"
         />
 
-        {/* Luz de Borda Ciano Neon (Rim Light) */}
+        {/* Luz de Preenchimento Cirúrgica Suave */}
         <directionalLight 
-          position={[-7, -3, -4]} 
-          intensity={2.2} 
-          color="#00F0FF" 
+          position={[-7, 4, -4]} 
+          intensity={1.8} 
+          color="#E0F2FE" 
         />
 
         {/* Luz Superior de Destaque no Topo da Plataforma do Implante */}
         <pointLight 
           position={[0, 5, 2]} 
-          intensity={1.8} 
+          intensity={1.6} 
           color="#38BDF8" 
           distance={10} 
         />
@@ -42,8 +42,8 @@ export const ImplantScrollCanvas: React.FC<ImplantScrollCanvasProps> = ({ scroll
         {/* Luz Inferior de Reflexo do Leito Ósseo */}
         <pointLight 
           position={[0, -3, 2]} 
-          intensity={1.5} 
-          color="#00F0FF" 
+          intensity={1.2} 
+          color="#0284C7" 
           distance={8} 
         />
 
