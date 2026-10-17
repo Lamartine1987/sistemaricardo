@@ -1,0 +1,7 @@
+2026/10/16-20:37:12.960 6864 Reusing MANIFEST C:\Users\Lamartine\.gemini\antigravity\scratch\sistemaricardo\scratch\edge-profile-test\Default\IndexedDB\http_localhost_5173.indexeddb.leveldb/MANIFEST-000001
+2026/10/16-20:37:12.961 6864 Recovering log #4
+2026/10/16-20:37:12.961 6864 Reusing old log C:\Users\Lamartine\.gemini\antigravity\scratch\sistemaricardo\scratch\edge-profile-test\Default\IndexedDB\http_localhost_5173.indexeddb.leveldb/000004.log 
+2026/10/16-20:37:13.079 51d0 Level-0 table #8: started
+2026/10/16-20:37:13.083 51d0 Level-0 table #8: 1986 bytes OK
+2026/10/16-20:37:13.085 51d0 Delete type=0 #4
+2026/10/16-20:37:13.086 b60 Manual compaction at level-0 from '\x00\x04\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x05\x00\x00\x00' @ 0 : 0; will stop at (end)

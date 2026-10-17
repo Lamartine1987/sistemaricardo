@@ -1,0 +1,25 @@
+2026/10/16-20:40:19.861 2c38 Reusing MANIFEST C:\Users\Lamartine\.gemini\antigravity\scratch\sistemaricardo\scratch\isolated-edge-9444\Default\IndexedDB\http_localhost_5173.indexeddb.leveldb/MANIFEST-000001
+2026/10/16-20:40:19.861 2c38 Recovering log #12
+2026/10/16-20:40:19.862 2c38 Reusing old log C:\Users\Lamartine\.gemini\antigravity\scratch\sistemaricardo\scratch\isolated-edge-9444\Default\IndexedDB\http_localhost_5173.indexeddb.leveldb/000012.log 
+2026/10/16-20:40:19.863 2c38 Delete type=2 #11
+2026/10/16-20:40:19.900 2c38 Level-0 table #17: started
+2026/10/16-20:40:19.903 2c38 Level-0 table #17: 893 bytes OK
+2026/10/16-20:40:19.904 2c38 Delete type=0 #12
+2026/10/16-20:40:19.905 410c Manual compaction at level-0 from '\x00\x07\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x08\x00\x00\x00' @ 0 : 0; will stop at '\x00\x07\x00\x00\x05' @ 231 : 1
+2026/10/16-20:40:19.905 410c Compacting 1@0 + 1@1 files
+2026/10/16-20:40:19.907 410c Generated table #18@0: 58 keys, 1467 bytes
+2026/10/16-20:40:19.907 410c Compacted 1@0 + 1@1 files => 1467 bytes
+2026/10/16-20:40:19.908 410c compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/10/16-20:40:19.908 410c Delete type=2 #17
+2026/10/16-20:40:19.909 410c Manual compaction at level-0 from '\x00\x07\x00\x00\x05' @ 231 : 1 .. '\x00\x08\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/10/16-20:40:22.583 2c38 Level-0 table #20: started
+2026/10/16-20:40:22.586 2c38 Level-0 table #20: 885 bytes OK
+2026/10/16-20:40:22.587 2c38 Delete type=2 #14
+2026/10/16-20:40:22.587 2c38 Delete type=0 #16
+2026/10/16-20:40:22.588 410c Manual compaction at level-0 from '\x00\x08\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x09\x00\x00\x00' @ 0 : 0; will stop at '\x00\x08\x00\x00\x05' @ 264 : 1
+2026/10/16-20:40:22.588 410c Compacting 1@0 + 1@1 files
+2026/10/16-20:40:22.590 410c Generated table #21@0: 58 keys, 1512 bytes
+2026/10/16-20:40:22.590 410c Compacted 1@0 + 1@1 files => 1512 bytes
+2026/10/16-20:40:22.590 410c compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/10/16-20:40:22.591 410c Delete type=2 #20
+2026/10/16-20:40:22.592 410c Manual compaction at level-0 from '\x00\x08\x00\x00\x05' @ 264 : 1 .. '\x00\x09\x00\x00\x00' @ 0 : 0; will stop at (end)

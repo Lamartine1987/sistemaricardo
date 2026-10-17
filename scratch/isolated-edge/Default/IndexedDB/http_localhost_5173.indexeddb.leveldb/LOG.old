@@ -1,0 +1,17 @@
+2026/10/16-20:35:06.312 3d40 Reusing MANIFEST C:\Users\Lamartine\.gemini\antigravity\scratch\sistemaricardo\scratch\isolated-edge\Default\IndexedDB\http_localhost_5173.indexeddb.leveldb/MANIFEST-000001
+2026/10/16-20:35:06.312 3d40 Recovering log #4
+2026/10/16-20:35:06.312 3d40 Reusing old log C:\Users\Lamartine\.gemini\antigravity\scratch\sistemaricardo\scratch\isolated-edge\Default\IndexedDB\http_localhost_5173.indexeddb.leveldb/000004.log 
+2026/10/16-20:35:06.410 6ae0 Level-0 table #8: started
+2026/10/16-20:35:06.417 6ae0 Level-0 table #8: 1915 bytes OK
+2026/10/16-20:35:06.419 6ae0 Delete type=0 #4
+2026/10/16-20:35:06.420 3d40 Manual compaction at level-0 from '\x00\x04\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x05\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/10/16-20:35:08.800 6ae0 Level-0 table #10: started
+2026/10/16-20:35:08.803 6ae0 Level-0 table #10: 931 bytes OK
+2026/10/16-20:35:08.806 6ae0 Delete type=0 #7
+2026/10/16-20:35:08.806 3d40 Manual compaction at level-0 from '\x00\x05\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x06\x00\x00\x00' @ 0 : 0; will stop at '\x00\x05\x00\x00\x05' @ 165 : 1
+2026/10/16-20:35:08.806 3d40 Compacting 1@0 + 1@1 files
+2026/10/16-20:35:08.808 3d40 Generated table #11@0: 50 keys, 1435 bytes
+2026/10/16-20:35:08.808 3d40 Compacted 1@0 + 1@1 files => 1435 bytes
+2026/10/16-20:35:08.810 3d40 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/10/16-20:35:08.811 3d40 Delete type=2 #10
+2026/10/16-20:35:08.811 3d40 Manual compaction at level-0 from '\x00\x05\x00\x00\x05' @ 165 : 1 .. '\x00\x06\x00\x00\x00' @ 0 : 0; will stop at (end)

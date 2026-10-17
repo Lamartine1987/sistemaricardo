@@ -1,0 +1,24 @@
+2026/10/16-19:03:49.892 9e0 Reusing MANIFEST C:\Users\Lamartine\.gemini\antigravity\scratch\sistemaricardo\scratch\edge-profile\Default\IndexedDB\https_sistemaricardo-8d8d1.web.app_0.indexeddb.leveldb/MANIFEST-000001
+2026/10/16-19:03:49.893 9e0 Recovering log #7
+2026/10/16-19:03:49.893 9e0 Reusing old log C:\Users\Lamartine\.gemini\antigravity\scratch\sistemaricardo\scratch\edge-profile\Default\IndexedDB\https_sistemaricardo-8d8d1.web.app_0.indexeddb.leveldb/000007.log 
+2026/10/16-19:03:49.988 5950 Level-0 table #11: started
+2026/10/16-19:03:49.993 5950 Level-0 table #11: 956 bytes OK
+2026/10/16-19:03:49.996 5950 Delete type=0 #7
+2026/10/16-19:03:49.997 46e8 Manual compaction at level-0 from '\x00\x05\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x06\x00\x00\x00' @ 0 : 0; will stop at '\x00\x05\x00\x00\x05' @ 165 : 1
+2026/10/16-19:03:49.997 46e8 Compacting 1@0 + 1@1 files
+2026/10/16-19:03:49.999 46e8 Generated table #12@0: 46 keys, 1409 bytes
+2026/10/16-19:03:49.999 46e8 Compacted 1@0 + 1@1 files => 1409 bytes
+2026/10/16-19:03:50.001 46e8 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/10/16-19:03:50.002 46e8 Delete type=2 #11
+2026/10/16-19:03:50.002 46e8 Manual compaction at level-0 from '\x00\x05\x00\x00\x05' @ 165 : 1 .. '\x00\x06\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/10/16-19:03:55.152 9e0 Level-0 table #14: started
+2026/10/16-19:03:55.156 9e0 Level-0 table #14: 959 bytes OK
+2026/10/16-19:03:55.159 9e0 Delete type=2 #8
+2026/10/16-19:03:55.159 9e0 Delete type=0 #10
+2026/10/16-19:03:55.160 9e0 Manual compaction at level-0 from '\x00\x06\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x07\x00\x00\x00' @ 0 : 0; will stop at '\x00\x06\x00\x00\x05' @ 198 : 1
+2026/10/16-19:03:55.160 9e0 Compacting 1@0 + 1@1 files
+2026/10/16-19:03:55.162 9e0 Generated table #15@0: 53 keys, 1494 bytes
+2026/10/16-19:03:55.162 9e0 Compacted 1@0 + 1@1 files => 1494 bytes
+2026/10/16-19:03:55.164 9e0 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/10/16-19:03:55.165 9e0 Delete type=2 #14
+2026/10/16-19:03:55.165 39a0 Manual compaction at level-0 from '\x00\x06\x00\x00\x05' @ 198 : 1 .. '\x00\x07\x00\x00\x00' @ 0 : 0; will stop at (end)

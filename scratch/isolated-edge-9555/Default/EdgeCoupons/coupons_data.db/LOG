@@ -1,0 +1,5 @@
+2026/10/16-20:41:07.720 e64 Creating DB C:\Users\Lamartine\.gemini\antigravity\scratch\sistemaricardo\scratch\isolated-edge-9555\Default\EdgeCoupons/coupons_data.db since it was missing.
+2026/10/16-20:41:07.733 e64 Reusing MANIFEST C:\Users\Lamartine\.gemini\antigravity\scratch\sistemaricardo\scratch\isolated-edge-9555\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/10/16-20:41:07.915 8dc Level-0 table #5: started
+2026/10/16-20:41:07.920 8dc Level-0 table #5: 683273 bytes OK
+2026/10/16-20:41:07.922 8dc Delete type=0 #3

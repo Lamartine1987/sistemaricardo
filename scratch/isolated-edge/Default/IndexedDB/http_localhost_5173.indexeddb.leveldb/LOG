@@ -1,0 +1,25 @@
+2026/10/16-20:36:28.544 4808 Reusing MANIFEST C:\Users\Lamartine\.gemini\antigravity\scratch\sistemaricardo\scratch\isolated-edge\Default\IndexedDB\http_localhost_5173.indexeddb.leveldb/MANIFEST-000001
+2026/10/16-20:36:28.545 4808 Recovering log #9
+2026/10/16-20:36:28.545 4808 Reusing old log C:\Users\Lamartine\.gemini\antigravity\scratch\sistemaricardo\scratch\isolated-edge\Default\IndexedDB\http_localhost_5173.indexeddb.leveldb/000009.log 
+2026/10/16-20:36:28.545 4808 Delete type=2 #8
+2026/10/16-20:36:28.609 4cb8 Level-0 table #14: started
+2026/10/16-20:36:28.613 4cb8 Level-0 table #14: 934 bytes OK
+2026/10/16-20:36:28.615 4cb8 Delete type=0 #9
+2026/10/16-20:36:28.616 4cb8 Manual compaction at level-0 from '\x00\x06\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x07\x00\x00\x00' @ 0 : 0; will stop at '\x00\x06\x00\x00\x05' @ 198 : 1
+2026/10/16-20:36:28.616 4cb8 Compacting 1@0 + 1@1 files
+2026/10/16-20:36:28.618 4cb8 Generated table #15@0: 50 keys, 1437 bytes
+2026/10/16-20:36:28.618 4cb8 Compacted 1@0 + 1@1 files => 1437 bytes
+2026/10/16-20:36:28.621 4cb8 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/10/16-20:36:28.622 4cb8 Delete type=2 #14
+2026/10/16-20:36:28.622 5114 Manual compaction at level-0 from '\x00\x06\x00\x00\x05' @ 198 : 1 .. '\x00\x07\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/10/16-20:36:31.234 4808 Level-0 table #17: started
+2026/10/16-20:36:31.237 4808 Level-0 table #17: 930 bytes OK
+2026/10/16-20:36:31.239 4808 Delete type=2 #11
+2026/10/16-20:36:31.239 4808 Delete type=0 #13
+2026/10/16-20:36:31.240 5114 Manual compaction at level-0 from '\x00\x07\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x08\x00\x00\x00' @ 0 : 0; will stop at '\x00\x07\x00\x00\x05' @ 231 : 1
+2026/10/16-20:36:31.240 5114 Compacting 1@0 + 1@1 files
+2026/10/16-20:36:31.242 5114 Generated table #18@0: 50 keys, 1435 bytes
+2026/10/16-20:36:31.242 5114 Compacted 1@0 + 1@1 files => 1435 bytes
+2026/10/16-20:36:31.242 5114 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/10/16-20:36:31.243 5114 Delete type=2 #17
+2026/10/16-20:36:31.243 5114 Manual compaction at level-0 from '\x00\x07\x00\x00\x05' @ 231 : 1 .. '\x00\x08\x00\x00\x00' @ 0 : 0; will stop at (end)

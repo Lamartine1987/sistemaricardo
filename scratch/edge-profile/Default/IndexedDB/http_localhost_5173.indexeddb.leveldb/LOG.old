@@ -1,0 +1,14 @@
+2026/10/16-20:29:39.338 51d0 Reusing MANIFEST C:\Users\Lamartine\.gemini\antigravity\scratch\sistemaricardo\scratch\edge-profile\Default\IndexedDB\http_localhost_5173.indexeddb.leveldb/MANIFEST-000001
+2026/10/16-20:29:39.339 51d0 Recovering log #22
+2026/10/16-20:29:39.339 51d0 Reusing old log C:\Users\Lamartine\.gemini\antigravity\scratch\sistemaricardo\scratch\edge-profile\Default\IndexedDB\http_localhost_5173.indexeddb.leveldb/000022.log 
+2026/10/16-20:29:39.340 51d0 Delete type=2 #21
+2026/10/16-20:29:39.367 3640 Level-0 table #27: started
+2026/10/16-20:29:39.370 3640 Level-0 table #27: 932 bytes OK
+2026/10/16-20:29:39.371 3640 Delete type=0 #22
+2026/10/16-20:29:39.372 51d0 Manual compaction at level-0 from '\x00\x0b\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x0c\x00\x00\x00' @ 0 : 0; will stop at '\x00\x0b\x00\x00\x05' @ 363 : 1
+2026/10/16-20:29:39.372 51d0 Compacting 1@0 + 1@1 files
+2026/10/16-20:29:39.373 51d0 Generated table #28@0: 76 keys, 1704 bytes
+2026/10/16-20:29:39.373 51d0 Compacted 1@0 + 1@1 files => 1704 bytes
+2026/10/16-20:29:39.374 51d0 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/10/16-20:29:39.375 51d0 Delete type=2 #27
+2026/10/16-20:29:39.375 51d0 Manual compaction at level-0 from '\x00\x0b\x00\x00\x05' @ 363 : 1 .. '\x00\x0c\x00\x00\x00' @ 0 : 0; will stop at (end)
