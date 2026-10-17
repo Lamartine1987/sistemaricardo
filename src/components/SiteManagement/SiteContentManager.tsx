@@ -259,46 +259,50 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center space-x-2 flex-wrap sm:flex-nowrap flex-shrink-0">
-          <button
-            onClick={() => {
-              applyContentChange(content);
-              onBackToLanding();
-            }}
-            className="px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center space-x-1.5 transition-colors cursor-pointer whitespace-nowrap flex-shrink-0"
-            title="Abrir a página inicial para conferir o resultado"
-          >
-            <Eye className="w-3.5 h-3.5 text-cyan-600" />
-            <span>Ver Site Público</span>
-          </button>
-
-          <button
-            onClick={handleResetToDefault}
-            className="px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 flex items-center space-x-1.5 transition-colors cursor-pointer whitespace-nowrap flex-shrink-0"
-            title="Restaurar textos padrão originais"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Restaurar Padrões</span>
-          </button>
-
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-shrink-0 w-full md:w-auto">
+          {/* Botão Principal no mobile: full-width no topo com gradiente e destaque */}
           <button
             onClick={handleSaveAll}
             disabled={isSaving}
-            className="px-4 py-2 rounded-xl bg-cyan-700 hover:bg-cyan-800 disabled:opacity-75 text-white text-xs font-bold flex items-center space-x-1.5 shadow-sm transition-all active:scale-[0.98] cursor-pointer whitespace-nowrap flex-shrink-0"
+            className="w-full sm:w-auto px-4 py-2.5 sm:py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 disabled:opacity-75 text-white text-xs font-bold flex items-center justify-center space-x-2 shadow-sm transition-all active:scale-[0.98] cursor-pointer whitespace-nowrap order-1 sm:order-3"
             title="Salvar alterações e publicar instantaneamente em todos os computadores"
           >
             {isSaving ? (
               <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
                 <span>Publicando na Nuvem...</span>
               </>
             ) : (
               <>
-                <Save className="w-3.5 h-3.5" />
+                <Save className="w-3.5 h-3.5 shrink-0" />
                 <span>Salvar e Publicar</span>
               </>
             )}
           </button>
+
+          {/* Botões secundários: grade balanceada de 2 colunas no mobile */}
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full sm:w-auto order-2 sm:order-1">
+            <button
+              onClick={() => {
+                applyContentChange(content);
+                onBackToLanding();
+              }}
+              className="w-full sm:w-auto px-3 py-2.5 sm:py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center justify-center space-x-1.5 transition-colors cursor-pointer whitespace-nowrap"
+              title="Abrir a página inicial para conferir o resultado"
+            >
+              <Eye className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
+              <span>Ver Site Público</span>
+            </button>
+
+            <button
+              onClick={handleResetToDefault}
+              className="w-full sm:w-auto px-3 py-2.5 sm:py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 flex items-center justify-center space-x-1.5 transition-colors cursor-pointer whitespace-nowrap"
+              title="Restaurar textos padrão originais"
+            >
+              <RotateCcw className="w-3.5 h-3.5 shrink-0" />
+              <span>Restaurar Padrões</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -326,65 +330,65 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
         </div>
       )}
 
-      {/* Sub-Abas dos 5 Menus */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-2">
+      {/* Sub-Abas dos 5 Menus - Carousel horizontal fluido para mobile sem quebras de linha */}
+      <div className="flex items-center gap-1.5 sm:gap-2 border-b border-slate-200 pb-2.5 overflow-x-auto no-scrollbar scroll-smooth flex-nowrap w-full max-w-full py-0.5">
         <button
           onClick={() => setActiveSubTab('CASES')}
-          className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all cursor-pointer whitespace-nowrap ${
+          className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-1.5 sm:space-x-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeSubTab === 'CASES'
               ? 'bg-cyan-50 border border-cyan-200 text-cyan-800 font-bold shadow-xs'
               : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
-          <Stethoscope className="w-4 h-4" />
+          <Stethoscope className="w-4 h-4 shrink-0" />
           <span>1. Casos Clínicos ({content.cases.length})</span>
         </button>
 
         <button
           onClick={() => setActiveSubTab('SERVICES')}
-          className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all cursor-pointer whitespace-nowrap ${
+          className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-1.5 sm:space-x-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeSubTab === 'SERVICES'
               ? 'bg-cyan-50 border border-cyan-200 text-cyan-800 font-bold shadow-xs'
               : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
-          <Layers className="w-4 h-4" />
+          <Layers className="w-4 h-4 shrink-0" />
           <span>2. Serviços ({content.services.length})</span>
         </button>
 
         <button
           onClick={() => setActiveSubTab('COURSES')}
-          className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all cursor-pointer whitespace-nowrap ${
+          className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-1.5 sm:space-x-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeSubTab === 'COURSES'
               ? 'bg-cyan-50 border border-cyan-200 text-cyan-800 font-bold shadow-xs'
               : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
-          <GraduationCap className="w-4 h-4" />
+          <GraduationCap className="w-4 h-4 shrink-0" />
           <span>3. Cursos & Mentorias ({content.courses.length})</span>
         </button>
 
         <button
           onClick={() => setActiveSubTab('TESTIMONIALS')}
-          className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all cursor-pointer whitespace-nowrap ${
+          className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-1.5 sm:space-x-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeSubTab === 'TESTIMONIALS'
               ? 'bg-cyan-50 border border-cyan-200 text-cyan-800 font-bold shadow-xs'
               : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
-          <MessageSquare className="w-4 h-4" />
+          <MessageSquare className="w-4 h-4 shrink-0" />
           <span>4. Depoimentos ({content.testimonials.length})</span>
         </button>
 
         <button
           onClick={() => setActiveSubTab('ABOUT')}
-          className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all cursor-pointer whitespace-nowrap ${
+          className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-1.5 sm:space-x-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeSubTab === 'ABOUT'
               ? 'bg-cyan-50 border border-cyan-200 text-cyan-800 font-bold shadow-xs'
               : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
-          <User className="w-4 h-4" />
+          <User className="w-4 h-4 shrink-0" />
           <span>5. Sobre Dr. Ricardo</span>
         </button>
       </div>
@@ -424,7 +428,7 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                 setNewGalleryUrl('');
                 setIsNewCaseModalOpen(true);
               }}
-              className="px-4 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-semibold flex items-center space-x-2 transition-all cursor-pointer shadow-xs whitespace-nowrap flex-shrink-0"
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-semibold flex items-center justify-center space-x-2 transition-all cursor-pointer shadow-xs whitespace-nowrap flex-shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Adicionar Novo Caso</span>
@@ -457,14 +461,14 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                     </div>
                   </div>
                 ) : (
-                  <div className="w-full h-20 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between px-4 py-3 text-xs">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-lg bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 flex-shrink-0">
+                  <div className="w-full min-h-[5rem] rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between px-3.5 sm:px-4 py-3 text-xs gap-2">
+                    <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
                         <ImageIcon className="w-4 h-4" />
                       </div>
-                      <div>
-                        <span className="text-white font-semibold text-xs block">Render 3D Ativo</span>
-                        <span className="text-[10px] text-slate-400">Exibindo gráfico interativo</span>
+                      <div className="min-w-0">
+                        <span className="text-white font-semibold text-xs block truncate">Render 3D Ativo</span>
+                        <span className="text-[10px] text-slate-400 block truncate">Exibindo gráfico interativo</span>
                       </div>
                     </div>
                     <button
@@ -474,7 +478,7 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                         setNewGalleryUrl('');
                         setIsNewCaseModalOpen(true);
                       }}
-                      className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 text-[11px] font-sans font-medium transition-colors flex-shrink-0 cursor-pointer"
+                      className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 text-[11px] font-sans font-medium transition-colors shrink-0 cursor-pointer whitespace-nowrap"
                     >
                       + Foto / Editar
                     </button>
@@ -629,7 +633,7 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                 });
                 setIsNewServiceModalOpen(true);
               }}
-              className="px-4 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-semibold flex items-center space-x-2 transition-all cursor-pointer shadow-xs whitespace-nowrap flex-shrink-0"
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-semibold flex items-center justify-center space-x-2 transition-all cursor-pointer shadow-xs whitespace-nowrap flex-shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Adicionar Novo Serviço</span>
@@ -727,7 +731,7 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                 });
                 setIsNewCourseModalOpen(true);
               }}
-              className="px-4 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-semibold flex items-center space-x-2 transition-all cursor-pointer shadow-xs whitespace-nowrap flex-shrink-0"
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-semibold flex items-center justify-center space-x-2 transition-all cursor-pointer shadow-xs whitespace-nowrap flex-shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Adicionar Novo Curso</span>
@@ -831,7 +835,7 @@ export const SiteContentManager: React.FC<SiteContentManagerProps> = ({
                 });
                 setIsNewTestimonialModalOpen(true);
               }}
-              className="px-4 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-semibold flex items-center space-x-2 transition-all cursor-pointer shadow-xs whitespace-nowrap flex-shrink-0"
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-semibold flex items-center justify-center space-x-2 transition-all cursor-pointer shadow-xs whitespace-nowrap flex-shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Adicionar Depoimento</span>
