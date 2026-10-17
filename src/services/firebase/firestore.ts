@@ -80,9 +80,7 @@ export const subscribeToCases = (callback: (cases: DentalCase[]) => void) => {
           return (b.id || '').localeCompare(a.id || '');
         });
 
-      if (items.length > 0) {
-        callback(items);
-      }
+      callback(items);
     },
     (error) => {
       console.warn('⚠️ [Firestore] Erro ao sincronizar casos (verifique as regras de segurança):', error);
@@ -161,9 +159,7 @@ export const subscribeToDentists = (callback: (dentists: Dentist[]) => void) => 
     (snapshot) => {
       const rawItems = snapshot.docs.map(d => d.data() as Dentist);
       const items = deduplicateDentistsByEmail(rawItems);
-      if (items.length > 0) {
-        callback(items);
-      }
+      callback(items);
     },
     (error) => {
       console.warn('⚠️ [Firestore] Erro ao sincronizar dentistas:', error);
@@ -181,9 +177,7 @@ export const subscribeToAdmins = (callback: (admins: AdminUser[]) => void) => {
     collection(db, ADMINS_COLLECTION),
     (snapshot) => {
       const items = snapshot.docs.map(d => d.data() as AdminUser);
-      if (items.length > 0) {
-        callback(items);
-      }
+      callback(items);
     },
     (error) => {
       console.warn('⚠️ [Firestore] Erro ao sincronizar administradores:', error);
@@ -197,7 +191,8 @@ export const subscribeToAdmins = (callback: (admins: AdminUser[]) => void) => {
 export const saveCaseToFirestore = async (caseItem: DentalCase) => {
   if (!isFirebaseConfigured || !db) return;
   try {
-    await setDoc(doc(db, CASES_COLLECTION, caseItem.id), caseItem, { merge: true });
+    const sanitized = JSON.parse(JSON.stringify(caseItem));
+    await setDoc(doc(db, CASES_COLLECTION, sanitized.id), sanitized, { merge: true });
   } catch (error) {
     console.error('Erro ao salvar caso no Firestore:', error);
   }
@@ -400,7 +395,7 @@ export const subscribeToSiteContent = (callback: (content: SiteContentConfig) =>
     (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.data() as SiteContentConfig;
-        if (data && (data.cases || data.services || data.courses)) {
+        if (data) {
           callback(data);
         }
       }
